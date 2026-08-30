@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐧 Nova OS 7.1.10 — Final Ultimate</title>
+    <title>🐧 Nova OS 7.1.10 — Beautiful UI</title>
     
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/typescript@latest/lib/typescript.js"></script>
@@ -13,60 +13,106 @@
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a1a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; height: 100vh; overflow: hidden; }
 
+        /* Плавный скролл */
+        * { scrollbar-width: thin; scrollbar-color: #c084fc rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: rgba(192,132,252,0.5); border-radius: 3px; }
+
+        /* Boot Screen */
         #boot-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Courier New', monospace; color: #00ff00; }
         #boot-log { width: 90%; max-width: 700px; font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
+        #boot-log div { animation: logSlide 0.3s ease-out; }
+        @keyframes logSlide { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
 
+        /* Login Screen */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f0f23, #1a1a3e); z-index: 99998; display: none; align-items: center; justify-content: center; flex-direction: column; }
-        .login-box { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(192,132,252,0.2); border-radius: 20px; padding: 30px; width: 90%; max-width: 350px; text-align: center; }
-        .login-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(192,132,252,0.3); color: #e2e8f0; padding: 12px; border-radius: 8px; margin: 10px 0; font-size: 16px; outline: none; }
-        .login-btn { width: 100%; background: #c084fc; border: none; color: #0a0a1a; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .login-box { background: rgba(255,255,255,0.03); backdrop-filter: blur(40px) saturate(180%); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: loginSlide 0.5s ease-out; }
+        @keyframes loginSlide { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .login-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(192,132,252,0.3); color: #e2e8f0; padding: 14px; border-radius: 10px; margin: 10px 0; font-size: 16px; outline: none; transition: all 0.3s; }
+        .login-input:focus { border-color: #c084fc; box-shadow: 0 0 20px rgba(192,132,252,0.3); transform: translateY(-2px); }
+        .login-btn { width: 100%; background: linear-gradient(135deg, #c084fc, #a855f7); border: none; color: #0a0a1a; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: all 0.3s; }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(192,132,252,0.4); }
 
-        #panel { position: fixed; top: 0; left: 0; right: 0; height: 35px; background: rgba(10,10,25,0.95); border-bottom: 1px solid rgba(255,255,255,0.05); display: none; align-items: center; padding: 0 10px; gap: 10px; z-index: 1000; }
-        .panel-item { padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        /* Panel */
+        #panel { position: fixed; top: 0; left: 0; right: 0; height: 40px; background: rgba(10,10,25,0.7); backdrop-filter: blur(40px) saturate(180%); border-bottom: 1px solid rgba(255,255,255,0.1); display: none; align-items: center; padding: 0 12px; gap: 10px; z-index: 1000; }
+        .panel-item { padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.3s; position: relative; }
+        .panel-item::after { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: #c084fc; transition: width 0.3s; border-radius: 1px; }
         .panel-item:hover { background: rgba(192,132,252,0.2); }
+        .panel-item:hover::after { width: 80%; }
         .panel-center { margin: 0 auto; font-size: 13px; font-weight: 500; }
         .panel-right { display: flex; gap: 10px; align-items: center; }
 
-        #desktop { width: 100vw; height: calc(100vh - 120px); position: relative; background: radial-gradient(ellipse at center, #0f0f23, #050510); overflow: hidden; display: none; margin-top: 35px; }
+        /* Desktop */
+        #desktop { width: 100vw; height: calc(100vh - 120px); position: relative; background: radial-gradient(ellipse at center, #0f0f23, #050510); overflow: hidden; display: none; margin-top: 40px; transition: background 0.5s; }
 
-        #dock { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(10,10,25,0.9); backdrop-filter: blur(30px); border: 1px solid rgba(192,132,252,0.2); border-radius: 20px; padding: 10px 15px; display: none; gap: 5px; z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.5); max-width: 95vw; overflow-x: auto; }
-        .dock-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(255,255,255,0.05); border: none; color: #e2e8f0; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
-        .dock-icon:hover { transform: translateY(-5px) scale(1.1); background: rgba(192,132,252,0.2); }
+        /* Dock */
+        #dock { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(15,15,35,0.7); backdrop-filter: blur(40px) saturate(180%); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 10px 15px; display: none; gap: 6px; z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.5); max-width: 95vw; overflow-x: auto; }
+        .dock-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); color: #e2e8f0; cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); flex-shrink: 0; position: relative; }
+        .dock-icon::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background: #c084fc; border-radius: 50%; opacity: 0; transition: all 0.3s; }
+        .dock-icon:hover { transform: translateY(-10px) scale(1.15); background: rgba(192,132,252,0.25); border-color: rgba(192,132,252,0.4); box-shadow: 0 10px 30px rgba(192,132,252,0.3); }
+        .dock-icon:hover::after { opacity: 1; }
+        .dock-icon:active { transform: translateY(-5px) scale(1.05); }
 
-        #taskbar { height: 35px; background: rgba(10,10,25,0.95); border-top: 1px solid rgba(255,255,255,0.05); display: none; align-items: center; padding: 0 12px; gap: 8px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 999; }
-        .start-btn { background: rgba(192,132,252,0.15); border: none; color: #c084fc; font-size: 13px; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        /* Taskbar */
+        #taskbar { height: 35px; background: rgba(10,10,25,0.7); backdrop-filter: blur(40px); border-top: 1px solid rgba(255,255,255,0.1); display: none; align-items: center; padding: 0 12px; gap: 8px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 999; }
+        .start-btn { background: rgba(192,132,252,0.2); border: 1px solid rgba(192,132,252,0.3); color: #c084fc; font-size: 13px; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .start-btn:hover { background: rgba(192,132,252,0.35); transform: translateY(-2px); }
         .clock { margin-left: auto; font-size: 11px; color: #a0aec0; }
 
-        .window { position: absolute; min-width: 300px; min-height: 200px; background: rgba(10,10,25,0.92); backdrop-filter: blur(30px); border-radius: 14px; border: 1px solid rgba(192,132,252,0.15); box-shadow: 0 20px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; animation: winOpen 0.25s ease-out; }
-        @keyframes winOpen { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .window-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(20,20,40,0.6); cursor: grab; border-bottom: 1px solid rgba(192,132,252,0.08); }
+        /* Windows */
+        .window { position: absolute; min-width: 300px; min-height: 200px; background: rgba(15,15,35,0.75); backdrop-filter: blur(40px) saturate(180%); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1); display: flex; flex-direction: column; overflow: hidden; animation: winOpen 0.35s cubic-bezier(0.4,0,0.2,1); transition: box-shadow 0.3s; }
+        .window:hover { box-shadow: 0 12px 48px rgba(192,132,252,0.2), inset 0 1px 0 rgba(255,255,255,0.1); }
+        @keyframes winOpen { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes winClose { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9) translateY(20px); } }
+        .window-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(20,20,40,0.5); cursor: grab; border-bottom: 1px solid rgba(255,255,255,0.08); }
         .window-title { font-size: 13px; color: #e2e8f0; font-weight: 500; }
         .window-controls { display: flex; gap: 8px; }
-        .window-controls button { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; font-size: 10px; }
-        .close { background: #f7768e; } .minimize { background: #f6ad55; } .maximize { background: #81e6d9; }
-        .window-body { flex: 1; padding: 12px; overflow: auto; color: #e2e8f0; font-size: 14px; background: rgba(5,5,15,0.3); }
+        .window-controls button { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; font-size: 10px; transition: all 0.3s; }
+        .window-controls button:hover { transform: scale(1.2); }
+        .close { background: #f7768e; } .close:hover { box-shadow: 0 0 10px #f7768e; }
+        .minimize { background: #f6ad55; } .minimize:hover { box-shadow: 0 0 10px #f6ad55; }
+        .maximize { background: #81e6d9; } .maximize:hover { box-shadow: 0 0 10px #81e6d9; }
+        .window-body { flex: 1; padding: 14px; overflow: auto; color: #e2e8f0; font-size: 14px; background: rgba(5,5,15,0.2); }
 
-        .desktop-icon { position: absolute; width: 70px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
-        .desktop-icon:hover { background: rgba(192,132,252,0.1); border-color: rgba(192,132,252,0.2); transform: scale(1.05); }
-        .desktop-icon .icon { font-size: 28px; }
-        .desktop-icon .label { font-size: 10px; color: #e2e8f0; margin-top: 4px; }
+        /* Desktop Icons */
+        .desktop-icon { position: absolute; width: 75px; height: 75px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+        .desktop-icon:hover { background: rgba(192,132,252,0.15); border-color: rgba(192,132,252,0.3); transform: translateY(-5px) scale(1.08); box-shadow: 0 10px 30px rgba(192,132,252,0.2); }
+        .desktop-icon .icon { font-size: 32px; transition: transform 0.3s; }
+        .desktop-icon:hover .icon { transform: scale(1.2); }
+        .desktop-icon .label { font-size: 10px; color: #e2e8f0; margin-top: 5px; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
-        .terminal { background: #000; color: #00ff00; font-family: monospace; font-size: 13px; padding: 10px; border-radius: 8px; }
-        .context-menu { position: fixed; background: rgba(10,10,25,0.95); border: 1px solid rgba(192,132,252,0.3); border-radius: 8px; padding: 8px; min-width: 200px; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 70vh; overflow-y: auto; }
-        .context-menu button { display: block; width: 100%; background: transparent; border: none; color: #e2e8f0; padding: 8px 12px; text-align: left; cursor: pointer; border-radius: 4px; font-size: 13px; font-family: inherit; }
-        .context-menu button:hover { background: rgba(192,132,252,0.2); }
+        /* Terminal */
+        .terminal { background: rgba(0,0,0,0.8); color: #00ff00; font-family: 'Courier New', monospace; font-size: 13px; padding: 12px; border-radius: 10px; border: 1px solid rgba(0,255,0,0.2); }
+
+        /* Context Menu */
+        .context-menu { position: fixed; background: rgba(15,15,35,0.85); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 10px; min-width: 220px; z-index: 9999; box-shadow: 0 20px 60px rgba(0,0,0,0.5); max-height: 70vh; overflow-y: auto; animation: menuOpen 0.2s ease-out; }
+        @keyframes menuOpen { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .context-menu button { display: block; width: 100%; background: transparent; border: none; color: #e2e8f0; padding: 10px 14px; text-align: left; cursor: pointer; border-radius: 8px; font-size: 13px; font-family: inherit; transition: all 0.2s; }
+        .context-menu button:hover { background: rgba(192,132,252,0.2); transform: translateX(5px); }
+
+        /* Buttons */
+        button { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+        button:hover { transform: translateY(-2px); }
+
+        /* Notification */
+        .notification { position: fixed; top: 50px; right: 20px; background: rgba(15,15,35,0.9); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 20px; z-index: 99999; font-size: 14px; min-width: 250px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); animation: notifSlide 0.3s ease-out; overflow: hidden; }
+        @keyframes notifSlide { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        .notification-progress { position: absolute; bottom: 0; left: 0; height: 2px; background: linear-gradient(90deg, #c084fc, #81e6d9); animation: notifProgress 3s linear; }
+        @keyframes notifProgress { from { width: 100%; } to { width: 0; } }
 
         @media (max-width: 768px) {
             .window { width: 95vw !important; height: 70vh !important; left: 2.5vw !important; top: 5vh !important; min-width: unset; }
             .desktop-icon { width: 60px; height: 60px; }
-            .dock-icon { width: 35px; height: 35px; font-size: 15px; }
+            .desktop-icon .icon { font-size: 24px; }
+            .dock-icon { width: 38px; height: 38px; font-size: 16px; }
         }
     </style>
 </head>
 <body>
     <div id="boot-screen">
         <div style="font-size:48px;margin-bottom:30px;">🐧</div>
-        <div style="font-size:24px;margin-bottom:20px;">Nova OS 7.1.10 Final</div>
+        <div style="font-size:24px;margin-bottom:20px;">Nova OS 7.1.10</div>
         <div id="boot-log"></div>
     </div>
 
@@ -93,59 +139,58 @@
     <div id="desktop"></div>
 
     <div id="dock">
-        <button class="dock-icon" onclick="openTerminal()">💻</button>
-        <button class="dock-icon" onclick="openFileManager()">📁</button>
-        <button class="dock-icon" onclick="openBrowser()">🌐</button>
-        <button class="dock-icon" onclick="openCodeEditor()">⌨️</button>
-        <button class="dock-icon" onclick="openTextEditor()">📝</button>
-        <button class="dock-icon" onclick="openCalculator()">🧮</button>
-        <button class="dock-icon" onclick="openScientificCalculator()">🔬</button>
-        <button class="dock-icon" onclick="openSystemMonitor()">📊</button>
-        <button class="dock-icon" onclick="openCalendar()">📅</button>
-        <button class="dock-icon" onclick="openMusicPlayer()">🎵</button>
-        <button class="dock-icon" onclick="openVideoPlayer()">🎬</button>
-        <button class="dock-icon" onclick="openImageViewer()">🖼️</button>
-        <button class="dock-icon" onclick="openImageEditor()">🎨</button>
-        <button class="dock-icon" onclick="openScreenshot()">📸</button>
-        <button class="dock-icon" onclick="openTetris()">🎮</button>
-        <button class="dock-icon" onclick="openMinesweeper()">💣</button>
-        <button class="dock-icon" onclick="open2048()">🎯</button>
-        <button class="dock-icon" onclick="openSnakeGame()">🐍</button>
-        <button class="dock-icon" onclick="openChess()">♟️</button>
-        <button class="dock-icon" onclick="openTicTacToe()">⭕</button>
-        <button class="dock-icon" onclick="openPong()">🏓</button>
-        <button class="dock-icon" onclick="openTimer()">⏱️</button>
-        <button class="dock-icon" onclick="openStopwatch()">⏲️</button>
-        <button class="dock-icon" onclick="openWeather()">🌤️</button>
-        <button class="dock-icon" onclick="openTranslator()">🌍</button>
-        <button class="dock-icon" onclick="openCurrencyConverter()">💱</button>
-        <button class="dock-icon" onclick="openBMICalculator()">⚖️</button>
-        <button class="dock-icon" onclick="openStickyNotes()">📌</button>
-        <button class="dock-icon" onclick="openReminder()">⏰</button>
-        <button class="dock-icon" onclick="openEmailClient()">✉️</button>
-        <button class="dock-icon" onclick="openDiskAnalyzer()">💾</button>
-        <button class="dock-icon" onclick="openArchiveManager()">📦</button>
-        <button class="dock-icon" onclick="openDatabaseManager()">🗄️</button>
-        <button class="dock-icon" onclick="openDefragmenter()">💿</button>
-        <button class="dock-icon" onclick="openSystemUpdate()">🔄</button>
-        <button class="dock-icon" onclick="openDeviceManager()">📡</button>
-        <button class="dock-icon" onclick="openAudioRecorder()">🎤</button>
-        <button class="dock-icon" onclick="openMessenger()">💬</button>
-        <button class="dock-icon" onclick="openTorrent()">📥</button>
-        <button class="dock-icon" onclick="openRSSReader()">📖</button>
-        <button class="dock-icon" onclick="openPeriodicTable()">⚗️</button>
-        <button class="dock-icon" onclick="openUnitConverter()">📐</button>
-        <button class="dock-icon" onclick="openGraphCalculator()">📈</button>
-        <button class="dock-icon" onclick="openPasswordManager()">🔐</button>
-        <button class="dock-icon" onclick="openVPN()">🔒</button>
-        <button class="dock-icon" onclick="openMagnifier()">🔍</button>
-        <button class="dock-icon" onclick="openSystemCleaner()">🧹</button>
-        <button class="dock-icon" onclick="openBackup()">💾</button>
-        <button class="dock-icon" onclick="openPasswordGenerator()">🔑</button>
-        <button class="dock-icon" onclick="openQRGenerator()">📱</button>
-        <button class="dock-icon" onclick="openMetronome()">🎵</button>
-        <button class="dock-icon" onclick="openSettings()">⚙️</button>
-        <button class="dock-icon" onclick="openTrash()">🗑️</button>
+        <button class="dock-icon" onclick="openTerminal()" title="Терминал">💻</button>
+        <button class="dock-icon" onclick="openFileManager()" title="Файлы">📁</button>
+        <button class="dock-icon" onclick="openBrowser()" title="Браузер">🌐</button>
+        <button class="dock-icon" onclick="openCodeEditor()" title="Код">⌨️</button>
+        <button class="dock-icon" onclick="openTextEditor()" title="Редактор">📝</button>
+        <button class="dock-icon" onclick="openCalculator()" title="Калькулятор">🧮</button>
+        <button class="dock-icon" onclick="openSystemMonitor()" title="Монитор">📊</button>
+        <button class="dock-icon" onclick="openCalendar()" title="Календарь">📅</button>
+        <button class="dock-icon" onclick="openMusicPlayer()" title="Музыка">🎵</button>
+        <button class="dock-icon" onclick="openVideoPlayer()" title="Видео">🎬</button>
+        <button class="dock-icon" onclick="openImageViewer()" title="Изображения">🖼️</button>
+        <button class="dock-icon" onclick="openImageEditor()" title="Графика">🎨</button>
+        <button class="dock-icon" onclick="openScreenshot()" title="Скриншот">📸</button>
+        <button class="dock-icon" onclick="openTetris()" title="Тетрис">🎮</button>
+        <button class="dock-icon" onclick="openMinesweeper()" title="Сапёр">💣</button>
+        <button class="dock-icon" onclick="open2048()" title="2048">🎯</button>
+        <button class="dock-icon" onclick="openSnakeGame()" title="Змейка">🐍</button>
+        <button class="dock-icon" onclick="openChess()" title="Шахматы">♟️</button>
+        <button class="dock-icon" onclick="openTicTacToe()" title="Крестики-нолики">⭕</button>
+        <button class="dock-icon" onclick="openPong()" title="Пинг-понг">🏓</button>
+        <button class="dock-icon" onclick="openTimer()" title="Таймер">⏱️</button>
+        <button class="dock-icon" onclick="openStopwatch()" title="Секундомер">⏲️</button>
+        <button class="dock-icon" onclick="openWeather()" title="Погода">🌤️</button>
+        <button class="dock-icon" onclick="openTranslator()" title="Переводчик">🌍</button>
+        <button class="dock-icon" onclick="openCurrencyConverter()" title="Конвертер валют">💱</button>
+        <button class="dock-icon" onclick="openBMICalculator()" title="ИМТ">⚖️</button>
+        <button class="dock-icon" onclick="openStickyNotes()" title="Заметки">📌</button>
+        <button class="dock-icon" onclick="openReminder()" title="Напоминания">⏰</button>
+        <button class="dock-icon" onclick="openEmailClient()" title="Почта">✉️</button>
+        <button class="dock-icon" onclick="openDiskAnalyzer()" title="Диски">💾</button>
+        <button class="dock-icon" onclick="openArchiveManager()" title="Архиватор">📦</button>
+        <button class="dock-icon" onclick="openDatabaseManager()" title="Базы данных">🗄️</button>
+        <button class="dock-icon" onclick="openDefragmenter()" title="Дефрагментация">💿</button>
+        <button class="dock-icon" onclick="openSystemUpdate()" title="Обновление">🔄</button>
+        <button class="dock-icon" onclick="openDeviceManager()" title="Устройства">📡</button>
+        <button class="dock-icon" onclick="openAudioRecorder()" title="Запись">🎤</button>
+        <button class="dock-icon" onclick="openMessenger()" title="Мессенджер">💬</button>
+        <button class="dock-icon" onclick="openTorrent()" title="Торрент">📥</button>
+        <button class="dock-icon" onclick="openRSSReader()" title="RSS">📖</button>
+        <button class="dock-icon" onclick="openPeriodicTable()" title="Таблица">⚗️</button>
+        <button class="dock-icon" onclick="openUnitConverter()" title="Конвертер">📐</button>
+        <button class="dock-icon" onclick="openGraphCalculator()" title="График">📈</button>
+        <button class="dock-icon" onclick="openPasswordManager()" title="Пароли">🔐</button>
+        <button class="dock-icon" onclick="openVPN()" title="VPN">🔒</button>
+        <button class="dock-icon" onclick="openMagnifier()" title="Лупа">🔍</button>
+        <button class="dock-icon" onclick="openSystemCleaner()" title="Очистка">🧹</button>
+        <button class="dock-icon" onclick="openBackup()" title="Резервное">💾</button>
+        <button class="dock-icon" onclick="openPasswordGenerator()" title="Генератор">🔑</button>
+        <button class="dock-icon" onclick="openQRGenerator()" title="QR-код">📱</button>
+        <button class="dock-icon" onclick="openMetronome()" title="Метроном">🎵</button>
+        <button class="dock-icon" onclick="openSettings()" title="Настройки">⚙️</button>
+        <button class="dock-icon" onclick="openTrash()" title="Корзина">🗑️</button>
     </div>
 
     <div id="taskbar">
@@ -158,9 +203,8 @@
         const bootMessages = [
             'BIOS: Nova Virtual BIOS v7.1', 'CPU: Nova Virtual CPU @ 7.1GHz',
             'RAM: 16384MB detected', 'Loading Linux 7.1.10-nova...',
-            'Loading 50+ applications...', 'Loading games...',
-            'Loading utilities...', 'EXT4-fs mounted',
-            'Welcome to Nova OS 7.1.10 Final!'
+            'Loading 50+ applications...', 'Loading beautiful UI...',
+            'EXT4-fs mounted', 'Welcome to Nova OS 7.1.10!'
         ];
 
         function bootSystem() {
@@ -216,10 +260,7 @@
             createDir(path, name) { const node = this.getNode(path); if (node?.type !== 'dir' || node.children[name]) return false; node.children[name] = { type: 'dir', children: {} }; return true; }
             deleteNode(path, name) { const node = this.getNode(path); if (node?.type !== 'dir' || !node.children[name]) return false; delete node.children[name]; return true; }
             readFile(path) { const node = this.getNode(path); return node?.type === 'file' ? node.content : null; }
-            async execute(cmd) {
-                if (cmd.includes('|')) { const cmds = cmd.split('|').map(c => c.trim()); let out = ''; for (const c of cmds) out = await this.execSingle(c, out); return out; }
-                return await this.execSingle(cmd, '');
-            }
+            async execute(cmd) { if (cmd.includes('|')) { const cmds = cmd.split('|').map(c => c.trim()); let out = ''; for (const c of cmds) out = await this.execSingle(c, out); return out; } return await this.execSingle(cmd, ''); }
             async execSingle(cmd, input = '') {
                 const [command, ...args] = cmd.trim().split(' ');
                 switch(command) {
@@ -277,6 +318,17 @@
         let windows = [];
         let zIndexCounter = 100;
         let notifications = [];
+        const wallpapers = [
+            'radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a1a 100%)',
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+            'radial-gradient(circle at 30% 50%, #0f0f23, #050510)'
+        ];
+        let currentWallpaper = 0;
 
         async function login() {
             const u = document.getElementById('login-username').value;
@@ -289,17 +341,22 @@
                 document.getElementById('dock').style.display = 'flex';
                 initDesktop();
                 await linux.multiLang.initAll();
-                notify('🐧 Nova OS 7.1.10 Final! 50+ приложений!');
+                notify('🐧 Добро пожаловать в Nova OS 7.1.10!');
             } else alert('Login incorrect');
         }
 
         function notify(message) {
             notifications.push(message);
             const n = document.createElement('div');
-            n.style.cssText = 'position:fixed;top:45px;right:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(192,132,252,0.3);border-radius:8px;padding:12px 20px;z-index:99999;font-size:14px;';
-            n.textContent = message;
+            n.className = 'notification';
+            n.innerHTML = `<div>${message}</div><div class="notification-progress"></div>`;
             document.body.appendChild(n);
             setTimeout(() => n.remove(), 3000);
+        }
+
+        function changeWallpaper() {
+            currentWallpaper = (currentWallpaper + 1) % wallpapers.length;
+            document.getElementById('desktop').style.background = wallpapers[currentWallpaper];
         }
 
         function createWindow(title, content, width = 500, height = 400) {
@@ -312,7 +369,7 @@
             document.body.appendChild(win);
             const taskBtn = document.createElement('button');
             taskBtn.textContent = title;
-            taskBtn.style.cssText = 'background:rgba(192,132,252,0.08);border:1px solid rgba(192,132,252,0.08);color:#e2e8f0;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+            taskBtn.style.cssText = 'background:rgba(192,132,252,0.15);border:1px solid rgba(192,132,252,0.2);color:#e2e8f0;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:all 0.3s;';
             taskBtn.onclick = () => { win.style.display = win.style.display === 'none' ? 'flex' : 'none'; };
             document.getElementById('taskbar-apps').appendChild(taskBtn);
             windows.push({ id, element: win, taskBtn });
@@ -329,11 +386,11 @@
             return id;
         }
 
-        function closeWin(id) { const i = windows.findIndex(w => w.id === id); if (i !== -1) { windows[i].element.remove(); windows[i].taskBtn.remove(); windows.splice(i, 1); } }
+        function closeWin(id) { const i = windows.findIndex(w => w.id === id); if (i !== -1) { windows[i].element.style.animation = 'winClose 0.2s ease-in'; setTimeout(() => { windows[i].element.remove(); windows[i].taskBtn.remove(); windows.splice(i, 1); }, 200); } }
         function minWin(id) { const w = windows.find(w => w.id === id); if (w) w.element.style.display = w.element.style.display === 'none' ? 'flex' : 'none'; }
-        function maxWin(id) { const w = windows.find(w => w.id === id); if (w) { if (w.element.style.width === '100vw') { w.element.style.width = '500px'; w.element.style.height = '400px'; } else { w.element.style.width = '100vw'; w.element.style.height = 'calc(100vh - 70px)'; w.element.style.left = '0'; w.element.style.top = '35px'; } } }
+        function maxWin(id) { const w = windows.find(w => w.id === id); if (w) { if (w.element.style.width === '100vw') { w.element.style.width = '500px'; w.element.style.height = '400px'; } else { w.element.style.width = '100vw'; w.element.style.height = 'calc(100vh - 75px)'; w.element.style.left = '0'; w.element.style.top = '40px'; } } }
 
-        // ============ ВСЕ 50+ ПРИЛОЖЕНИЙ ============
+        // Все приложения (сокращённые)
         function openTerminal() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div id="term-out" class="terminal" style="flex:1;overflow:auto;white-space:pre-wrap;"><div>Terminal</div><div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> </div></div><div style="display:flex;gap:8px;margin-top:8px;"><input id="term-in" type="text" style="flex:1;background:#000;border:1px solid #00ff00;color:#00ff00;padding:8px;border-radius:6px;font-family:monospace;outline:none;"><button onclick="sendTerm()" style="background:#00ff00;border:none;color:#000;padding:8px 14px;border-radius:6px;cursor:pointer;">⏎</button></div></div>`; createWindow('💻 Терминал', c, 600, 450); window.sendTerm = async function() { const i = document.getElementById('term-in'); const o = document.getElementById('term-out'); const cmd = i.value.trim(); if (!cmd) return; linux.history.push(cmd); i.value = ''; o.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> ${cmd}</div>`; const r = await linux.execute(cmd); if (r === 'CLEAR') o.innerHTML = ''; else if (r) o.innerHTML += `<div style="white-space:pre-wrap;">${r}</div>`; o.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> </div>`; o.scrollTop = o.scrollHeight; }; document.getElementById('term-in').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendTerm(); }); }
         function openFileManager() { const f = linux.listDir('/home/nova'); const c = `<div style="height:100%;overflow:auto;"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px;">${f.map(x => { const n = linux.getNode('/home/nova/' + x); return `<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;text-align:center;"><div style="font-size:32px;">${n.type === 'dir' ? '📁' : '📄'}</div><div style="font-size:11px;color:#a0aec0;">${x}</div></div>`; }).join('')}</div></div>`; createWindow('📁 Файлы', c, 500, 400); }
         function openBrowser() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div style="display:flex;gap:8px;margin-bottom:8px;"><input id="b-url" type="text" value="https://example.com" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:6px;border-radius:6px;"><button onclick="document.getElementById('b-frame').src=document.getElementById('b-url').value" style="background:#c084fc;border:none;color:#0a0a1a;padding:6px 14px;border-radius:6px;cursor:pointer;">Go</button></div><iframe id="b-frame" src="https://example.com" style="flex:1;border:none;border-radius:8px;"></iframe></div>`; createWindow('🌐 Браузер', c, 700, 500); }
@@ -351,11 +408,11 @@
         
         // Игры
         function openSnakeGame() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><canvas id="sn-c" width="300" height="300" style="border:1px solid #c084fc;border-radius:8px;"></canvas><div>Счёт: <span id="sn-s">0</span></div></div>`; createWindow('🐍 Змейка', c, 350, 420); setTimeout(() => { const cv = document.getElementById('sn-c'); const cx = cv.getContext('2d'); let sn = [{x:5,y:5}], fd = {x:10,y:10}, dr = {x:1,y:0}, sc = 0; function lp() { const h = {x:sn[0].x+dr.x,y:sn[0].y+dr.y}; if(h.x<0||h.x>=15||h.y<0||h.y>=15){alert('Счёт: '+sc);return;} sn.unshift(h); if(h.x===fd.x&&h.y===fd.y){sc++;document.getElementById('sn-s').textContent=sc;fd={x:Math.floor(Math.random()*15),y:Math.floor(Math.random()*15)};}else sn.pop(); cx.clearRect(0,0,300,300); cx.fillStyle='#c084fc'; sn.forEach(s=>cx.fillRect(s.x*20,s.y*20,18,18)); cx.fillStyle='#f7768e'; cx.fillRect(fd.x*20,fd.y*20,18,18); } document.addEventListener('keydown',(e)=>{if(e.key==='ArrowUp'&&dr.y===0)dr={x:0,y:-1};if(e.key==='ArrowDown'&&dr.y===0)dr={x:0,y:1};if(e.key==='ArrowLeft'&&dr.x===0)dr={x:-1,y:0};if(e.key==='ArrowRight'&&dr.x===0)dr={x:1,y:0};}); setInterval(lp,150); },50); }
-        function openTetris() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><canvas id="tt-c" width="200" height="400" style="border:1px solid #c084fc;"></canvas></div>`; createWindow('🎮 Тетрис', c, 300, 520); }
+        function openTetris() { const c = `<div style="height:100%;display:flex;align-items:center;justify-content:center;"><canvas id="tt-c" width="200" height="400" style="border:1px solid #c084fc;"></canvas></div>`; createWindow('🎮 Тетрис', c, 300, 520); }
         function openMinesweeper() { const c = `<div style="height:100%;display:flex;align-items:center;justify-content:center;"><div style="font-size:48px;">💣</div></div>`; createWindow('💣 Сапёр', c, 300, 400); }
         function open2048() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:24px;">Счёт: <span id="2048-s">0</span></div><div id="2048-g" style="display:grid;grid-template-columns:repeat(4,60px);gap:5px;"></div></div>`; createWindow('🎯 2048', c, 300, 400); setTimeout(() => { let b = Array(4).fill().map(()=>Array(4).fill(0)), sc = 0; function ar(){const e=[];b.forEach((r,i)=>r.forEach((c,j)=>{if(!c)e.push([i,j]);}));if(e.length){const[i,j]=e[Math.floor(Math.random()*e.length)];b[i][j]=Math.random()<0.9?2:4;}} function rd(){document.getElementById('2048-g').innerHTML='';document.getElementById('2048-s').textContent=sc;b.forEach(r=>r.forEach(c=>{const d=document.createElement('div');d.style.cssText=`width:60px;height:60px;background:${c?'rgba(192,132,252,0.3)':'rgba(255,255,255,0.05)'};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;`;d.textContent=c||'';document.getElementById('2048-g').appendChild(d);}));} function mv(dr){let m=false;for(let i=0;i<4;i++){const l=[];for(let j=0;j<4;j++){const c=dr==='left'?b[i][j]:dr==='right'?b[i][3-j]:dr==='up'?b[j][i]:b[3-j][i];if(c)l.push(c);}while(l.length<4)l.push(0);for(let j=0;j<3;j++)if(l[j]&&l[j]===l[j+1]){l[j]*=2;sc+=l[j];l.splice(j+1,1);l.push(0);m=true;}for(let j=0;j<4;j++){if(dr==='left')b[i][j]=l[j];else if(dr==='right')b[i][3-j]=l[j];else if(dr==='up')b[j][i]=l[j];else b[3-j][i]=l[j];}}if(m){ar();rd();}} document.addEventListener('keydown',(e)=>{if(e.key==='ArrowLeft')mv('left');if(e.key==='ArrowRight')mv('right');if(e.key==='ArrowUp')mv('up');if(e.key==='ArrowDown')mv('down');}); ar();ar();rd(); },50); }
         function openChess() { const pieces = ['♜','♞','♝','♛','♚','♝','♞','♜','♟','♟','♟','♟','♟','♟','♟','♟','','','','','','','','','','','','','','','','','♙','♙','♙','♙','♙','♙','♙','♙','♖','♘','♗','♕','♔','♗','♘','♖']; const c = `<div style="height:100%;display:flex;align-items:center;justify-content:center;"><div style="display:grid;grid-template-columns:repeat(8,40px);border:2px solid #c084fc;">${pieces.map((p,i)=>{const r=Math.floor(i/8),col=i%8;const dark=(r+col)%2===0;const white=i>=48;return `<div style="width:40px;height:40px;background:${dark?'#1a1a3e':'#e2e8f0'};display:flex;align-items:center;justify-content:center;font-size:25px;color:${white?'#81e6d9':'#f7768e'};">${p}</div>`;}).join('')}</div></div>`; createWindow('♟️ Шахматы', c, 350, 400); }
-        function openTicTacToe() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div id="ttt-g" style="display:grid;grid-template-columns:repeat(3,70px);gap:5px;"></div><div style="margin-top:10px;">Ход: X</div></div>`; createWindow('⭕ Крестики-нолики', c, 300, 350); setTimeout(() => { let b = Array(9).fill(''), t = 'X'; function rd(){document.getElementById('ttt-g').innerHTML='';b.forEach((c,i)=>{const btn=document.createElement('button');btn.style.cssText='width:70px;height:70px;background:rgba(255,255,255,0.05);border:1px solid rgba(192,132,252,0.2);border-radius:8px;font-size:35px;cursor:pointer;color:#e2e8f0;';btn.textContent=c;btn.onclick=()=>{if(!c){b[i]=t;t=t==='X'?'O':'X';rd();}};document.getElementById('ttt-g').appendChild(btn);});} rd(); },50); }
+        function openTicTacToe() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div id="ttt-g" style="display:grid;grid-template-columns:repeat(3,70px);gap:5px;"></div></div>`; createWindow('⭕ Крестики-нолики', c, 300, 350); setTimeout(() => { let b = Array(9).fill(''), t = 'X'; function rd(){document.getElementById('ttt-g').innerHTML='';b.forEach((c,i)=>{const btn=document.createElement('button');btn.style.cssText='width:70px;height:70px;background:rgba(255,255,255,0.05);border:1px solid rgba(192,132,252,0.2);border-radius:8px;font-size:35px;cursor:pointer;color:#e2e8f0;';btn.textContent=c;btn.onclick=()=>{if(!c){b[i]=t;t=t==='X'?'O':'X';rd();}};document.getElementById('ttt-g').appendChild(btn);});} rd(); },50); }
         function openPong() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><canvas id="pg-c" width="400" height="300" style="border:1px solid #c084fc;"></canvas><div>Счёт: <span id="pg-s">0 : 0</span></div></div>`; createWindow('🏓 Пинг-понг', c, 450, 400); setTimeout(() => { const cv = document.getElementById('pg-c'); const cx = cv.getContext('2d'); let bx=200,by=150,bdx=3,bdy=3,lp=120,rp=120,ls=0,rs=0; function lp2(){bx+=bdx;by+=bdy;if(by<0||by>290)bdy=-bdy;if(bx<20&&by>lp&&by<lp+60){bdx=-bdx;ls++;}if(bx>370&&by>rp&&by<rp+60){bdx=-bdx;rs++;}if(bx<0||bx>400){bx=200;by=150;bdx=-bdx;}cx.clearRect(0,0,400,300);cx.fillStyle='#e2e8f0';cx.fillRect(10,lp,10,60);cx.fillRect(380,rp,10,60);cx.fillStyle='#c084fc';cx.beginPath();cx.arc(bx,by,8,0,Math.PI*2);cx.fill();document.getElementById('pg-s').textContent=ls+' : '+rs;} document.addEventListener('keydown',(e)=>{if(e.key==='w')lp=Math.max(0,lp-20);if(e.key==='s')lp=Math.min(240,lp+20);if(e.key==='ArrowUp')rp=Math.max(0,rp-20);if(e.key==='ArrowDown')rp=Math.min(240,rp+20);}); setInterval(lp2,16); },50); }
         
         // Утилиты
@@ -371,25 +428,25 @@
         function openDiskAnalyzer() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:18px;">💾 Диск</div><div style="width:100%;height:10px;background:rgba(255,255,255,0.1);border-radius:5px;margin-top:10px;"><div style="width:18%;height:100%;background:#c084fc;border-radius:5px;"></div></div><div style="font-size:12px;color:#a0aec0;">3.5GB из 20GB</div></div>`; createWindow('💾 Диски', c, 400, 300); }
         function openArchiveManager() { const c = `<div style="height:100%;padding:10px;"><div>📦 backup.tar.gz</div><div>📦 photos.zip</div></div>`; createWindow('📦 Архиватор', c, 400, 300); }
         function openDatabaseManager() { const c = `<div style="height:100%;padding:20px;"><div style="color:#a0aec0;">🗄️ SQLite</div><div>📊 users</div><div>📊 files</div></div>`; createWindow('🗄️ БД', c, 400, 350); }
-        function openDefragmenter() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;">💿 Дефрагментация</div><div style="width:100%;height:10px;background:rgba(255,255,255,0.1);border-radius:5px;margin-top:10px;"><div style="width:12%;height:100%;background:#c084fc;border-radius:5px;"></div></div><button onclick="notify('💿 Готово')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Начать</button></div>`; createWindow('💿 Дефрагментация', c, 400, 300); }
-        function openSystemUpdate() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;">🔄 Обновление</div><div style="margin-top:10px;">Версия: 7.1.10</div><div>Доступно: 7.1.11</div><button onclick="notify('🔄 Обновлено')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Обновить</button></div>`; createWindow('🔄 Обновление', c, 400, 300); }
-        function openDeviceManager() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;font-weight:bold;margin-bottom:10px;">📡 Устройства</div>${[['💻 CPU','Nova 7.1GHz'],['🧠 RAM','16GB'],['💾 Диск','20GB SSD'],['🎮 GPU','Nova GPU'],['🔊 Звук','Nova Audio'],['📶 Сеть','Ethernet']].map(([i,n]) => `<div style="display:flex;justify-content:space-between;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><span>${i} ${n}</span><span style="color:#81e6d9;">✅</span></div>`).join('')}</div>`; createWindow('📡 Устройства', c, 400, 400); }
-        function openAudioRecorder() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:60px;">🎤</div><button onclick="notify('🎤 Запись')" style="margin-top:20px;background:#f7768e;border:none;color:#fff;padding:15px 20px;border-radius:50%;cursor:pointer;font-size:20px;">⏺</button></div>`; createWindow('🎤 Запись', c, 350, 300); }
-        function openMessenger() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div style="flex:1;padding:10px;"><div style="padding:8px;background:rgba(192,132,252,0.2);border-radius:8px;margin-bottom:4px;max-width:70%;">Привет!</div></div><div style="display:flex;gap:8px;"><input type="text" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:8px;border-radius:6px;"><button onclick="notify('💬 Отправлено')" style="background:#c084fc;border:none;color:#0a0a1a;padding:8px 14px;border-radius:6px;cursor:pointer;">➤</button></div></div>`; createWindow('💬 Мессенджер', c, 400, 400); }
-        function openTorrent() { const c = `<div style="height:100%;padding:20px;"><div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;"><div>📥 Nova-OS.iso</div><div style="font-size:12px;color:#a0aec0;">45% — 5MB/s</div></div></div>`; createWindow('📥 Торрент', c, 400, 350); }
-        function openRSSReader() { const c = `<div style="height:100%;padding:20px;">${[['📰 Nova News','Обновление 7.1.11'],['🐧 Linux Weekly','Новые дистрибутивы'],['💻 Tech','WebAssembly']].map(([s,t]) => `<div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><div style="font-size:12px;color:#c084fc;">${s}</div><div>${t}</div></div>`).join('')}</div>`; createWindow('📖 RSS', c, 400, 350); }
-        function openPeriodicTable() { const el = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar']; const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;font-weight:bold;margin-bottom:10px;">⚗️ Таблица</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;">${el.map((e,i) => `<div style="padding:8px;background:rgba(192,132,252,0.1);border-radius:4px;text-align:center;"><div style="font-size:12px;font-weight:bold;">${e}</div><div style="font-size:8px;color:#a0aec0;">${i+1}</div></div>`).join('')}</div></div>`; createWindow('⚗️ Таблица', c, 400, 400); }
-        function openUnitConverter() { const c = `<div style="height:100%;padding:20px;"><input type="number" value="1" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><div style="margin-top:15px;padding:15px;background:rgba(0,0,0,0.3);border-radius:6px;text-align:center;font-size:18px;color:#c084fc;">Результат</div></div>`; createWindow('📐 Конвертер', c, 400, 350); }
+        function openDefragmenter() { const c = `<div style="height:100%;padding:20px;"><div>💿 Дефрагментация</div><div style="width:100%;height:10px;background:rgba(255,255,255,0.1);border-radius:5px;margin-top:10px;"><div style="width:12%;height:100%;background:#c084fc;border-radius:5px;"></div></div><button onclick="notify('💿 Готово')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Начать</button></div>`; createWindow('💿 Дефрагментация', c, 400, 300); }
+        function openSystemUpdate() { const c = `<div style="height:100%;padding:20px;"><div>🔄 Обновление</div><div>Версия: 7.1.10 → 7.1.11</div><button onclick="notify('🔄 Обновлено')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Обновить</button></div>`; createWindow('🔄 Обновление', c, 400, 300); }
+        function openDeviceManager() { const c = `<div style="height:100%;padding:20px;">${[['💻 CPU','Nova 7.1GHz'],['🧠 RAM','16GB'],['💾 Диск','20GB'],['🎮 GPU','Nova GPU']].map(([i,n]) => `<div style="display:flex;justify-content:space-between;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><span>${i} ${n}</span><span style="color:#81e6d9;">✅</span></div>`).join('')}</div>`; createWindow('📡 Устройства', c, 400, 350); }
+        function openAudioRecorder() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:60px;">🎤</div><button onclick="notify('🎤 Запись')" style="margin-top:20px;background:#f7768e;border:none;color:#fff;padding:15px;border-radius:50%;cursor:pointer;">⏺</button></div>`; createWindow('🎤 Запись', c, 350, 300); }
+        function openMessenger() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div style="flex:1;padding:10px;"><div style="padding:8px;background:rgba(192,132,252,0.2);border-radius:8px;max-width:70%;">Привет!</div></div><div style="display:flex;gap:8px;"><input type="text" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:8px;border-radius:6px;"><button onclick="notify('💬 Отправлено')" style="background:#c084fc;border:none;color:#0a0a1a;padding:8px;border-radius:6px;cursor:pointer;">➤</button></div></div>`; createWindow('💬 Мессенджер', c, 400, 400); }
+        function openTorrent() { const c = `<div style="height:100%;padding:20px;"><div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;">📥 Nova-OS.iso — 45%</div></div>`; createWindow('📥 Торрент', c, 400, 350); }
+        function openRSSReader() { const c = `<div style="height:100%;padding:20px;">${[['📰 Nova News','Обновление'],['🐧 Linux','Новое']].map(([s,t]) => `<div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><div style="color:#c084fc;">${s}</div><div>${t}</div></div>`).join('')}</div>`; createWindow('📖 RSS', c, 400, 350); }
+        function openPeriodicTable() { const el = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar']; const c = `<div style="height:100%;padding:20px;"><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;">${el.map((e,i) => `<div style="padding:8px;background:rgba(192,132,252,0.1);border-radius:4px;text-align:center;"><div>${e}</div><div style="font-size:8px;color:#a0aec0;">${i+1}</div></div>`).join('')}</div></div>`; createWindow('⚗️ Таблица', c, 400, 400); }
+        function openUnitConverter() { const c = `<div style="height:100%;padding:20px;"><input type="number" value="1" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><div style="margin-top:15px;padding:15px;background:rgba(0,0,0,0.3);border-radius:6px;text-align:center;color:#c084fc;">Результат</div></div>`; createWindow('📐 Конвертер', c, 400, 350); }
         function openGraphCalculator() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><canvas id="gr-c" width="400" height="300" style="border:1px solid #c084fc;flex:1;"></canvas></div>`; createWindow('📈 График', c, 450, 400); setTimeout(() => { const cv = document.getElementById('gr-c'); const cx = cv.getContext('2d'); cx.beginPath(); for (let x=0;x<400;x++){const y=150-Math.sin(x/30)*100;x===0?cx.moveTo(x,y):cx.lineTo(x,y);} cx.strokeStyle='#c084fc';cx.lineWidth=2;cx.stroke(); },50); }
         function openPasswordManager() { const c = `<div style="height:100%;padding:20px;">${[['🌐 Google','••••••••'],['🌐 GitHub','••••••••']].map(([s,p]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><span>${s}</span><span>${p}</span></div>`).join('')}</div>`; createWindow('🔐 Пароли', c, 400, 350); }
         function openVPN() { const c = `<div style="height:100%;padding:20px;">${[['🇺🇸 США'],['🇩🇪 Германия'],['🇯🇵 Япония']].map(s => `<div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;">${s}</div>`).join('')}<button onclick="notify('🔒 Подключено')" style="width:100%;margin-top:15px;background:#81e6d9;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Подключиться</button></div>`; createWindow('🔒 VPN', c, 350, 350); }
         function openMagnifier() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:80px;">🔍</div><input type="range" min="1" max="5" value="2" style="width:80%;margin-top:20px;"></div>`; createWindow('🔍 Лупа', c, 350, 300); }
-        function openSystemCleaner() { const c = `<div style="height:100%;padding:20px;">${[['🗑️ Временные файлы','500MB'],['🗑️ Кэш','1.2GB'],['🗑️ Логи','200MB']].map(([n,s]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><span>${n}</span><span>${s}</span></div>`).join('')}<button onclick="notify('🧹 Очищено')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Очистить</button></div>`; createWindow('🧹 Очистка', c, 400, 350); }
-        function openBackup() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;font-weight:bold;">💾 Резервное</div><div style="margin-top:10px;">📁 Документы — 1.2GB</div><div>📁 Изображения — 500MB</div><button onclick="notify('💾 Копия создана')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Создать</button></div>`; createWindow('💾 Резервное', c, 400, 350); }
+        function openSystemCleaner() { const c = `<div style="height:100%;padding:20px;">${[['🗑️ Временные','500MB'],['🗑️ Кэш','1.2GB']].map(([n,s]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><span>${n}</span><span>${s}</span></div>`).join('')}<button onclick="notify('🧹 Очищено')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Очистить</button></div>`; createWindow('🧹 Очистка', c, 400, 350); }
+        function openBackup() { const c = `<div style="height:100%;padding:20px;"><div>💾 Резервное</div><button onclick="notify('💾 Копия создана')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Создать</button></div>`; createWindow('💾 Резервное', c, 400, 300); }
         function openPasswordGenerator() { const c = `<div style="height:100%;padding:20px;"><input type="number" value="12" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><button onclick="notify('🔑 Сгенерировано')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Сгенерировать</button></div>`; createWindow('🔑 Пароли', c, 350, 300); }
         function openQRGenerator() { const c = `<div style="height:100%;padding:20px;"><input type="text" placeholder="Текст..." style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><div style="margin-top:15px;display:flex;justify-content:center;font-size:80px;">📱</div></div>`; createWindow('📱 QR-код', c, 350, 350); }
         function openMetronome() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:40px;">🎵</div><input type="range" min="40" max="200" value="120" style="width:80%;margin-top:20px;"><div>120 BPM</div></div>`; createWindow('🎵 Метроном', c, 350, 300); }
-        function openSettings() { const c = `<div style="height:100%;overflow:auto;">${[['🐧 Система','Nova OS 7.1.10 Final'],['🔧 Ядро','7.1.10-nova'],['🌐 Языки','7'],['📱 Приложения','50+']].map(([n,v]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:4px;"><span>${n}</span><span style="color:#81e6d9;">${v}</span></div>`).join('')}</div>`; createWindow('⚙️ Настройки', c, 400, 350); }
+        function openSettings() { const c = `<div style="height:100%;overflow:auto;">${[['🐧 Система','Nova OS 7.1.10'],['🔧 Ядро','7.1.10-nova'],['🌐 Языки','7'],['📱 Приложения','50+'],['🎨 Интерфейс','Glassmorphism']].map(([n,v]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:4px;"><span>${n}</span><span style="color:#81e6d9;">${v}</span></div>`).join('')}</div>`; createWindow('⚙️ Настройки', c, 400, 350); }
         function openTrash() { const c = `<div style="height:100%;display:flex;align-items:center;justify-content:center;"><div style="font-size:60px;">🗑️</div></div>`; createWindow('🗑️ Корзина', c, 400, 300); }
         function openQuickSettings() { const c = `<div style="height:100%;padding:15px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">${['📶 WiFi','🔵 BT','✈️ Авиа','🌙 Ночь'].map(b => `<button style="padding:15px;background:rgba(192,132,252,0.2);border:none;border-radius:8px;cursor:pointer;">${b}</button>`).join('')}</div>`; createWindow('⚡ Быстрые', c, 300, 250); }
         function openThemeSettings() { const c = `<div style="height:100%;padding:20px;">${[['Тёмная','#0a0a1a'],['Светлая','#f0f0f0'],['Матрица','#000'],['Океан','#0a192f']].map(([n,bg]) => `<button onclick="document.getElementById('desktop').style.background='${bg}'" style="display:block;width:100%;background:${bg};border:1px solid #c084fc;color:${bg==='#f0f0f0'?'#333':'#e2e8f0'};padding:12px;border-radius:8px;cursor:pointer;margin-bottom:8px;">${n}</button>`).join('')}</div>`; createWindow('🎨 Темы', c, 350, 300); }
@@ -398,26 +455,25 @@
         function showStartMenu() {
             const menu = document.createElement('div');
             menu.className = 'context-menu';
-            menu.style.top = '40px'; menu.style.left = '10px'; menu.style.position = 'fixed';
+            menu.style.top = '50px'; menu.style.left = '10px'; menu.style.position = 'fixed';
             const apps = [
                 ['💻 Терминал', openTerminal], ['📁 Файлы', openFileManager], ['🌐 Браузер', openBrowser],
                 ['⌨️ Код', openCodeEditor], ['📝 Редактор', openTextEditor], ['🧮 Калькулятор', openCalculator],
-                ['🔬 Научный', openScientificCalculator], ['📊 Монитор', openSystemMonitor], ['📅 Календарь', openCalendar],
-                ['🎵 Музыка', openMusicPlayer], ['🎬 Видео', openVideoPlayer], ['🖼️ Изображения', openImageViewer],
-                ['🎨 Редактор', openImageEditor], ['📸 Скриншот', openScreenshot], ['🎮 Тетрис', openTetris],
-                ['💣 Сапёр', openMinesweeper], ['🎯 2048', open2048], ['🐍 Змейка', openSnakeGame],
-                ['♟️ Шахматы', openChess], ['⭕ Крестики', openTicTacToe], ['🏓 Понг', openPong],
-                ['⏱️ Таймер', openTimer], ['⏲️ Секундомер', openStopwatch], ['🌤️ Погода', openWeather],
-                ['🌍 Переводчик', openTranslator], ['💱 Конвертер', openCurrencyConverter], ['⚖️ ИМТ', openBMICalculator],
-                ['📌 Заметки', openStickyNotes], ['⏰ Напоминания', openReminder], ['✉️ Почта', openEmailClient],
+                ['📊 Монитор', openSystemMonitor], ['📅 Календарь', openCalendar],
+                ['🎮 Тетрис', openTetris], ['🐍 Змейка', openSnakeGame], ['🎯 2048', open2048],
+                ['♟️ Шахматы', openChess], ['🏓 Понг', openPong],
+                ['⏱️ Таймер', openTimer], ['🌤️ Погода', openWeather], ['🌍 Переводчик', openTranslator],
+                ['📌 Заметки', openStickyNotes], ['✉️ Почта', openEmailClient],
                 ['💾 Диски', openDiskAnalyzer], ['📦 Архиватор', openArchiveManager], ['🗄️ БД', openDatabaseManager],
-                ['💿 Дефрагментация', openDefragmenter], ['🔄 Обновление', openSystemUpdate], ['📡 Устройства', openDeviceManager],
-                ['🎤 Запись', openAudioRecorder], ['💬 Мессенджер', openMessenger], ['📥 Торрент', openTorrent],
-                ['📖 RSS', openRSSReader], ['⚗️ Таблица', openPeriodicTable], ['📐 Конвертер', openUnitConverter],
-                ['📈 График', openGraphCalculator], ['🔐 Пароли', openPasswordManager], ['🔒 VPN', openVPN],
-                ['🔍 Лупа', openMagnifier], ['🧹 Очистка', openSystemCleaner], ['💾 Резервное', openBackup],
-                ['🔑 Генератор', openPasswordGenerator], ['📱 QR', openQRGenerator], ['🎵 Метроном', openMetronome],
-                ['⚙️ Настройки', openSettings], ['🗑️ Корзина', openTrash]
+                ['💿 Дефрагментация', openDefragmenter], ['🔄 Обновление', openSystemUpdate],
+                ['📡 Устройства', openDeviceManager], ['🎤 Запись', openAudioRecorder],
+                ['💬 Мессенджер', openMessenger], ['📥 Торрент', openTorrent], ['📖 RSS', openRSSReader],
+                ['⚗️ Таблица', openPeriodicTable], ['📐 Конвертер', openUnitConverter],
+                ['📈 График', openGraphCalculator], ['🔐 Пароли', openPasswordManager],
+                ['🔒 VPN', openVPN], ['🔍 Лупа', openMagnifier],
+                ['🧹 Очистка', openSystemCleaner], ['💾 Резервное', openBackup],
+                ['🔑 Генератор', openPasswordGenerator], ['📱 QR', openQRGenerator],
+                ['🎵 Метроном', openMetronome], ['⚙️ Настройки', openSettings], ['🗑️ Корзина', openTrash]
             ];
             apps.forEach(([name, action]) => { const btn = document.createElement('button'); btn.textContent = name; btn.onclick = () => { action(); menu.remove(); }; menu.appendChild(btn); });
             document.body.appendChild(menu);
@@ -451,7 +507,7 @@
             const menu = document.createElement('div');
             menu.className = 'context-menu';
             menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
-            const items = [['🔄 Обновить', () => location.reload()], ['⚙️ Настройки', openSettings]];
+            const items = [['🔄 Обновить', () => location.reload()], ['🎨 Обои', changeWallpaper], ['⚙️ Настройки', openSettings]];
             items.forEach(([label, action]) => { const btn = document.createElement('button'); btn.textContent = label; btn.onclick = () => { action(); menu.remove(); }; menu.appendChild(btn); });
             document.body.appendChild(menu);
             document.addEventListener('click', () => menu.remove(), { once: true });
