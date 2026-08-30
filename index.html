@@ -3,85 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐧 Nova Linux Ultimate</title>
+    <meta name="theme-color" content="#0a0a1a">
+    <title>🐧 Nova OS Web — All Languages</title>
+    
+    <!-- ВСЕ ЯЗЫКИ ПРОГРАММИРОВАНИЯ -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typescript@latest/lib/typescript.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sql.js@latest/dist/sql-wasm.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: #00ff00; font-family: 'Courier New', monospace; height: 100vh; overflow: hidden; }
+        body { background: #0a0a1a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; height: 100vh; overflow: hidden; }
 
         #boot-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 99999; display: flex;
             flex-direction: column; align-items: center; justify-content: center;
-            color: #00ff00;
+            font-family: 'Courier New', monospace; color: #00ff00;
         }
         #boot-log { width: 90%; max-width: 700px; font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
 
         #login-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 99998; display: none;
-            align-items: center; justify-content: center;
-            flex-direction: column; color: #00ff00;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            z-index: 99998; display: none; align-items: center;
+            justify-content: center; flex-direction: column;
         }
         .login-box {
-            border: 1px solid #00ff00; border-radius: 10px;
-            padding: 30px; width: 90%; max-width: 350px;
-            text-align: center;
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(20px);
+            border: 1px solid rgba(192,132,252,0.2); border-radius: 20px;
+            padding: 30px; width: 90%; max-width: 350px; text-align: center;
         }
         .login-input {
-            width: 100%; background: #000;
-            border: 1px solid #00ff00; color: #00ff00;
-            padding: 12px; border-radius: 5px; margin: 10px 0;
-            font-size: 16px; outline: none; font-family: 'Courier New', monospace;
+            width: 100%; background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(192,132,252,0.3); color: #e2e8f0;
+            padding: 12px; border-radius: 8px; margin: 10px 0;
+            font-size: 16px; outline: none;
         }
         .login-btn {
-            width: 100%; background: #00ff00; border: none;
-            color: #000; padding: 12px; border-radius: 5px;
-            font-size: 16px; font-weight: bold; cursor: pointer;
-            margin-top: 20px; font-family: 'Courier New', monospace;
+            width: 100%; background: #c084fc; border: none;
+            color: #0a0a1a; padding: 12px; border-radius: 8px;
+            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px;
         }
 
-        #terminal {
-            width: 100vw; height: 100vh;
-            background: #000; color: #00ff00;
-            font-family: 'Courier New', monospace;
-            font-size: 14px; padding: 20px;
-            overflow-y: auto; display: none;
-            white-space: pre-wrap; word-wrap: break-word;
+        #panel {
+            position: fixed; top: 0; left: 0; right: 0; height: 30px;
+            background: rgba(10,10,25,0.95); border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: none; align-items: center; padding: 0 10px; gap: 10px; z-index: 1000;
         }
-        #terminal-input-line { display: flex; align-items: center; }
-        #terminal-prompt { color: #00ff00; white-space: nowrap; }
-        #terminal-input {
-            flex: 1; background: transparent; border: none;
-            color: #00ff00; font-family: 'Courier New', monospace;
-            font-size: 14px; outline: none; caret-color: #00ff00;
+        .panel-item { padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .panel-item:hover { background: rgba(192,132,252,0.2); }
+
+        #desktop {
+            width: 100vw; height: calc(100vh - 70px);
+            position: relative; background: radial-gradient(ellipse at center, #0f0f23, #050510);
+            overflow: hidden; display: none; margin-top: 30px;
         }
+
+        #taskbar {
+            height: 40px; background: rgba(10,10,25,0.95);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: none; align-items: center; padding: 0 12px;
+            gap: 8px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+        }
+        .start-btn {
+            background: rgba(192,132,252,0.15); border: none; color: #c084fc;
+            font-size: 14px; padding: 6px 12px; border-radius: 6px;
+            cursor: pointer; font-weight: bold;
+        }
+        .clock { margin-left: auto; font-size: 12px; color: #a0aec0; }
+
+        .window {
+            position: absolute; min-width: 300px; min-height: 200px;
+            background: rgba(10,10,25,0.92); backdrop-filter: blur(30px);
+            border-radius: 14px; border: 1px solid rgba(192,132,252,0.15);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            display: flex; flex-direction: column; overflow: hidden;
+            animation: winOpen 0.25s ease-out;
+        }
+        @keyframes winOpen { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .window-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; background: rgba(20,20,40,0.6);
+            cursor: grab; border-bottom: 1px solid rgba(192,132,252,0.08);
+        }
+        .window-title { font-size: 13px; color: #e2e8f0; font-weight: 500; }
+        .window-controls { display: flex; gap: 8px; }
+        .window-controls button { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; font-size: 10px; }
+        .close { background: #f7768e; } .minimize { background: #f6ad55; } .maximize { background: #81e6d9; }
+        .window-body { flex: 1; padding: 12px; overflow: auto; color: #e2e8f0; font-size: 14px; background: rgba(5,5,15,0.3); }
+
+        .desktop-icon {
+            position: absolute; width: 70px; height: 70px;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; background: rgba(255,255,255,0.03);
+            border-radius: 12px; cursor: pointer; transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .desktop-icon:hover { background: rgba(192,132,252,0.1); border-color: rgba(192,132,252,0.2); transform: scale(1.05); }
+        .desktop-icon .icon { font-size: 28px; }
+        .desktop-icon .label { font-size: 10px; color: #e2e8f0; margin-top: 4px; }
+
+        .terminal { background: #000; color: #00ff00; font-family: monospace; font-size: 13px; padding: 10px; border-radius: 8px; }
+        .context-menu {
+            position: fixed; background: rgba(10,10,25,0.95);
+            border: 1px solid rgba(192,132,252,0.3); border-radius: 8px;
+            padding: 8px; min-width: 200px; z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .context-menu button {
+            display: block; width: 100%; background: transparent;
+            border: none; color: #e2e8f0; padding: 8px 12px;
+            text-align: left; cursor: pointer; border-radius: 4px;
+            font-size: 13px; font-family: inherit;
+        }
+        .context-menu button:hover { background: rgba(192,132,252,0.2); }
 
         @media (max-width: 768px) {
-            #terminal { font-size: 12px; padding: 10px; }
-            #terminal-input { font-size: 16px; }
+            .window { width: 95vw !important; height: 70vh !important; left: 2.5vw !important; top: 5vh !important; min-width: unset; }
+            .desktop-icon { width: 60px; height: 60px; }
+            .desktop-icon .icon { font-size: 24px; }
         }
     </style>
 </head>
 <body>
     <div id="boot-screen">
-        <div style="font-size: 48px; margin-bottom: 30px;">🐧</div>
-        <div style="font-size: 24px; margin-bottom: 20px;">Nova Linux Ultimate</div>
+        <div style="font-size:48px;margin-bottom:30px;">🐧</div>
+        <div style="font-size:24px;margin-bottom:20px;">Nova OS Web — All Languages</div>
         <div id="boot-log"></div>
     </div>
 
     <div id="login-screen">
         <div class="login-box">
-            <div style="font-size: 60px; margin-bottom: 20px;">🐧</div>
-            <div style="font-size: 24px; margin-bottom: 20px;">Nova Linux</div>
-            <div style="margin-bottom: 10px;">nova-linux login:</div>
-            <input type="text" id="login-username" class="login-input" placeholder="username" value="nova" autocomplete="off">
-            <div style="margin: 10px 0;">Password:</div>
-            <input type="password" id="login-password" class="login-input" placeholder="password" value="1234">
-            <button onclick="login()" class="login-btn">Login</button>
+            <div style="font-size:60px;margin-bottom:20px;">🐧</div>
+            <div style="font-size:24px;margin-bottom:20px;">Nova OS</div>
+            <input type="text" id="login-username" class="login-input" placeholder="Логин" value="nova">
+            <input type="password" id="login-password" class="login-input" placeholder="Пароль" value="1234">
+            <button onclick="login()" class="login-btn">Войти</button>
         </div>
     </div>
 
-    <div id="terminal"></div>
+    <div id="panel">
+        <div class="panel-item" onclick="showStartMenu()">🐧 Приложения</div>
+        <div class="panel-item" onclick="openCodeEditor()">🌐 Все языки</div>
+        <div class="panel-item" onclick="openSystemMonitor()">📊 Монитор</div>
+        <div class="panel-item" onclick="openSettings()">⚙️ Настройки</div>
+        <div class="panel-item" onclick="changeWallpaper()">🎨 Обои</div>
+        <div style="margin-left:auto;" class="panel-item" id="panel-clock"></div>
+    </div>
+
+    <div id="desktop"></div>
+
+    <div id="taskbar">
+        <button class="start-btn" onclick="showStartMenu()">🐧 Пуск</button>
+        <div style="display:flex;gap:4px;flex:1;overflow:hidden;" id="taskbar-apps"></div>
+        <div class="clock" id="clock"></div>
+    </div>
 
     <script>
         // ============ BOOT ============
@@ -89,168 +166,192 @@
             'BIOS: Nova Virtual BIOS v3.0',
             'CPU: Nova Virtual CPU @ 3.0GHz (4 cores)',
             'RAM: 8192MB detected',
-            'AHCI: SATA controller initialized',
             'Loading Linux 5.15.0-nova...',
-            'Decompressing kernel... done',
-            'Booting the kernel...',
-            'ACPI: Initializing ACPI subsystem',
-            'PCI: Probing PCI hardware',
-            'EXT4-fs (sda1): mounted filesystem',
-            'systemd[1]: Reached target Multi-User System',
-            'systemd[1]: Started Login Service',
-            '',
-            'Nova Linux 5.15.0-nova (nova-os) (tty1)',
-            ''
+            'Loading JavaScript Engine...',
+            'Loading TypeScript Compiler...',
+            'Loading Python (Pyodide)...',
+            'Loading SQLite (sql.js)...',
+            'Loading PHP (эмуляция)...',
+            'Loading Ruby (эмуляция)...',
+            'Loading Lua (эмуляция)...',
+            'EXT4-fs (sda1): mounted',
+            'Starting X server...',
+            'Welcome to Nova OS Web — All Languages!'
         ];
 
         function bootSystem() {
             const bootLog = document.getElementById('boot-log');
-            let index = 0;
+            let i = 0;
+            function next() {
+                if (i < bootMessages.length) {
+                    bootLog.innerHTML += `<div style="color:#00ff00;">[OK] ${bootMessages[i]}</div>`;
+                    i++; setTimeout(next, 180);
+                } else setTimeout(() => {
+                    document.getElementById('boot-screen').style.display = 'none';
+                    document.getElementById('login-screen').style.display = 'flex';
+                }, 500);
+            }
+            next();
+        }
+
+        // ============ MULTI-LANGUAGE SYSTEM ============
+        class MultiLanguageSystem {
+            constructor() {
+                this.languages = {
+                    js: { name: 'JavaScript', ready: true, native: true },
+                    ts: { name: 'TypeScript', ready: true, cdn: true },
+                    python: { name: 'Python', ready: false, cdn: true },
+                    sql: { name: 'SQL', ready: false, cdn: true },
+                    php: { name: 'PHP', ready: true, emulate: true },
+                    ruby: { name: 'Ruby', ready: true, emulate: true },
+                    lua: { name: 'Lua', ready: true, emulate: true }
+                };
+                this.pyodide = null;
+                this.sqlDb = null;
+            }
             
-            function showNext() {
-                if (index < bootMessages.length) {
-                    bootLog.innerHTML += bootMessages[index] + '\n';
-                    index++;
-                    setTimeout(showNext, Math.random() * 200 + 100);
-                } else {
-                    setTimeout(() => {
-                        document.getElementById('boot-screen').style.display = 'none';
-                        document.getElementById('login-screen').style.display = 'flex';
-                    }, 500);
+            async initAll() {
+                try {
+                    this.pyodide = await loadPyodide();
+                    this.languages.python.ready = true;
+                } catch (e) {}
+                
+                try {
+                    const initSqlJs = window.initSqlJs;
+                    if (initSqlJs) {
+                        this.sqlDb = await initSqlJs({ locateFile: f => `https://sql.js.org/dist/${f}` });
+                        this.languages.sql.ready = true;
+                    }
+                } catch (e) {}
+                
+                return this.getStatus();
+            }
+            
+            getStatus() {
+                return Object.entries(this.languages)
+                    .map(([key, lang]) => `${lang.name}: ${lang.ready ? '✅' : '❌'}`)
+                    .join('\n');
+            }
+            
+            async execute(lang, code) {
+                switch(lang) {
+                    case 'js':
+                        try { return String(eval(code)); }
+                        catch (e) { return 'JS Error: ' + e.message; }
+                        
+                    case 'ts':
+                        try {
+                            const js = ts.transpileModule(code, {
+                                compilerOptions: { module: ts.ModuleKind.ESNext }
+                            }).outputText;
+                            return String(eval(js));
+                        } catch (e) { return 'TS Error: ' + e.message; }
+                        
+                    case 'python':
+                        if (!this.pyodide) return 'Python не загружен';
+                        try { return String(await this.pyodide.runPythonAsync(code)); }
+                        catch (e) { return 'Python Error: ' + e.message; }
+                        
+                    case 'sql':
+                        if (!this.sqlDb) return 'SQLite не загружен';
+                        try {
+                            const db = new this.sqlDb.Database();
+                            const result = db.exec(code);
+                            return result.length > 0 ? JSON.stringify(result) : 'Выполнено';
+                        } catch (e) { return 'SQL Error: ' + e.message; }
+                        
+                    case 'php':
+                        return this.emulatePHP(code);
+                        
+                    case 'ruby':
+                        return this.emulateRuby(code);
+                        
+                    case 'lua':
+                        return this.emulateLua(code);
+                        
+                    default:
+                        return 'Язык не найден';
                 }
             }
-            showNext();
+            
+            emulatePHP(code) {
+                if (code.includes('echo')) {
+                    const match = code.match(/echo\s+"([^"]+)"/);
+                    if (match) return match[1];
+                }
+                return 'PHP: ' + code;
+            }
+            
+            emulateRuby(code) {
+                if (code.includes('puts')) {
+                    const match = code.match(/puts\s+"([^"]+)"/);
+                    if (match) return match[1];
+                }
+                return 'Ruby: ' + code;
+            }
+            
+            emulateLua(code) {
+                if (code.includes('print')) {
+                    const match = code.match(/print\("([^"]+)"\)/);
+                    if (match) return match[1];
+                }
+                return 'Lua: ' + code;
+            }
         }
 
         // ============ LINUX SYSTEM ============
         class LinuxSystem {
             constructor() {
-                this.hostname = 'nova-linux';
+                this.hostname = 'nova-os';
                 this.kernel = '5.15.0-nova';
                 this.currentUser = null;
                 this.currentPath = '/home/nova';
                 this.processes = [];
                 this.nextPid = 1;
                 this.history = [];
-                this.historyIndex = -1;
-                this.envVars = {
-                    HOME: '/home/nova',
-                    PATH: '/usr/local/bin:/usr/bin:/bin',
-                    SHELL: '/bin/bash',
-                    USER: 'nova'
-                };
-                
                 this.users = {
-                    root: { password: 'root', uid: 0, home: '/root', shell: '/bin/bash' },
-                    nova: { password: '1234', uid: 1000, home: '/home/nova', shell: '/bin/bash' }
+                    root: { password: 'root', uid: 0, home: '/root' },
+                    nova: { password: '1234', uid: 1000, home: '/home/nova' }
                 };
-                
-                this.fs = this.initFilesystem();
-                this.packages = [
-                    'bash', 'coreutils', 'systemd', 'linux-kernel',
-                    'network-manager', 'vim', 'nano', 'gcc',
-                    'python3', 'nodejs', 'openssh', 'grep',
-                    'find', 'sed', 'awk', 'tar', 'gzip', 'zip'
-                ];
-                this.dmesg = [];
-                this.initSystem();
+                this.fs = this.initFS();
+                this.packages = ['bash','coreutils','systemd','vim','nano','gcc','python3','nodejs','php','ruby','lua','sqlite','firefox'];
+                this.multiLang = new MultiLanguageSystem();
+                this.init();
             }
             
-            initFilesystem() {
-                return {
-                    '/': {
-                        type: 'dir',
-                        children: {
-                            'bin': { type: 'dir', children: {} },
-                            'boot': { type: 'dir', children: {} },
-                            'dev': { type: 'dir', children: {} },
-                            'etc': {
-                                type: 'dir',
-                                children: {
-                                    'hostname': { type: 'file', content: 'nova-linux\n' },
-                                    'passwd': { 
-                                        type: 'file', 
-                                        content: 'root:x:0:0:root:/root:/bin/bash\nnova:x:1000:1000:Nova:/home/nova:/bin/bash\n' 
-                                    },
-                                    'os-release': {
-                                        type: 'file',
-                                        content: 'NAME="Nova Linux"\nVERSION="5.15.0-nova"\nID=nova\n'
-                                    },
-                                    'fstab': {
-                                        type: 'file',
-                                        content: '/dev/sda1  /       ext4    defaults    0 1\n/dev/sda2  swap    swap    defaults    0 0\n'
-                                    }
-                                }
-                            },
-                            'home': {
-                                type: 'dir',
-                                children: {
-                                    'nova': {
-                                        type: 'dir',
-                                        children: {
-                                            'Documents': { type: 'dir', children: {
-                                                'notes.txt': { type: 'file', content: 'My notes\nLine 2\n' }
-                                            }},
-                                            'Downloads': { type: 'dir', children: {} },
-                                            '.bashrc': { 
-                                                type: 'file', 
-                                                content: '# ~/.bashrc\nalias ll="ls -la"\nalias la="ls -A"\n' 
-                                            },
-                                            'readme.txt': { 
-                                                type: 'file', 
-                                                content: 'Welcome to Nova Linux!\nThis is a full Linux system.\n' 
-                                            },
-                                            'test.txt': {
-                                                type: 'file',
-                                                content: 'apple\nbanana\ncherry\ndate\nelderberry\n'
-                                            }
-                                        }
-                                    },
-                                    'root': { type: 'dir', children: {} }
-                                }
-                            },
-                            'proc': { type: 'dir', children: {} },
-                            'tmp': { type: 'dir', children: {} },
-                            'usr': {
-                                type: 'dir',
-                                children: {
-                                    'bin': { type: 'dir', children: {} },
-                                    'lib': { type: 'dir', children: {} }
-                                }
-                            },
-                            'var': {
-                                type: 'dir',
-                                children: {
-                                    'log': { type: 'dir', children: {
-                                        'syslog': { type: 'file', content: 'System logs\n' }
-                                    }}
-                                }
-                            }
-                        }
-                    }
-                };
+            initFS() {
+                return { '/': { type: 'dir', children: {
+                    'bin': { type: 'dir', children: {} },
+                    'etc': { type: 'dir', children: {
+                        'hostname': { type: 'file', content: 'nova-os\n' },
+                        'os-release': { type: 'file', content: 'Nova OS Web All Languages\n' }
+                    }},
+                    'home': { type: 'dir', children: {
+                        'nova': { type: 'dir', children: {
+                            'Documents': { type: 'dir', children: {} },
+                            'Downloads': { type: 'dir', children: {} },
+                            'readme.txt': { type: 'file', content: 'Welcome to Nova OS Web!\nAll languages included!\n' },
+                            'test.txt': { type: 'file', content: 'apple\nbanana\ncherry\ndate\n' }
+                        }},
+                        'root': { type: 'dir', children: {} }
+                    }},
+                    'tmp': { type: 'dir', children: {} },
+                    'var': { type: 'dir', children: {} }
+                }}};
             }
             
-            initSystem() {
-                this.processes.push({ pid: 1, name: 'systemd', user: 'root', status: 'running', cpu: 0.1, mem: 100 });
-                this.processes.push({ pid: 2, name: 'kthreadd', user: 'root', status: 'running', cpu: 0.0, mem: 0 });
-                this.processes.push({ pid: 3, name: 'bash', user: 'nova', status: 'running', cpu: 0.5, mem: 50 });
-                this.processes.push({ pid: 4, name: 'network-manager', user: 'root', status: 'running', cpu: 0.2, mem: 75 });
-                
-                this.dmesg.push('[    0.000000] Linux version 5.15.0-nova');
-                this.dmesg.push('[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz');
-                this.dmesg.push('[    0.100000] Memory: 8192000K/8388608K available');
-                this.dmesg.push('[    0.500000] EXT4-fs (sda1): mounted filesystem');
-                this.dmesg.push('[    1.000000] network-manager: started');
+            init() {
+                this.processes.push({ pid: 1, name: 'systemd', user: 'root', cpu: 0.1, mem: 100 });
+                this.processes.push({ pid: 2, name: 'kthreadd', user: 'root', cpu: 0, mem: 0 });
+                this.processes.push({ pid: 3, name: 'Xorg', user: 'root', cpu: 2, mem: 200 });
+                this.processes.push({ pid: 4, name: 'nova-desktop', user: 'nova', cpu: 1, mem: 150 });
             }
             
-            login(username, password) {
-                const user = this.users[username];
-                if (user && user.password === password) {
-                    this.currentUser = username;
+            login(u, p) {
+                const user = this.users[u];
+                if (user && user.password === p) {
+                    this.currentUser = u;
                     this.currentPath = user.home;
-                    this.envVars.USER = username;
-                    this.envVars.HOME = user.home;
                     return true;
                 }
                 return false;
@@ -259,420 +360,155 @@
             getNode(path) {
                 if (path === '/') return this.fs['/'];
                 const parts = path.split('/').filter(p => p);
-                let current = this.fs['/'];
-                for (let part of parts) {
-                    if (!current.children || !current.children[part]) return null;
-                    current = current.children[part];
+                let cur = this.fs['/'];
+                for (const part of parts) {
+                    if (!cur.children?.[part]) return null;
+                    cur = cur.children[part];
                 }
-                return current;
+                return cur;
             }
             
             listDir(path) {
                 const node = this.getNode(path);
-                if (!node || node.type !== 'dir') return [];
-                return Object.keys(node.children);
+                return node?.type === 'dir' ? Object.keys(node.children) : [];
             }
             
             createFile(path, name, content = '') {
                 const node = this.getNode(path);
-                if (!node || node.type !== 'dir') return false;
-                if (node.children[name]) return false;
-                node.children[name] = { type: 'file', content: content };
+                if (node?.type !== 'dir' || node.children[name]) return false;
+                node.children[name] = { type: 'file', content };
                 return true;
             }
             
             createDir(path, name) {
                 const node = this.getNode(path);
-                if (!node || node.type !== 'dir') return false;
-                if (node.children[name]) return false;
+                if (node?.type !== 'dir' || node.children[name]) return false;
                 node.children[name] = { type: 'dir', children: {} };
                 return true;
             }
             
             deleteNode(path, name) {
                 const node = this.getNode(path);
-                if (!node || node.type !== 'dir') return false;
-                if (!node.children[name]) return false;
+                if (node?.type !== 'dir' || !node.children[name]) return false;
                 delete node.children[name];
                 return true;
             }
             
             readFile(path) {
                 const node = this.getNode(path);
-                if (!node || node.type !== 'file') return null;
-                return node.content;
+                return node?.type === 'file' ? node.content : null;
             }
             
-            findFiles(startPath, pattern, results = []) {
-                const node = this.getNode(startPath);
-                if (!node || node.type !== 'dir') return results;
-                
-                for (const [name, child] of Object.entries(node.children)) {
-                    const fullPath = startPath + '/' + name;
-                    if (name.includes(pattern)) {
-                        results.push(fullPath);
-                    }
-                    if (child.type === 'dir') {
-                        this.findFiles(fullPath, pattern, results);
-                    }
-                }
-                return results;
-            }
-            
-            executeCommand(cmd) {
+            async execute(cmd) {
                 if (cmd.includes('|')) {
-                    const commands = cmd.split('|').map(c => c.trim());
-                    let output = '';
-                    for (let i = 0; i < commands.length; i++) {
-                        output = this.executeSingleCommand(commands[i], output);
-                    }
-                    return output;
+                    const cmds = cmd.split('|').map(c => c.trim());
+                    let out = '';
+                    for (const c of cmds) out = await this.execSingle(c, out);
+                    return out;
                 }
-                
                 if (cmd.includes('>')) {
-                    const [cmdPart, filePart] = cmd.split('>').map(s => s.trim());
-                    const output = this.executeSingleCommand(cmdPart);
-                    const fileName = filePart.replace('>', '').trim();
-                    const node = this.getNode(this.currentPath);
-                    if (node && node.type === 'dir') {
-                        node.children[fileName] = { type: 'file', content: output };
-                        return '';
-                    }
+                    const [c, f] = cmd.split('>').map(s => s.trim());
+                    const out = await this.execSingle(c);
+                    this.createFile(this.currentPath, f, out);
+                    return '';
                 }
-                
-                return this.executeSingleCommand(cmd, '');
+                return await this.execSingle(cmd, '');
             }
             
-            executeSingleCommand(cmd, input = '') {
-                const parts = cmd.trim().split(' ');
-                const command = parts[0];
-                const args = parts.slice(1);
+            async execSingle(cmd, input = '') {
+                const [command, ...args] = cmd.trim().split(' ');
                 
                 switch(command) {
                     case 'ls': {
                         const files = this.listDir(this.currentPath);
-                        if (args[0] === '-la' || args[0] === '-al') {
-                            let result = 'total ' + (files.length * 4) + '\n';
+                        if (args[0] === '-la') {
+                            let r = 'total ' + files.length * 4 + '\n';
                             files.forEach(f => {
-                                const node = this.getNode(this.currentPath + '/' + f);
-                                const type = node.type === 'dir' ? 'd' : '-';
-                                const perms = type + 'rwxr-xr-x';
-                                const owner = this.currentUser;
-                                const size = node.type === 'file' ? (node.content || '').length : 4096;
-                                const date = new Date().toLocaleDateString('ru-RU');
-                                result += `${perms} ${owner} ${owner} ${String(size).padStart(6)} ${date} ${f}\n`;
+                                const n = this.getNode(this.currentPath + '/' + f);
+                                r += `${n.type === 'dir' ? 'd' : '-'}rwxr-xr-x ${this.currentUser} ${this.currentUser} ${String(n.type === 'file' ? (n.content || '').length : 4096).padStart(6)} ${f}\n`;
                             });
-                            return result;
-                        }
-                        if (args[0] === '-a') {
-                            return ['.', '..', ...files].join('  ');
+                            return r;
                         }
                         return files.join('  ') || '';
                     }
-                    
                     case 'pwd': return this.currentPath;
-                    
                     case 'cd': {
-                        if (!args[0] || args[0] === '~') {
-                            this.currentPath = this.users[this.currentUser].home;
-                        } else if (args[0] === '..') {
-                            this.currentPath = this.currentPath.split('/').slice(0, -1).join('/') || '/';
-                        } else if (args[0] === '-') {
-                            this.currentPath = this.envVars.OLDPWD || this.users[this.currentUser].home;
-                        } else if (args[0] === '/') {
-                            this.currentPath = '/';
-                        } else {
-                            const newPath = args[0].startsWith('/') ? args[0] : this.currentPath + '/' + args[0];
-                            const node = this.getNode(newPath);
-                            if (node && node.type === 'dir') {
-                                this.envVars.OLDPWD = this.currentPath;
-                                this.currentPath = newPath;
-                            } else {
-                                return `bash: cd: ${args[0]}: No such file or directory`;
-                            }
-                        }
-                        return '';
+                        const target = !args[0] || args[0] === '~' ? this.users[this.currentUser].home :
+                            args[0] === '..' ? this.currentPath.split('/').slice(0, -1).join('/') || '/' :
+                            args[0] === '/' ? '/' :
+                            args[0].startsWith('/') ? args[0] : this.currentPath + '/' + args[0];
+                        const node = this.getNode(target);
+                        if (node?.type === 'dir') { this.currentPath = target; return ''; }
+                        return `bash: cd: ${args[0]}: No such file`;
                     }
-                    
-                    case 'cat': {
-                        if (args[0]) {
-                            const content = this.readFile(this.currentPath + '/' + args[0]);
-                            if (content !== null) return content;
-                            return `cat: ${args[0]}: No such file or directory`;
-                        }
-                        return input;
-                    }
-                    
+                    case 'cat': return args[0] ? (this.readFile(this.currentPath + '/' + args[0]) ?? `cat: ${args[0]}: No such file`) : input;
                     case 'echo': return args.join(' ');
-                    
                     case 'grep': {
                         const pattern = args[0];
-                        const text = args.slice(1).join(' ') || input;
-                        if (!pattern) return 'Usage: grep <pattern> [file]';
-                        
-                        if (args[1] && !args[1].startsWith('-')) {
-                            const content = this.readFile(this.currentPath + '/' + args[1]);
-                            if (content) {
-                                return content.split('\n').filter(line => line.includes(pattern)).join('\n');
-                            }
-                        }
-                        
-                        if (input) {
-                            return input.split('\n').filter(line => line.includes(pattern)).join('\n');
-                        }
-                        
-                        return '';
+                        const text = input || (args[1] ? this.readFile(this.currentPath + '/' + args[1]) : '');
+                        return text ? text.split('\n').filter(l => l.includes(pattern)).join('\n') : '';
                     }
-                    
-                    case 'find': {
-                        const startPath = args[0] || this.currentPath;
-                        const pattern = args[1] || '*';
-                        const results = this.findFiles(startPath, pattern.replace('*', ''));
-                        return results.join('\n');
-                    }
-                    
-                    case 'wc': {
-                        const text = args[1] ? this.readFile(this.currentPath + '/' + args[1]) : input;
-                        if (args[0] === '-l') return String(text.split('\n').length);
-                        if (args[0] === '-w') return String(text.split(/\s+/).length);
-                        if (args[0] === '-c') return String(text.length);
-                        return `${text.split('\n').length} ${text.split(/\s+/).length} ${text.length}`;
-                    }
-                    
-                    case 'sort': {
-                        const text = args[0] ? this.readFile(this.currentPath + '/' + args[0]) : input;
-                        return text.split('\n').sort().join('\n');
-                    }
-                    
-                    case 'uniq': {
-                        const text = args[0] ? this.readFile(this.currentPath + '/' + args[0]) : input;
-                        const lines = text.split('\n');
-                        return lines.filter((line, i) => line !== lines[i-1]).join('\n');
-                    }
-                    
-                    case 'head': {
-                        const count = args[0] === '-n' ? parseInt(args[1]) : 10;
-                        const text = args[2] ? this.readFile(this.currentPath + '/' + args[2]) : input;
-                        return text.split('\n').slice(0, count).join('\n');
-                    }
-                    
-                    case 'tail': {
-                        const count = args[0] === '-n' ? parseInt(args[1]) : 10;
-                        const text = args[2] ? this.readFile(this.currentPath + '/' + args[2]) : input;
-                        return text.split('\n').slice(-count).join('\n');
-                    }
-                    
-                    case 'mkdir': {
-                        if (args[0]) {
-                            if (this.createDir(this.currentPath, args[0])) return '';
-                            return `mkdir: cannot create directory '${args[0]}': File exists`;
-                        }
-                        return 'Usage: mkdir <directory>';
-                    }
-                    
-                    case 'touch': {
-                        if (args[0]) {
-                            if (this.createFile(this.currentPath, args[0])) return '';
-                            return `touch: cannot touch '${args[0]}': File exists`;
-                        }
-                        return 'Usage: touch <file>';
-                    }
-                    
-                    case 'rm': {
-                        if (args[0] === '-rf' && args[1]) {
-                            if (this.deleteNode(this.currentPath, args[1])) return '';
-                            return `rm: cannot remove '${args[1]}': No such file or directory`;
-                        }
-                        if (args[0]) {
-                            if (this.deleteNode(this.currentPath, args[0])) return '';
-                            return `rm: cannot remove '${args[0]}': No such file or directory`;
-                        }
-                        return 'Usage: rm <file>';
-                    }
-                    
+                    case 'mkdir': return args[0] && this.createDir(this.currentPath, args[0]) ? '' : 'Error';
+                    case 'touch': return args[0] && this.createFile(this.currentPath, args[0]) ? '' : 'Error';
+                    case 'rm': return args[0] && this.deleteNode(this.currentPath, args[0]) ? '' : 'Error';
                     case 'cp': {
                         if (args[0] && args[1]) {
-                            const content = this.readFile(this.currentPath + '/' + args[0]);
-                            if (content !== null) {
-                                if (this.createFile(this.currentPath, args[1], content)) return '';
-                                return `cp: cannot create '${args[1]}': File exists`;
-                            }
-                            return `cp: cannot stat '${args[0]}': No such file`;
+                            const c = this.readFile(this.currentPath + '/' + args[0]);
+                            if (c !== null) { this.createFile(this.currentPath, args[1], c); return ''; }
                         }
-                        return 'Usage: cp <source> <destination>';
+                        return 'Error';
                     }
-                    
                     case 'mv': {
                         if (args[0] && args[1]) {
-                            const content = this.readFile(this.currentPath + '/' + args[0]);
-                            if (content !== null) {
-                                this.deleteNode(this.currentPath, args[0]);
-                                this.createFile(this.currentPath, args[1], content);
-                                return '';
-                            }
-                            return `mv: cannot stat '${args[0]}': No such file`;
+                            const c = this.readFile(this.currentPath + '/' + args[0]);
+                            if (c !== null) { this.deleteNode(this.currentPath, args[0]); this.createFile(this.currentPath, args[1], c); return ''; }
                         }
-                        return 'Usage: mv <source> <destination>';
+                        return 'Error';
                     }
-                    
-                    case 'ping': {
-                        if (args[0]) {
-                            return `PING ${args[0]} (8.8.8.8) 56(84) bytes of data.
-64 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=12.5 ms
-64 bytes from 8.8.8.8: icmp_seq=2 ttl=64 time=11.8 ms
-64 bytes from 8.8.8.8: icmp_seq=3 ttl=64 time=12.1 ms
-
---- ${args[0]} ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss`;
-                        }
-                        return 'Usage: ping <host>';
-                    }
-                    
-                    case 'ifconfig': {
-                        return `eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
-        ether 00:11:22:33:44:55
-
-lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
-        inet 127.0.0.1  netmask 255.0.0.0`;
-                    }
-                    
-                    case 'netstat': {
-                        return `Active Internet connections
-Proto Local Address           Foreign Address         State
-tcp   0.0.0.0:22              0.0.0.0:*               LISTEN
-tcp   192.168.1.100:45678     8.8.8.8:443             ESTABLISHED`;
-                    }
-                    
                     case 'whoami': return this.currentUser;
                     case 'hostname': return this.hostname;
-                    
-                    case 'uname': {
-                        if (args[0] === '-a') return `Linux ${this.hostname} ${this.kernel} #1 SMP x86_64 GNU/Linux`;
-                        if (args[0] === '-r') return this.kernel;
-                        return 'Linux';
-                    }
-                    
+                    case 'uname': return args[0] === '-a' ? `Linux ${this.hostname} ${this.kernel} x86_64` : 'Linux';
                     case 'date': return new Date().toString();
-                    
-                    case 'uptime': {
-                        const uptime = Math.floor((Date.now() - bootTime) / 1000);
-                        const hours = Math.floor(uptime / 3600);
-                        const minutes = Math.floor((uptime % 3600) / 60);
-                        return `up ${hours}:${minutes.toString().padStart(2, '0')}, 1 user, load average: 0.00, 0.00, 0.00`;
-                    }
-                    
+                    case 'uptime': return 'up 1:23, 1 user, load average: 0.00';
                     case 'ps': {
-                        if (args[0] === 'aux') {
-                            let result = 'USER       PID  %CPU  %MEM  COMMAND\n';
-                            this.processes.forEach(p => {
-                                result += `${p.user.padEnd(8)} ${String(p.pid).padEnd(5)}  ${p.cpu.toFixed(1).padEnd(5)}  ${p.mem.toFixed(0).padEnd(6)} ${p.name}\n`;
-                            });
-                            return result;
-                        }
-                        let result = 'PID TTY          TIME CMD\n';
-                        this.processes.forEach(p => {
-                            result += `${String(p.pid).padEnd(4)} pts/0    00:00:00 ${p.name}\n`;
-                        });
-                        return result;
+                        let r = 'PID TTY TIME CMD\n';
+                        this.processes.forEach(p => r += `${String(p.pid).padEnd(4)} ? 00:00:00 ${p.name}\n`);
+                        return r;
                     }
-                    
                     case 'kill': {
-                        if (args[0]) {
-                            const pid = parseInt(args[0]);
-                            const index = this.processes.findIndex(p => p.pid === pid);
-                            if (index !== -1) {
-                                this.processes.splice(index, 1);
-                                return `Process ${pid} terminated`;
-                            }
-                            return `kill: (${pid}) - No such process`;
-                        }
-                        return 'Usage: kill <pid>';
+                        const idx = this.processes.findIndex(p => p.pid === parseInt(args[0]));
+                        if (idx !== -1) { this.processes.splice(idx, 1); return `Process ${args[0]} terminated`; }
+                        return 'No such process';
                     }
-                    
-                    case 'df': {
-                        if (args[0] === '-h') {
-                            return 'Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        20G  3.5G   16G  18% /';
-                        }
-                        return 'Filesystem     1K-blocks    Used Available Use% Mounted on\n/dev/sda1       20971520 3670016  17301504  18% /';
-                    }
-                    
-                    case 'free': {
-                        if (args[0] === '-h') {
-                            return '              total        used        free\nMem:          8.0Gi       2.4Gi       5.6Gi\nSwap:         2.0Gi          0B       2.0Gi';
-                        }
-                        return 'Mem:        8192000     2457600     5734400\nSwap:       2097152           0     2097152';
-                    }
-                    
-                    case 'lscpu': {
-                        return `Architecture:            x86_64
-CPU(s):                  4
-Model name:              Nova Virtual CPU @ 3.0GHz
-CPU MHz:                 3000.000`;
-                    }
-                    
-                    case 'lsblk': {
-                        return `NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
-sda      8:0    0   20G  0 disk
-├─sda1   8:1    0   18G  0 part /
-└─sda2   8:2    0    2G  0 part [SWAP]`;
-                    }
-                    
-                    case 'dmesg': return this.dmesg.join('\n');
-                    
+                    case 'df': return '/dev/sda1 20G 3.5G 16G 18% /';
+                    case 'free': return 'Mem: 8192000 2457600 5734400';
+                    case 'lscpu': return 'CPU(s): 4\nModel: Nova Virtual CPU @ 3.0GHz';
+                    case 'ping': return args[0] ? `PING ${args[0]}... time=12.5 ms` : 'Usage: ping <host>';
+                    case 'ifconfig': return 'eth0: 192.168.1.100\nlo: 127.0.0.1';
                     case 'apt': {
                         if (args[0] === 'list') return this.packages.join('\n');
                         if (args[0] === 'install' && args[1]) {
-                            if (!this.packages.includes(args[1])) {
-                                this.packages.push(args[1]);
-                                return `Installing ${args[1]}... Done`;
-                            }
-                            return `${args[1]} is already installed`;
+                            if (!this.packages.includes(args[1])) { this.packages.push(args[1]); return `Installing ${args[1]}... Done`; }
+                            return 'Already installed';
                         }
-                        if (args[0] === 'remove' && args[1]) {
-                            const index = this.packages.indexOf(args[1]);
-                            if (index !== -1) {
-                                this.packages.splice(index, 1);
-                                return `Removing ${args[1]}... Done`;
-                            }
-                            return `Package ${args[1]} is not installed`;
-                        }
-                        return 'Usage: apt list | apt install <pkg> | apt remove <pkg>';
+                        return 'Usage: apt list | apt install <pkg>';
                     }
-                    
-                    case 'id': {
-                        return `uid=${this.users[this.currentUser].uid}(${this.currentUser}) gid=1000(nova) groups=1000(nova)`;
-                    }
-                    
-                    case 'sudo': return 'nova is not in the sudoers file. This incident will be reported.';
-                    
-                    case 'su': {
-                        if (args[0] === 'root') return 'Password: (type root)';
-                        return `su: user ${args[0] || ''} does not exist`;
-                    }
-                    
+                    case 'id': return `uid=${this.users[this.currentUser].uid}(${this.currentUser})`;
+                    case 'sudo': return 'nova is not in the sudoers file.';
                     case 'clear': return 'CLEAR';
-                    case 'history': return this.history.map((c, i) => ` ${i+1}  ${c}`).join('\n');
-                    case 'env': return Object.entries(this.envVars).map(([k, v]) => `${k}=${v}`).join('\n');
+                    case 'history': return this.history.map((c, i) => ` ${i+1} ${c}`).join('\n');
                     
-                    case 'reboot': return 'System going down for reboot NOW!';
-                    case 'shutdown': return 'System going down for poweroff NOW!';
-                    case 'poweroff': return 'Powering off...';
+                    // ============ ВСЕ ЯЗЫКИ ============
+                    case 'js': return await this.multiLang.execute('js', args.join(' '));
+                    case 'ts': return await this.multiLang.execute('ts', args.join(' '));
+                    case 'python': return await this.multiLang.execute('python', args.join(' '));
+                    case 'sql': return await this.multiLang.execute('sql', args.join(' '));
+                    case 'php': return await this.multiLang.execute('php', args.join(' '));
+                    case 'ruby': return await this.multiLang.execute('ruby', args.join(' '));
+                    case 'lua': return await this.multiLang.execute('lua', args.join(' '));
+                    case 'languages': return this.multiLang.getStatus();
                     
-                    case 'help':
-                        return `Available commands:
-  Navigation: ls, cd, pwd
-  Files: cat, echo, mkdir, touch, rm, cp, mv
-  Text: grep, find, wc, sort, uniq, head, tail
-  System: whoami, hostname, uname, date, uptime
-  Processes: ps, kill, top
-  Disk: df, free, lsblk, lscpu
-  Network: ping, ifconfig, netstat
-  Packages: apt
-  Other: id, sudo, su, clear, history, env
-  Pipes: | (e.g., ls | grep .txt)
-  Redirect: > (e.g., echo hello > file.txt)`;
-                        
+                    case 'help': return 'Linux: ls, cd, pwd, cat, echo, grep, mkdir, touch, rm, cp, mv, whoami, hostname, uname, date, uptime, ps, kill, df, free, lscpu, ping, ifconfig, apt, id, sudo, clear, history\nЯзыки: js, ts, python, sql, php, ruby, lua, languages';
                     case '': return '';
                     default: return `bash: ${command}: command not found`;
                 }
@@ -680,90 +516,236 @@ sda      8:0    0   20G  0 disk
         }
 
         let linux = new LinuxSystem();
-        let bootTime = Date.now();
+        let windowIdCounter = 0;
+        let windows = [];
+        let zIndexCounter = 100;
+        let wallpapers = [
+            'radial-gradient(ellipse at center, #0f0f23, #050510)',
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+        ];
+        let currentWallpaper = 0;
 
-        function login() {
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            
-            if (linux.login(username, password)) {
+        async function login() {
+            const u = document.getElementById('login-username').value;
+            const p = document.getElementById('login-password').value;
+            if (linux.login(u, p)) {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('terminal').style.display = 'block';
-                initTerminal();
-            } else {
-                alert('Login incorrect');
-            }
+                document.getElementById('desktop').style.display = 'block';
+                document.getElementById('taskbar').style.display = 'flex';
+                document.getElementById('panel').style.display = 'flex';
+                initDesktop();
+                
+                notify('🌐 Загрузка языков...');
+                await linux.multiLang.initAll();
+                notify('✅ Все языки готовы!');
+                notify('🐧 Добро пожаловать!');
+            } else alert('Login incorrect');
         }
 
-        function initTerminal() {
-            const terminal = document.getElementById('terminal');
-            terminal.innerHTML = `
-                <div style="margin-bottom: 10px;">Nova Linux ${linux.kernel} (nova-os) (tty1)</div>
-                <div style="margin-bottom: 20px;">nova-linux login: ${linux.currentUser}</div>
-                <div style="margin-bottom: 20px;">Password: ••••</div>
-                <div style="margin-bottom: 20px;">Last login: ${new Date().toLocaleString('ru-RU')} on tty1</div>
-                <div style="margin-bottom: 10px;">Welcome to Nova Linux Ultimate!</div>
-                <div id="terminal-output"></div>
-                <div id="terminal-input-line">
-                    <span id="terminal-prompt">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$ </span>
-                    <input id="terminal-input" type="text" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                </div>
-            `;
-            
-            const input = document.getElementById('terminal-input');
-            input.focus();
-            
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const cmd = input.value;
-                    input.value = '';
-                    executeCommand(cmd);
-                }
-                if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (linux.historyIndex > 0) {
-                        linux.historyIndex--;
-                        input.value = linux.history[linux.historyIndex] || '';
-                    }
-                }
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (linux.historyIndex < linux.history.length - 1) {
-                        linux.historyIndex++;
-                        input.value = linux.history[linux.historyIndex] || '';
-                    } else {
-                        linux.historyIndex = linux.history.length;
-                        input.value = '';
-                    }
-                }
+        function notify(message) {
+            const n = document.createElement('div');
+            n.style.cssText = 'position:fixed;top:40px;right:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(192,132,252,0.3);border-radius:8px;padding:12px 20px;z-index:99999;font-size:14px;';
+            n.textContent = message;
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 3000);
+        }
+
+        function changeWallpaper() {
+            currentWallpaper = (currentWallpaper + 1) % wallpapers.length;
+            document.getElementById('desktop').style.background = wallpapers[currentWallpaper];
+        }
+
+        function createWindow(title, content, width = 500, height = 400) {
+            const id = ++windowIdCounter;
+            const win = document.createElement('div');
+            win.className = 'window';
+            win.style.cssText = `width:${width}px;height:${height}px;left:${50+Math.random()*200}px;top:${30+Math.random()*100}px;z-index:${++zIndexCounter};`;
+            win.dataset.windowId = id;
+            win.innerHTML = `<div class="window-header"><span class="window-title">${title}</span><div class="window-controls"><button class="minimize" onclick="minWin(${id})">−</button><button class="maximize" onclick="maxWin(${id})">+</button><button class="close" onclick="closeWin(${id})">×</button></div></div><div class="window-body">${content}</div>`;
+            document.body.appendChild(win);
+            const taskBtn = document.createElement('button');
+            taskBtn.textContent = title;
+            taskBtn.style.cssText = 'background:rgba(192,132,252,0.08);border:1px solid rgba(192,132,252,0.08);color:#e2e8f0;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+            taskBtn.onclick = () => { win.style.display = win.style.display === 'none' ? 'flex' : 'none'; };
+            document.getElementById('taskbar-apps').appendChild(taskBtn);
+            windows.push({ id, element: win, taskBtn });
+            const header = win.querySelector('.window-header');
+            let dragging = false, ox, oy;
+            header.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.window-controls')) return;
+                dragging = true; const r = win.getBoundingClientRect(); ox = e.clientX - r.left; oy = e.clientY - r.top;
+                win.style.zIndex = ++zIndexCounter;
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', () => { dragging = false; document.removeEventListener('mousemove', drag); });
             });
-            
-            terminal.addEventListener('click', () => input.focus());
+            function drag(e) { if (dragging) { win.style.left = (e.clientX - ox) + 'px'; win.style.top = (e.clientY - oy) + 'px'; } }
+            return id;
         }
 
-        function executeCommand(cmd) {
-            const output = document.getElementById('terminal-output');
-            const prompt = document.getElementById('terminal-prompt');
-            
-            output.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> ${cmd}</div>`;
-            
-            linux.history.push(cmd);
-            linux.historyIndex = linux.history.length;
-            
-            const result = linux.executeCommand(cmd);
-            
-            if (result === 'CLEAR') {
-                output.innerHTML = '';
-            } else if (result !== '') {
-                output.innerHTML += `<div style="white-space:pre-wrap;">${result}</div>`;
+        function closeWin(id) { const i = windows.findIndex(w => w.id === id); if (i !== -1) { windows[i].element.remove(); windows[i].taskBtn.remove(); windows.splice(i, 1); } }
+        function minWin(id) { const w = windows.find(w => w.id === id); if (w) w.element.style.display = w.element.style.display === 'none' ? 'flex' : 'none'; }
+        function maxWin(id) { const w = windows.find(w => w.id === id); if (w) { if (w.element.style.width === '100vw') { w.element.style.width = '500px'; w.element.style.height = '400px'; } else { w.element.style.width = '100vw'; w.element.style.height = 'calc(100vh - 70px)'; w.element.style.left = '0'; w.element.style.top = '30px'; } } }
+
+        function openTerminal() {
+            const content = `<div style="height:100%;display:flex;flex-direction:column;"><div id="term-out" class="terminal" style="flex:1;overflow:auto;white-space:pre-wrap;"><div>Nova OS Terminal — All Languages</div><div>JS + TS + Python + SQL + PHP + Ruby + Lua</div><div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> </div></div><div style="display:flex;gap:8px;margin-top:8px;"><input id="term-in" type="text" style="flex:1;background:#000;border:1px solid #00ff00;color:#00ff00;padding:8px;border-radius:6px;font-family:monospace;outline:none;" placeholder="Команда..."><button onclick="sendTerm()" style="background:#00ff00;border:none;color:#000;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:bold;">⏎</button></div></div>`;
+            createWindow('💻 Терминал', content, 600, 450);
+            window.sendTerm = async function() {
+                const input = document.getElementById('term-in');
+                const output = document.getElementById('term-out');
+                const cmd = input.value.trim();
+                if (!cmd) return;
+                linux.history.push(cmd);
+                input.value = '';
+                output.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> ${cmd}</div>`;
+                const result = await linux.execute(cmd);
+                if (result === 'CLEAR') output.innerHTML = '';
+                else if (result) output.innerHTML += `<div style="white-space:pre-wrap;">${result}</div>`;
+                output.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> </div>`;
+                output.scrollTop = output.scrollHeight;
+            };
+            document.getElementById('term-in').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendTerm(); });
+        }
+
+        function openCodeEditor() {
+            const content = `<div style="height:100%;display:flex;flex-direction:column;"><div style="display:flex;gap:8px;margin-bottom:8px;"><select id="code-lang" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:6px 10px;border-radius:6px;outline:none;"><option value="js">JavaScript</option><option value="ts">TypeScript</option><option value="python">Python</option><option value="sql">SQL</option><option value="php">PHP</option><option value="ruby">Ruby</option><option value="lua">Lua</option></select><button onclick="runCode()" style="background:#c084fc;border:none;color:#0a0a1a;padding:6px 14px;border-radius:6px;cursor:pointer;">▶</button></div><textarea id="code-text" style="flex:1;background:#000;color:#00ff00;border:1px solid #00ff00;padding:8px;border-radius:6px;font-family:monospace;font-size:13px;resize:none;outline:none;" placeholder="Код...">console.log("Hello World!");</textarea><div id="code-out" style="margin-top:8px;background:#000;color:#e2e8f0;padding:8px;border-radius:6px;min-height:50px;"></div></div>`;
+            createWindow('🌐 Все языки', content, 600, 500);
+            window.runCode = async function() {
+                const lang = document.getElementById('code-lang').value;
+                const code = document.getElementById('code-text').value;
+                const out = document.getElementById('code-out');
+                out.textContent = 'Выполнение...';
+                out.textContent = await linux.multiLang.execute(lang, code);
+            };
+        }
+
+        function openFileManager() {
+            const files = linux.listDir('/home/nova');
+            const content = `<div style="height:100%;overflow:auto;"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px;">${files.map(f => { const n = linux.getNode('/home/nova/' + f); return `<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:32px;">${n.type === 'dir' ? '📁' : '📄'}</div><div style="font-size:11px;color:#a0aec0;margin-top:4px;">${f}</div></div>`; }).join('')}</div></div>`;
+            createWindow('📁 Файлы', content, 500, 400);
+        }
+
+        function openTextEditor() {
+            const content = `<div style="height:100%;display:flex;flex-direction:column;"><div style="display:flex;gap:8px;margin-bottom:8px;"><input id="ed-name" type="text" value="note.txt" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:6px 10px;border-radius:6px;outline:none;"><button onclick="saveEd()" style="background:#c084fc;border:none;color:#0a0a1a;padding:6px 14px;border-radius:6px;cursor:pointer;">💾</button></div><textarea id="ed-text" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:8px;border-radius:6px;font-family:monospace;font-size:13px;resize:none;outline:none;" placeholder="Введите текст..."></textarea></div>`;
+            createWindow('📝 Редактор', content, 600, 450);
+            window.saveEd = function() { const n = document.getElementById('ed-name').value; const c = document.getElementById('ed-text').value; if (n && c && linux.createFile('/home/nova', n, c)) notify('💾 Сохранено!'); };
+        }
+
+        function openCalculator() {
+            let expr = '';
+            const content = `<div style="height:100%;display:flex;flex-direction:column;gap:12px;"><div style="width:100%;background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;text-align:right;font-size:28px;min-height:50px;color:#e2e8f0;" id="calc-d">0</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','=','⌫'].map(b => `<button onclick="calcP('${b}')" style="background:${['C','±','%','÷','×','−','+','='].includes(b)?'rgba(192,132,252,0.3)':'rgba(255,255,255,0.05)'};border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:12px;color:#e2e8f0;font-size:18px;cursor:pointer;">${b}</button>`).join('')}</div></div>`;
+            createWindow('🧮 Калькулятор', content, 350, 450);
+            window.calcP = function(b) { const d = document.getElementById('calc-d'); if (b === 'C') { expr = ''; d.textContent = '0'; return; } if (b === '=') { try { const r = Function('"use strict";return(' + expr.replace(/×/g,'*').replace(/÷/g,'/') + ')')(); d.textContent = r; expr = String(r); } catch { d.textContent = 'Ошибка'; expr = ''; } return; } if (b === '⌫') { expr = expr.slice(0, -1); d.textContent = expr || '0'; return; } const ops = ['+','−','×','÷']; if (ops.includes(b)) { expr += b === '×' ? '*' : b === '÷' ? '/' : b === '−' ? '-' : '+'; } else expr += b; d.textContent = expr || '0'; };
+        }
+
+        function openSystemMonitor() {
+            const content = `<div style="height:100%;overflow:auto;"><canvas id="cpu-c" width="400" height="100" style="width:100%;"></canvas><canvas id="mem-c" width="400" height="100" style="width:100%;margin-top:10px;"></canvas><div id="sys-s" style="margin-top:15px;"></div></div>`;
+            createWindow('📊 Монитор', content, 450, 350);
+            setTimeout(() => {
+                const cc = document.getElementById('cpu-c').getContext('2d');
+                const mc = document.getElementById('mem-c').getContext('2d');
+                let cd = [], md = [];
+                function upd() {
+                    cd.push(Math.random() * 100); md.push(Math.random() * 100);
+                    if (cd.length > 50) cd.shift(); if (md.length > 50) md.shift();
+                    cc.clearRect(0, 0, 400, 100); cc.beginPath();
+                    cd.forEach((v, i) => { const x = i * 8, y = 100 - v; i === 0 ? cc.moveTo(x, y) : cc.lineTo(x, y); });
+                    cc.strokeStyle = '#c084fc'; cc.lineWidth = 2; cc.stroke();
+                    mc.clearRect(0, 0, 400, 100); mc.beginPath();
+                    md.forEach((v, i) => { const x = i * 8, y = 100 - v; i === 0 ? mc.moveTo(x, y) : mc.lineTo(x, y); });
+                    mc.strokeStyle = '#81e6d9'; mc.lineWidth = 2; mc.stroke();
+                    document.getElementById('sys-s').innerHTML = `<div>CPU: ${cd[cd.length-1].toFixed(1)}%</div><div>RAM: ${md[md.length-1].toFixed(1)}%</div><div>Python: ${linux.multiLang.languages.python.ready ? '✅' : '❌'}</div><div>SQLite: ${linux.multiLang.languages.sql.ready ? '✅' : '❌'}</div>`;
+                }
+                setInterval(upd, 1000); upd();
+            }, 50);
+        }
+
+        function openSettings() {
+            const content = `<div style="height:100%;overflow:auto;">${[['🐧 Система','Nova OS Web'],['🌐 Языки','7 языков'],['🔧 Ядро','5.15.0-nova'],['👤 Пользователь',linux.currentUser]].map(([n,v]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:4px;"><span>${n}</span><span style="color:#81e6d9;">${v}</span></div>`).join('')}</div>`;
+            createWindow('⚙️ Настройки', content, 400, 300);
+        }
+
+        function openSnakeGame() {
+            const content = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><canvas id="snake-c" width="300" height="300" style="border:1px solid #c084fc;border-radius:8px;"></canvas><div style="margin-top:10px;">Счёт: <span id="snake-s">0</span></div></div>`;
+            createWindow('🐍 Змейка', content, 350, 420);
+            setTimeout(() => {
+                const canvas = document.getElementById('snake-c');
+                const ctx = canvas.getContext('2d');
+                let snake = [{x: 5, y: 5}], food = {x: 10, y: 10}, dir = {x: 1, y: 0}, score = 0;
+                function loop() {
+                    const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+                    if (head.x < 0 || head.x >= 15 || head.y < 0 || head.y >= 15) { alert('Игра окончена! Счёт: ' + score); return; }
+                    snake.unshift(head);
+                    if (head.x === food.x && head.y === food.y) { score++; document.getElementById('snake-s').textContent = score; food = {x: Math.floor(Math.random() * 15), y: Math.floor(Math.random() * 15)}; } else snake.pop();
+                    ctx.clearRect(0, 0, 300, 300);
+                    ctx.fillStyle = '#c084fc'; snake.forEach(s => ctx.fillRect(s.x * 20, s.y * 20, 18, 18));
+                    ctx.fillStyle = '#f7768e'; ctx.fillRect(food.x * 20, food.y * 20, 18, 18);
+                }
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowUp' && dir.y === 0) dir = {x: 0, y: -1};
+                    if (e.key === 'ArrowDown' && dir.y === 0) dir = {x: 0, y: 1};
+                    if (e.key === 'ArrowLeft' && dir.x === 0) dir = {x: -1, y: 0};
+                    if (e.key === 'ArrowRight' && dir.x === 0) dir = {x: 1, y: 0};
+                });
+                setInterval(loop, 150);
+            }, 50);
+        }
+
+        function showStartMenu() {
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            menu.style.bottom = '50px'; menu.style.left = '10px'; menu.style.position = 'fixed';
+            const apps = [
+                ['💻 Терминал', openTerminal], ['🌐 Все языки', openCodeEditor],
+                ['📁 Файлы', openFileManager], ['📝 Редактор', openTextEditor],
+                ['🧮 Калькулятор', openCalculator], ['📊 Монитор', openSystemMonitor],
+                ['⚙️ Настройки', openSettings], ['🐍 Змейка', openSnakeGame]
+            ];
+            apps.forEach(([name, action]) => { const btn = document.createElement('button'); btn.textContent = name; btn.onclick = () => { action(); menu.remove(); }; menu.appendChild(btn); });
+            document.body.appendChild(menu);
+            setTimeout(() => document.addEventListener('click', (e) => { if (!menu.contains(e.target)) menu.remove(); }, { once: true }), 10);
+        }
+
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
+            const items = [['🔄 Обновить', () => location.reload()], ['💻 Терминал', openTerminal], ['🌐 Все языки', openCodeEditor], ['🎨 Обои', changeWallpaper]];
+            items.forEach(([label, action]) => { const btn = document.createElement('button'); btn.textContent = label; btn.onclick = () => { action(); menu.remove(); }; menu.appendChild(btn); });
+            document.body.appendChild(menu);
+            document.addEventListener('click', () => menu.remove(), { once: true });
+        });
+
+        function initDesktop() {
+            function updateClock() {
+                const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('clock').textContent = time;
+                document.getElementById('panel-clock').textContent = time;
             }
+            setInterval(updateClock, 1000); updateClock();
             
-            prompt.textContent = `${linux.currentUser}@${linux.hostname}:${linux.currentPath}$ `;
+            const icons = [
+                ['💻', 'Терминал', openTerminal, 20, 20],
+                ['🌐', 'Языки', openCodeEditor, 110, 20],
+                ['📁', 'Файлы', openFileManager, 200, 20],
+                ['📝', 'Редактор', openTextEditor, 290, 20],
+                ['🧮', 'Калькулятор', openCalculator, 380, 20],
+                ['📊', 'Монитор', openSystemMonitor, 470, 20],
+                ['⚙️', 'Настройки', openSettings, 560, 20],
+                ['🐍', 'Змейка', openSnakeGame, 650, 20]
+            ];
             
-            const terminal = document.getElementById('terminal');
-            terminal.scrollTop = terminal.scrollHeight;
-            
-            document.getElementById('terminal-input').focus();
+            icons.forEach(([icon, label, action, x, y]) => {
+                const el = document.createElement('div');
+                el.className = 'desktop-icon';
+                el.style.left = x + 'px'; el.style.top = y + 'px';
+                el.innerHTML = `<div class="icon">${icon}</div><div class="label">${label}</div>`;
+                el.onclick = action; el.ondblclick = action;
+                document.getElementById('desktop').appendChild(el);
+            });
         }
 
         bootSystem();
