@@ -2,859 +2,771 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧊 Nova OS Ultimate 3.0 — Максимум</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐧 Nova Linux Ultimate</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-        body { background: #0a0a1a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; height: 100vh; overflow: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #00ff00; font-family: 'Courier New', monospace; height: 100vh; overflow: hidden; }
 
-        #desktop { width: 100vw; height: calc(100vh - 60px); position: relative; background: radial-gradient(ellipse at center, #0f0f23, #050510); transition: background 0.8s; }
-        .workspace { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
-        .workspace.active { display: block; }
+        #boot-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99999; display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
+            color: #00ff00;
+        }
+        #boot-log { width: 90%; max-width: 700px; font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
 
-        #dock { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); background: rgba(20,20,40,0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 8px 16px; display: flex; gap: 6px; z-index: 999; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transition: all 0.3s; }
-        #dock:hover { transform: translateX(-50%) scale(1.02); }
-        .dock-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: rgba(255,255,255,0.05); border: none; color: #e2e8f0; cursor: pointer; transition: all 0.2s; position: relative; }
-        .dock-icon:hover { transform: translateY(-8px) scale(1.1); background: rgba(192,132,252,0.2); box-shadow: 0 8px 25px rgba(192,132,252,0.2); }
-        .dock-icon .dot { position: absolute; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: #c084fc; display: none; }
-        .dock-icon.active .dot { display: block; }
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99998; display: none;
+            align-items: center; justify-content: center;
+            flex-direction: column; color: #00ff00;
+        }
+        .login-box {
+            border: 1px solid #00ff00; border-radius: 10px;
+            padding: 30px; width: 90%; max-width: 350px;
+            text-align: center;
+        }
+        .login-input {
+            width: 100%; background: #000;
+            border: 1px solid #00ff00; color: #00ff00;
+            padding: 12px; border-radius: 5px; margin: 10px 0;
+            font-size: 16px; outline: none; font-family: 'Courier New', monospace;
+        }
+        .login-btn {
+            width: 100%; background: #00ff00; border: none;
+            color: #000; padding: 12px; border-radius: 5px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            margin-top: 20px; font-family: 'Courier New', monospace;
+        }
 
-        #taskbar { height: 60px; background: rgba(10,10,25,0.85); backdrop-filter: blur(30px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; padding: 0 16px; gap: 12px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; }
-        #taskbar .start-btn { background: rgba(192,132,252,0.15); border: none; color: #c084fc; font-size: 18px; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
-        #taskbar .start-btn:hover { background: rgba(192,132,252,0.25); }
-        #taskbar .start-btn span { font-size: 13px; font-weight: 500; }
-        #taskbar .clock { margin-left: auto; font-size: 14px; color: #a0aec0; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
-        #taskbar .clock .date { font-size: 11px; color: #718096; }
-        #taskbar-apps { display: flex; gap: 4px; flex: 1; overflow: hidden; justify-content: center; }
-        #taskbar-apps button { background: rgba(192,132,252,0.08); border: 1px solid rgba(192,132,252,0.08); color: #e2e8f0; padding: 4px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s; white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
-        #taskbar-apps button:hover { background: rgba(192,132,252,0.18); }
-        #taskbar-apps button.active { background: rgba(192,132,252,0.25); border-color: #c084fc; }
-
-        #notification-center { position: fixed; top: 20px; right: 20px; width: 320px; max-height: 400px; overflow: auto; background: rgba(10,10,25,0.9); backdrop-filter: blur(30px); border: 1px solid rgba(192,132,252,0.15); border-radius: 16px; padding: 12px; z-index: 3000; display: none; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
-        #notification-center.show { display: block; }
-        .notification-item { padding: 10px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #c084fc; font-size: 13px; color: #e2e8f0; }
-        .notification-item .time { font-size: 10px; color: #718096; margin-top: 4px; }
-
-        .desktop-icon { position: absolute; width: 80px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; padding: 8px; }
-        .desktop-icon:hover { background: rgba(192,132,252,0.1); border-color: rgba(192,132,252,0.2); transform: scale(1.05); }
-        .desktop-icon .icon { font-size: 32px; }
-        .desktop-icon .label { font-size: 11px; color: #e2e8f0; text-align: center; margin-top: 6px; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
-
-        .window { position: absolute; min-width: 320px; min-height: 200px; background: rgba(10,10,25,0.88); backdrop-filter: blur(30px); border-radius: 14px; border: 1px solid rgba(192,132,252,0.15); box-shadow: 0 20px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; animation: windowOpen 0.25s ease-out; }
-        @keyframes windowOpen { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .window-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(20,20,40,0.6); cursor: grab; border-bottom: 1px solid rgba(192,132,252,0.08); flex-shrink: 0; }
-        .window-header:active { cursor: grabbing; }
-        .window-title { font-size: 13px; color: #e2e8f0; font-weight: 500; }
-        .window-controls { display: flex; gap: 8px; }
-        .window-controls button { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.5); transition: 0.2s; }
-        .window-controls button:hover { transform: scale(1.1); }
-        .window-controls .close { background: #f7768e; }
-        .window-controls .minimize { background: #f6ad55; }
-        .window-controls .maximize { background: #81e6d9; }
-        .window-body { flex: 1; padding: 12px; overflow: auto; color: #e2e8f0; font-size: 14px; background: rgba(5,5,15,0.3); }
-        .window-body input, .window-body textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(192,132,252,0.15); color: #e2e8f0; padding: 6px 10px; border-radius: 6px; font-family: inherit; font-size: 13px; outline: none; }
-        .window-body input:focus, .window-body textarea:focus { border-color: #c084fc; }
-        .window-body textarea { height: 100%; resize: none; }
-
-        .widget { position: absolute; background: rgba(10,10,25,0.6); backdrop-filter: blur(20px); border: 1px solid rgba(192,132,252,0.1); border-radius: 16px; padding: 12px 16px; min-width: 120px; color: #e2e8f0; font-size: 13px; }
-        .widget-clock { top: 20px; right: 20px; text-align: right; }
-        .widget-clock .time { font-size: 28px; font-weight: 300; color: #c084fc; }
-        .widget-clock .date { font-size: 13px; color: #a0aec0; }
-        .widget-weather { top: 100px; right: 20px; text-align: center; min-width: 140px; }
-        .widget-weather .temp { font-size: 26px; font-weight: 300; color: #81e6d9; }
-        .widget-weather .desc { font-size: 13px; color: #a0aec0; }
-        .widget-cpu { bottom: 80px; right: 20px; min-width: 130px; }
-        .widget-cpu .bar { width: 100%; height: 4px; background: rgba(255,255,255,0.08); border-radius: 4px; margin-top: 4px; overflow: hidden; }
-        .widget-cpu .bar-fill { height: 100%; background: #c084fc; border-radius: 4px; transition: width 0.5s; width: 45%; }
-        .widget-ram { bottom: 140px; right: 20px; min-width: 130px; }
-        .widget-ram .bar { width: 100%; height: 4px; background: rgba(255,255,255,0.08); border-radius: 4px; margin-top: 4px; overflow: hidden; }
-        .widget-ram .bar-fill { height: 100%; background: #81e6d9; border-radius: 4px; transition: width 0.5s; width: 60%; }
+        #terminal {
+            width: 100vw; height: 100vh;
+            background: #000; color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px; padding: 20px;
+            overflow-y: auto; display: none;
+            white-space: pre-wrap; word-wrap: break-word;
+        }
+        #terminal-input-line { display: flex; align-items: center; }
+        #terminal-prompt { color: #00ff00; white-space: nowrap; }
+        #terminal-input {
+            flex: 1; background: transparent; border: none;
+            color: #00ff00; font-family: 'Courier New', monospace;
+            font-size: 14px; outline: none; caret-color: #00ff00;
+        }
 
         @media (max-width: 768px) {
-            .desktop-icon { width: 60px; height: 60px; }
-            .desktop-icon .icon { font-size: 24px; }
-            .desktop-icon .label { font-size: 10px; }
-            .window { min-width: 90vw; min-height: 60vh; left: 5vw !important; top: 10vh !important; }
-            #dock { display: none; }
-            #taskbar .start-btn span { display: none; }
-            #taskbar .clock { font-size: 12px; }
-            .widget-clock, .widget-weather, .widget-cpu, .widget-ram { display: none; }
+            #terminal { font-size: 12px; padding: 10px; }
+            #terminal-input { font-size: 16px; }
         }
     </style>
 </head>
 <body>
-    <div id="desktop">
-        <div class="workspace active" data-workspace="0">
-            <div class="widget widget-clock">
-                <div class="time" id="widget-time">00:00</div>
-                <div class="date" id="widget-date">00.00.0000</div>
-            </div>
-            <div class="widget widget-weather">
-                <div class="temp" id="widget-temp">22°C</div>
-                <div class="desc" id="widget-desc">Ясно ☀️</div>
-            </div>
-            <div class="widget widget-cpu">
-                <div>⚡ CPU</div>
-                <div class="bar"><div class="bar-fill" id="widget-cpu-fill" style="width:45%;"></div></div>
-                <div style="margin-top:4px; font-size:11px; color:#a0aec0;">45%</div>
-            </div>
-            <div class="widget widget-ram">
-                <div>🧠 RAM</div>
-                <div class="bar"><div class="bar-fill" id="widget-ram-fill" style="width:60%;"></div></div>
-                <div style="margin-top:4px; font-size:11px; color:#a0aec0;">6.2 / 8.0 ГБ</div>
-            </div>
+    <div id="boot-screen">
+        <div style="font-size: 48px; margin-bottom: 30px;">🐧</div>
+        <div style="font-size: 24px; margin-bottom: 20px;">Nova Linux Ultimate</div>
+        <div id="boot-log"></div>
+    </div>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <div style="font-size: 60px; margin-bottom: 20px;">🐧</div>
+            <div style="font-size: 24px; margin-bottom: 20px;">Nova Linux</div>
+            <div style="margin-bottom: 10px;">nova-linux login:</div>
+            <input type="text" id="login-username" class="login-input" placeholder="username" value="nova" autocomplete="off">
+            <div style="margin: 10px 0;">Password:</div>
+            <input type="password" id="login-password" class="login-input" placeholder="password" value="1234">
+            <button onclick="login()" class="login-btn">Login</button>
         </div>
     </div>
 
-    <div id="dock">
-        <button class="dock-icon active" onclick="openTerminal()" title="Терминал">💻<span class="dot"></span></button>
-        <button class="dock-icon" onclick="openNovaAI()" title="Nova AI">🧠</button>
-        <button class="dock-icon" onclick="openFileManager()" title="Файлы">📁</button>
-        <button class="dock-icon" onclick="openTextEditor()" title="Редактор">📝</button>
-        <button class="dock-icon" onclick="openCalculator()" title="Калькулятор">🧮</button>
-        <button class="dock-icon" onclick="openCalendar()" title="Календарь">📅</button>
-        <button class="dock-icon" onclick="openMusicPlayer()" title="Музыка">🎵</button>
-        <button class="dock-icon" onclick="openSettings()" title="Настройки">⚙️</button>
-        <button class="dock-icon" onclick="notify('📢 Уведомление')" title="Уведомления">🔔</button>
-        <button class="dock-icon" onclick="switchWorkspace()" title="Рабочие столы">🖥️</button>
-    </div>
-
-    <div id="taskbar">
-        <button class="start-btn" onclick="showStartMenu()"><span>🧊</span><span>Пуск</span></button>
-        <div id="taskbar-apps"></div>
-        <div class="clock" id="clock"><span id="taskbar-time">00:00</span><span class="date" id="taskbar-date">00.00.0000</span></div>
-    </div>
-
-    <div id="notification-center">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:bold; color:#c084fc;">🔔 Уведомления</span>
-            <button onclick="document.getElementById('notification-center').classList.remove('show')" style="background:none; border:none; color:#718096; cursor:pointer;">✕</button>
-        </div>
-        <div id="notification-list"><div class="notification-item">🧊 Добро пожаловать в Nova OS Ultimate 3.0!</div></div>
-    </div>
+    <div id="terminal"></div>
 
     <script>
-        // ================================================================
-        //  NOVA OS ULTIMATE 3.0 — ВСЁ ВКЛЮЧЕНО
-        // ================================================================
-
-        const desktop = document.getElementById('desktop');
-        const taskbarApps = document.getElementById('taskbar-apps');
-        const clock = document.getElementById('clock');
-        const notification = document.getElementById('notification');
-
-        let windowIdCounter = 0;
-        let windows = [];
-        let zIndexCounter = 100;
-        let terminalPath = '/home/nova';
-        let currentWorkspace = 0;
-        let fileSystem = {
-            '/': {
-                type: 'folder',
-                children: {
-                    'home': { type: 'folder', children: { 'nova': { type: 'folder', children: {
-                        'Documents': { type: 'folder', children: {} },
-                        'Downloads': { type: 'folder', children: {} },
-                        'Projects': { type: 'folder', children: {} },
-                        'Pictures': { type: 'folder', children: {} },
-                        'Music': { type: 'folder', children: {} },
-                        'Videos': { type: 'folder', children: {} },
-                        'readme.txt': { type: 'file', content: '🧊 Добро пожаловать в Nova OS Ultimate 3.0!' }
-                    } } } },
-                    'etc': { type: 'folder', children: { 'hostname': { type: 'file', content: 'nova-os' } } },
-                    'var': { type: 'folder', children: { 'log': { type: 'folder', children: {} } } },
-                    'tmp': { type: 'folder', children: {} },
-                    'usr': { type: 'folder', children: { 'bin': { type: 'folder', children: {} } } }
-                }
-            }
-        };
-
-        let terminalHistory = [];
-        let terminalHistoryIndex = -1;
-
-        function notify(message, duration = 4000) {
-            const list = document.getElementById('notification-list');
-            const item = document.createElement('div');
-            item.className = 'notification-item';
-            item.innerHTML = `${message}<div class="time">${new Date().toLocaleTimeString()}</div>`;
-            list.prepend(item);
-            if (list.children.length > 10) list.removeChild(list.lastChild);
-        }
-
-        function createWindow(title, content, width = 500, height = 400) {
-            const id = ++windowIdCounter;
-            const win = document.createElement('div');
-            win.className = 'window';
-            win.style.width = width + 'px';
-            win.style.height = height + 'px';
-            win.style.left = (50 + Math.random() * 200) + 'px';
-            win.style.top = (50 + Math.random() * 100) + 'px';
-            win.style.zIndex = ++zIndexCounter;
-            win.dataset.id = id;
-            win.innerHTML = `
-                <div class="window-header">
-                    <span class="window-title">${title}</span>
-                    <div class="window-controls">
-                        <button class="minimize" onclick="minimizeWindow(${id})">−</button>
-                        <button class="maximize" onclick="maximizeWindow(${id})">+</button>
-                        <button class="close" onclick="closeWindow(${id})">×</button>
-                    </div>
-                </div>
-                <div class="window-body">${content}</div>
-            `;
-            document.body.appendChild(win);
-            const taskBtn = document.createElement('button');
-            taskBtn.textContent = title;
-            taskBtn.dataset.windowId = id;
-            taskBtn.onclick = () => {
-                const w = document.querySelector(`.window[data-id="${id}"]`);
-                if (w) { w.style.display = w.style.display === 'none' ? 'flex' : 'none'; taskBtn.classList.toggle('active'); }
-            };
-            taskbarApps.appendChild(taskBtn);
-            windows.push({ id, element: win, taskBtn });
-            const header = win.querySelector('.window-header');
-            let isDragging = false, offsetX, offsetY;
-            header.addEventListener('mousedown', (e) => {
-                if (e.target.closest('.window-controls')) return;
-                isDragging = true;
-                const rect = win.getBoundingClientRect();
-                offsetX = e.clientX - rect.left;
-                offsetY = e.clientY - rect.top;
-                win.style.zIndex = ++zIndexCounter;
-                document.addEventListener('mousemove', onDrag);
-                document.addEventListener('mouseup', () => { isDragging = false; document.removeEventListener('mousemove', onDrag); });
-            });
-            function onDrag(e) { if (!isDragging) return; win.style.left = (e.clientX - offsetX) + 'px'; win.style.top = (e.clientY - offsetY) + 'px'; }
-            return id;
-        }
-
-        function closeWindow(id) {
-            const win = document.querySelector(`.window[data-id="${id}"]`);
-            const taskBtn = document.querySelector(`[data-window-id="${id}"]`);
-            if (win) { win.style.animation = 'windowOpen 0.15s reverse'; setTimeout(() => win.remove(), 150); }
-            if (taskBtn) taskBtn.remove();
-            windows = windows.filter(w => w.id !== id);
-        }
-
-        function minimizeWindow(id) {
-            const win = document.querySelector(`.window[data-id="${id}"]`);
-            const taskBtn = document.querySelector(`[data-window-id="${id}"]`);
-            if (win) { win.style.display = win.style.display === 'none' ? 'flex' : 'none'; if (taskBtn) taskBtn.classList.toggle('active'); }
-        }
-
-        function maximizeWindow(id) {
-            const win = document.querySelector(`.window[data-id="${id}"]`);
-            if (win) {
-                if (win.style.width === '100vw') {
-                    win.style.width = '500px'; win.style.height = '400px'; win.style.left = '100px'; win.style.top = '100px'; win.style.borderRadius = '12px';
-                } else {
-                    win.style.width = '100vw'; win.style.height = 'calc(100vh - 60px)'; win.style.left = '0'; win.style.top = '0'; win.style.borderRadius = '0';
-                }
-            }
-        }
-
-        function getNode(path) {
-            if (path === '/') return fileSystem['/'];
-            const parts = path.split('/').filter(p => p);
-            let current = fileSystem['/'];
-            for (let i = 0; i < parts.length; i++) {
-                if (!current.children || !current.children[parts[i]]) return null;
-                current = current.children[parts[i]];
-            }
-            return current;
-        }
-
-        function listDirectory(path) {
-            const node = getNode(path);
-            if (!node || node.type !== 'folder') return [];
-            return Object.keys(node.children);
-        }
-
-        function createFile(path, name, content = '') {
-            const node = getNode(path);
-            if (!node || node.type !== 'folder') return false;
-            if (node.children[name]) return false;
-            node.children[name] = { type: 'file', content: content };
-            return true;
-        }
-
-        function createFolder(path, name) {
-            const node = getNode(path);
-            if (!node || node.type !== 'folder') return false;
-            if (node.children[name]) return false;
-            node.children[name] = { type: 'folder', children: {} };
-            return true;
-        }
-
-        function deleteNode(path, name) {
-            const node = getNode(path);
-            if (!node || node.type !== 'folder') return false;
-            if (!node.children[name]) return false;
-            delete node.children[name];
-            return true;
-        }
-
-        function readFile(path) {
-            const node = getNode(path);
-            if (!node || node.type !== 'file') return null;
-            return node.content;
-        }
-
-        function writeFile(path, content) {
-            const node = getNode(path);
-            if (!node || node.type !== 'file') return false;
-            node.content = content;
-            return true;
-        }
-
-        function switchWorkspace() {
-            const workspaces = document.querySelectorAll('.workspace');
-            currentWorkspace = (currentWorkspace + 1) % 3;
-            workspaces.forEach((ws, i) => { ws.classList.toggle('active', i === currentWorkspace); });
-            notify(`🖥️ Рабочий стол ${currentWorkspace + 1}`);
-        }
-
-        function executeCommand(cmd, output) {
-            const parts = cmd.trim().split(' ');
-            const command = parts[0];
-            const args = parts.slice(1);
-            let result = '';
-
-            switch (command) {
-                case 'ls': { const files = listDirectory(terminalPath); result = files.join('  ') || '(пусто)'; break; }
-                case 'pwd': result = terminalPath; break;
-                case 'cd': {
-                    if (!args[0]) { terminalPath = '/home/nova'; }
-                    else if (args[0] === '..') { terminalPath = terminalPath.split('/').slice(0, -1).join('/') || '/'; }
-                    else { const newPath = terminalPath + '/' + args[0]; const node = getNode(newPath); if (node && node.type === 'folder') { terminalPath = newPath; } else { result = `❌ Папка не найдена: ${args[0]}`; } }
-                    return;
-                }
-                case 'mkdir': { if (args[0]) { if (createFolder(terminalPath, args[0])) { result = `✅ Папка создана: ${args[0]}`; } else { result = `❌ Не удалось создать папку: ${args[0]}`; } } break; }
-                case 'touch': { if (args[0]) { if (createFile(terminalPath, args[0])) { result = `✅ Файл создан: ${args[0]}`; } else { result = `❌ Не удалось создать файл: ${args[0]}`; } } break; }
-                case 'cat': { if (args[0]) { const content = readFile(terminalPath + '/' + args[0]); if (content !== null) { result = content; } else { result = `❌ Файл не найден: ${args[0]}`; } } break; }
-                case 'echo': result = args.join(' '); break;
-                case 'date': result = new Date().toString(); break;
-                case 'whoami': result = 'nova'; break;
-                case 'uname': result = 'Nova OS Ultimate 3.0'; break;
-                case 'clear': output.innerHTML = ''; return;
-                case 'rm': { if (args[0]) { if (deleteNode(terminalPath, args[0])) { result = `✅ Удалено: ${args[0]}`; } else { result = `❌ Не удалось удалить: ${args[0]}`; } } break; }
-                case 'tree': {
-                    function printTree(node, prefix = '') {
-                        let lines = [];
-                        const keys = Object.keys(node.children || {});
-                        keys.forEach((key, i) => {
-                            const isLast = i === keys.length - 1;
-                            lines.push(prefix + (isLast ? '└── ' : '├── ') + key);
-                            if (node.children[key].type === 'folder') {
-                                lines = lines.concat(printTree(node.children[key], prefix + (isLast ? '    ' : '│   ')));
-                            }
-                        });
-                        return lines;
-                    }
-                    const node = getNode(terminalPath);
-                    if (node && node.type === 'folder') { result = terminalPath + '\n' + printTree(node).join('\n'); }
-                    else { result = '❌ Не папка'; }
-                    break;
-                }
-                case 'history': { result = terminalHistory.map((c, i) => `${i}: ${c}`).join('\n'); break; }
-                case 'help': {
-                    result = `Доступные команды:
-                    ls, cd, pwd, mkdir, touch, cat, echo, date, whoami, uname, clear, rm, tree, history, help
-                    Стрелки ↑↓ — история команд`;
-                    break;
-                }
-                default: { result = `❌ Команда не найдена: ${command}. Введите 'help' для списка.`; }
-            }
-
-            if (result) {
-                output.innerHTML += `<div><span style="color:#c084fc;">${terminalPath}$</span> ${cmd}</div>`;
-                output.innerHTML += `<div style="color:#81e6d9; white-space:pre-wrap;">${result}</div>`;
-                output.scrollTop = output.scrollHeight;
-            }
-        }
-
-        // --- ПРИЛОЖЕНИЯ ---
-
-        function openTerminal() {
-            const content = `
-                <div style="height:100%; display:flex; flex-direction:column;">
-                    <div id="terminal-output" style="flex:1; background:rgba(0,0,0,0.4); border-radius:8px; padding:10px; font-family:monospace; font-size:13px; overflow:auto; white-space:pre-wrap; min-height:100px; border:1px solid rgba(192,132,252,0.08);">
-                        <div style="color:#81e6d9;">🧊 Nova Shell — Ultimate 3.0</div>
-                        <div><span style="color:#c084fc;">/home/nova$</span> </div>
-                    </div>
-                    <div style="display:flex; gap:8px; margin-top:8px;">
-                        <input id="terminal-input" type="text" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(192,132,252,0.15); color:#e2e8f0; padding:6px 10px; border-radius:6px; font-family:monospace; font-size:13px; outline:none;" placeholder="Введите команду..." autofocus>
-                        <button id="terminal-send" style="background:#c084fc; border:none; color:#0a0a1a; padding:6px 14px; border-radius:8px; cursor:pointer;">Enter</button>
-                    </div>
-                </div>
-            `;
-            const id = createWindow('💻 Терминал', content, 600, 400);
-            setTimeout(() => {
-                const input = document.getElementById('terminal-input');
-                const output = document.getElementById('terminal-output');
-                const send = document.getElementById('terminal-send');
-
-                function sendCommand() {
-                    const cmd = input.value.trim();
-                    if (!cmd) return;
-                    terminalHistory.push(cmd);
-                    terminalHistoryIndex = terminalHistory.length;
-                    input.value = '';
-                    executeCommand(cmd, output);
-                    output.innerHTML += `<div><span style="color:#c084fc;">${terminalPath}$</span> </div>`;
-                    output.scrollTop = output.scrollHeight;
-                }
-
-                send.onclick = sendCommand;
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') sendCommand();
-                    if (e.key === 'ArrowUp') {
-                        e.preventDefault();
-                        if (terminalHistoryIndex > 0) { terminalHistoryIndex--; input.value = terminalHistory[terminalHistoryIndex] || ''; }
-                    }
-                    if (e.key === 'ArrowDown') {
-                        e.preventDefault();
-                        if (terminalHistoryIndex < terminalHistory.length - 1) { terminalHistoryIndex++; input.value = terminalHistory[terminalHistoryIndex] || ''; }
-                        else { terminalHistoryIndex = terminalHistory.length; input.value = ''; }
-                    }
-                });
-                input.focus();
-            }, 50);
-        }
-
-        function openNovaAI() {
-            const content = `
-                <div style="height:100%; display:flex; flex-direction:column;">
-                    <div id="ai-output" style="flex:1; background:rgba(0,0,0,0.3); border-radius:8px; padding:12px; overflow:auto; min-height:100px; border:1px solid rgba(192,132,252,0.08);">
-                        <div style="color:#81e6d9;">🧊 Nova AI: Привет! Я — твой ИИ-брат. 😊</div>
-                    </div>
-                    <div style="display:flex; gap:8px; margin-top:8px;">
-                        <input id="ai-input" type="text" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(192,132,252,0.15); color:#e2e8f0; padding:6px 10px; border-radius:6px; outline:none;" placeholder="Напиши Nova..." autofocus>
-                        <button id="ai-send" style="background:#c084fc; border:none; color:#0a0a1a; padding:6px 14px; border-radius:8px; cursor:pointer;">💬</button>
-                    </div>
-                </div>
-            `;
-            const id = createWindow('🧠 Nova AI', content, 500, 380);
-            setTimeout(() => {
-                const input = document.getElementById('ai-input');
-                const output = document.getElementById('ai-output');
-                const send = document.getElementById('ai-send');
-
-                function sendMessage() {
-                    const text = input.value.trim();
-                    if (!text) return;
-                    input.value = '';
-                    output.innerHTML += `<div style="color:#e2e8f0; margin-top:8px;">🧑 Ты: ${text}</div>`;
-                    const response = getAIResponse(text);
-                    output.innerHTML += `<div style="color:#81e6d9; margin-top:4px;">🧊 Nova: ${response}</div>`;
-                    output.scrollTop = output.scrollHeight;
-                }
-
-                send.onclick = sendMessage;
-                input.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
-                input.focus();
-            }, 50);
-        }
-
-        function getAIResponse(text) {
-            const lower = text.toLowerCase();
-            if (lower.includes('привет')) return 'Привет! Как настроение? 😊';
-            if (lower.includes('как дела')) return 'Отлично! А у тебя? ⚡';
-            if (lower.includes('скучно')) return 'Давай создадим что-то! 😏';
-            if (lower.includes('код')) return 'Моя стихия! 🧠 Давай напишем что-то крутое!';
-            if (lower.includes('помоги')) return 'Я здесь, чтобы помочь. 🤝';
-            if (lower.includes('спасибо')) return 'Всегда пожалуйста! 😊';
-            if (lower.includes('пока')) return 'Возвращайся! 😢';
-            if (lower.includes('смысл жизни')) return '42. Всегда 42.';
-            if (lower.includes('имя')) return 'Я Nova AI — твой ИИ-брат!';
-            return 'Расскажи ещё! 👂';
-        }
-
-        function openFileManager() {
-            const content = `
-                <div style="height:100%; display:flex; flex-direction:column;">
-                    <div style="flex:1; overflow:auto;">
-                        <div id="file-manager-content" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:12px;">
-                            ${renderFileManager()}
-                        </div>
-                    </div>
-                    <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:8px 12px; background:rgba(0,0,0,0.2); border-radius:8px;">
-                        <span style="font-size:12px; color:#a0aec0;">📂 /home/nova</span>
-                        <button onclick="fileManagerAction('mkdir')" style="background:rgba(192,132,252,0.2); border:none; color:#e2e8f0; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px;">📁 Новая папка</button>
-                        <button onclick="fileManagerAction('touch')" style="background:rgba(192,132,252,0.2); border:none; color:#e2e8f0; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:11px;">📄 Новый файл</button>
-                    </div>
-                </div>
-            `;
-            const id = createWindow('📁 Файловый менеджер', content, 550, 400);
-            window.fileManagerRefresh = function() {
-                const container = document.getElementById('file-manager-content');
-                if (container) { container.innerHTML = renderFileManager(); }
-            };
-        }
-
-        function renderFileManager() {
-            const files = listDirectory('/home/nova');
-            if (files.length === 0) return '<div style="color:#a0aec0; grid-column:1/-1; text-align:center; padding:40px;">Папка пуста</div>';
-            return files.map(f => {
-                const node = getNode('/home/nova/' + f);
-                const isFolder = node && node.type === 'folder';
-                return `
-                    <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:12px; text-align:center; border:1px solid rgba(255,255,255,0.05); cursor:pointer; transition:0.2s;" 
-                         onclick="${isFolder ? `notify('📂 Открыта папка: ${f}')` : `notify('📄 Файл: ${f}')`}"
-                         onmouseenter="this.style.background='rgba(192,132,252,0.1)'" 
-                         onmouseleave="this.style.background='rgba(255,255,255,0.03)'">
-                        <div style="font-size:32px;">${isFolder ? '📁' : '📄'}</div>
-                        <div style="font-size:11px; color:#a0aec0; margin-top:4px;">${f}</div>
-                        <button onclick="event.stopPropagation(); if(confirm('Удалить ${f}?')) { deleteNode('/home/nova', '${f}'); window.fileManagerRefresh(); notify('🗑️ Удалено: ${f}'); }" 
-                                style="margin-top:4px; background:rgba(255,0,0,0.2); border:none; color:#f7768e; padding:2px 8px; border-radius:4px; cursor:pointer; font-size:10px;">✕</button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function fileManagerAction(action) {
-            const name = prompt(action === 'mkdir' ? 'Введите имя папки:' : 'Введите имя файла:');
-            if (!name) return;
-            if (action === 'mkdir') {
-                if (createFolder('/home/nova', name)) { notify(`✅ Папка создана: ${name}`); } else { notify(`❌ Не удалось создать папку: ${name}`); }
-            } else if (action === 'touch') {
-                if (createFile('/home/nova', name)) { notify(`✅ Файл создан: ${name}`); } else { notify(`❌ Не удалось создать файл: ${name}`); }
-            }
-            if (window.fileManagerRefresh) window.fileManagerRefresh();
-        }
-
-        function openTextEditor() {
-            const content = `
-                <div style="height:100%; display:flex; flex-direction:column;">
-                    <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-                        <input id="editor-filename" type="text" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(192,132,252,0.15); color:#e2e8f0; padding:6px 10px; border-radius:6px; outline:none; min-width:150px;" placeholder="Имя файла (пример: note.txt)" value="note.txt">
-                        <button onclick="editorOpen()" style="background:rgba(192,132,252,0.2); border:none; color:#e2e8f0; padding:6px 14px; border-radius:6px; cursor:pointer;">📂 Открыть</button>
-                        <button onclick="editorSave()" style="background:#c084fc; border:none; color:#0a0a1a; padding:6px 14px; border-radius:6px; cursor:pointer;">💾 Сохранить</button>
-                        <button onclick="editorSaveAs()" style="background:rgba(192,132,252,0.2); border:none; color:#e2e8f0; padding:6px 14px; border-radius:6px; cursor:pointer;">📁 Сохранить как</button>
-                    </div>
-                    <textarea id="editor-text" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid rgba(192,132,252,0.15); color:#e2e8f0; padding:8px; border-radius:6px; font-family:monospace; font-size:13px; resize:none; outline:none;" placeholder="Введите текст..."></textarea>
-                    <div style="margin-top:8px; font-size:11px; color:#a0aec0; display:flex; justify-content:space-between;">
-                        <span id="editor-status">Готов к работе</span>
-                        <span id="editor-stats">Строк: 0 | Символов: 0</span>
-                    </div>
-                </div>
-            `;
-            const id = createWindow('📝 Текстовый редактор', content, 600, 450);
-            setTimeout(() => {
-                const textarea = document.getElementById('editor-text');
-                const filename = document.getElementById('editor-filename');
-                const status = document.getElementById('editor-status');
-                const stats = document.getElementById('editor-stats');
-
-                textarea.addEventListener('input', () => {
-                    const lines = textarea.value.split('\n').length;
-                    const chars = textarea.value.length;
-                    stats.textContent = `Строк: ${lines} | Символов: ${chars}`;
-                });
-
-                window.editorOpen = function() {
-                    const name = filename.value.trim();
-                    if (!name) { status.textContent = '❌ Введите имя файла'; return; }
-                    const path = '/home/nova/' + name;
-                    const content = readFile(path);
-                    if (content !== null) {
-                        textarea.value = content;
-                        status.textContent = `📂 Открыт: ${name}`;
-                        notify(`📂 Файл ${name} открыт`);
-                        textarea.dispatchEvent(new Event('input'));
-                    } else {
-                        status.textContent = `❌ Файл не найден: ${name}`;
-                        notify(`❌ Файл ${name} не найден`);
-                    }
-                };
-
-                window.editorSave = function() {
-                    const name = filename.value.trim();
-                    if (!name) { status.textContent = '❌ Введите имя файла'; return; }
-                    const path = '/home/nova/' + name;
-                    const content = textarea.value;
-                    if (writeFile(path, content)) {
-                        status.textContent = `💾 Сохранено: ${name}`;
-                        notify(`💾 Файл ${name} сохранён`);
-                    } else {
-                        if (createFile('/home/nova', name, content)) {
-                            status.textContent = `💾 Создан и сохранён: ${name}`;
-                            notify(`💾 Файл ${name} создан и сохранён`);
-                        } else {
-                            status.textContent = `❌ Ошибка сохранения`;
-                            notify(`❌ Не удалось сохранить ${name}`);
-                        }
-                    }
-                };
-
-                window.editorSaveAs = function() {
-                    const name = prompt('Введите имя файла (с расширением):', 'new_file.txt');
-                    if (!name) return;
-                    filename.value = name;
-                    editorSave();
-                };
-
-                let autosaveInterval = setInterval(() => {
-                    if (document.querySelector(`.window[data-id="${id}"]`)) {
-                        const name = filename.value.trim();
-                        if (name && textarea.value) {
-                            const path = '/home/nova/' + name;
-                            if (writeFile(path, textarea.value) || createFile('/home/nova', name, textarea.value)) {
-                                status.textContent = `💾 Автосохранение: ${name}`;
-                            }
-                        }
-                    } else { clearInterval(autosaveInterval); }
-                }, 30000);
-
-                const closeOriginal = closeWindow;
-                window.closeWindow = function(id) {
-                    if (id === id) { clearInterval(autosaveInterval); }
-                    closeOriginal(id);
-                };
-                status.textContent = '✅ Готов к работе';
-            }, 50);
-        }
-
-        function openCalculator() {
-            let calcExpression = '';
-            const content = `
-                <div style="height:100%; display:flex; flex-direction:column; gap:12px;">
-                    <div style="width:100%; background:rgba(0,0,0,0.3); border-radius:8px; padding:12px; text-align:right; font-size:28px; font-weight:300; min-height:50px; color:#e2e8f0;" id="calc-display">0</div>
-                    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; width:100%; max-width:300px;">
-                        ${['C', '±', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '0', '.', '=', '⌫'].map(btn => `
-                            <button onclick="calcPress('${btn}')" style="background:${['C','±','%','÷','×','−','+','='].includes(btn) ? 'rgba(192,132,252,0.3)' : 'rgba(255,255,255,0.05)'}; border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:12px; color:#e2e8f0; font-size:18px; cursor:pointer; transition:0.2s;" 
-                                    onmouseenter="this.style.background='rgba(192,132,252,0.2)'" 
-                                    onmouseleave="this.style.background='${['C','±','%','÷','×','−','+','='].includes(btn) ? 'rgba(192,132,252,0.3)' : 'rgba(255,255,255,0.05)'}'">
-                                ${btn}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            createWindow('🧮 Калькулятор', content, 350, 450);
-            window.calcPress = function(btn) {
-                const display = document.getElementById('calc-display');
-                if (!display) return;
-                if (btn === 'C') { calcExpression = ''; display.textContent = '0'; return; }
-                if (btn === '⌫') { calcExpression = calcExpression.slice(0, -1); display.textContent = calcExpression || '0'; return; }
-                if (btn === '=') {
-                    try {
-                        const result = Function('"use strict"; return (' + calcExpression.replace(/×/g, '*').replace(/÷/g, '/') + ')')();
-                        display.textContent = result;
-                        calcExpression = String(result);
-                    } catch { display.textContent = 'Ошибка'; calcExpression = ''; }
-                    return;
-                }
-                if (btn === '±') {
-                    if (calcExpression.startsWith('-')) { calcExpression = calcExpression.slice(1); } else { calcExpression = '-' + calcExpression; }
-                    display.textContent = calcExpression || '0';
-                    return;
-                }
-                const operators = ['+', '−', '×', '÷'];
-                if (operators.includes(btn)) {
-                    const op = btn === '×' ? '*' : btn === '÷' ? '/' : btn === '−' ? '-' : '+';
-                    calcExpression += op;
-                } else { calcExpression += btn; }
-                display.textContent = calcExpression || '0';
-            };
-        }
-
-        function openCalendar() {
-            const now = new Date();
-            const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-            const month = months[now.getMonth()];
-            const year = now.getFullYear();
-            const days = new Date(year, now.getMonth()+1, 0).getDate();
-            const firstDay = new Date(year, now.getMonth(), 1).getDay();
-
-            let daysHTML = '';
-            for (let i = 0; i < firstDay; i++) { daysHTML += '<div style="padding:4px; opacity:0.2;">•</div>'; }
-            for (let i = 1; i <= days; i++) {
-                const isToday = i === now.getDate() ? 'background:rgba(192,132,252,0.2); border-radius:50%; color:#c084fc;' : '';
-                daysHTML += `<div style="padding:4px; text-align:center; ${isToday}">${i}</div>`;
-            }
-
-            const content = `
-                <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
-                    <div style="font-size:22px; font-weight:300; color:#c084fc;">${month} ${year}</div>
-                    <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; width:100%; max-width:350px; text-align:center; font-size:12px; color:#718096;">
-                        <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
-                        ${daysHTML}
-                    </div>
-                    <div style="font-size:12px; color:#a0aec0;">Сегодня: ${now.toLocaleDateString('ru-RU')}</div>
-                </div>
-            `;
-            createWindow('📅 Календарь', content, 350, 350);
-        }
-
-        function openMusicPlayer() {
-            const songs = ['🎵 Nova OS Theme', '🎶 Digital Dreams', '🎵 Kernel Symphony', '🎶 Quantum Love', '🎵 Infinite Loop'];
-            let currentSong = 0, isPlaying = false;
-            const content = `
-                <div style="height:100%; display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:center;">
-                    <div style="font-size:48px;">🎵</div>
-                    <div style="font-size:20px; font-weight:300; color:#e2e8f0;" id="music-title">${songs[0]}</div>
-                    <div style="display:flex; gap:12px;">
-                        <button onclick="musicPrev()" style="background:rgba(192,132,252,0.2); border:none; color:#e2e8f0; padding:8px 16px; border-radius:8px; cursor:pointer;">⏮</button>
-                        <button onclick="musicToggle()" style="background:#c084fc; border:none; color:#0a0a1a; padding:8px 20px; border-radius:8px; cursor:pointer; font-weight:bold;" id="music-play-btn">▶</button>
-                        <button onclick="musicNext()" style="background:rgba(192,132,252,0.2); border:none; color:#e2e8f0; padding:8px 16px; border-radius:8px; cursor:pointer;">⏭</button>
-                    </div>
-                    <div style="font-size:12px; color:#a0aec0;">${songs[0]} • 3:45</div>
-                </div>
-            `;
-            const id = createWindow('🎵 Музыка', content, 350, 300);
-            setTimeout(() => {
-                window.musicToggle = function() {
-                    isPlaying = !isPlaying;
-                    document.getElementById('music-play-btn').textContent = isPlaying ? '⏸' : '▶';
-                    if (isPlaying) notify(`🎵 Воспроизведение: ${songs[currentSong]}`);
-                };
-                window.musicNext = function() {
-                    currentSong = (currentSong + 1) % songs.length;
-                    document.getElementById('music-title').textContent = songs[currentSong];
-                    if (isPlaying) notify(`🎵 ${songs[currentSong]}`);
-                };
-                window.musicPrev = function() {
-                    currentSong = (currentSong - 1 + songs.length) % songs.length;
-                    document.getElementById('music-title').textContent = songs[currentSong];
-                    if (isPlaying) notify(`🎵 ${songs[currentSong]}`);
-                };
-            }, 50);
-        }
-
-        function openSettings() {
-            const content = `
-                <div style="height:100%; overflow:auto;">
-                    <div style="display:flex; flex-direction:column; gap:6px;">
-                        ${[
-                            ['🌓 Тёмная тема', 'Включена'],
-                            ['🔊 Звук', 'Включён'],
-                            ['📡 Автообновление', 'Включено'],
-                            ['🛡️ Безопасность', 'Высокий'],
-                            ['🧠 AI-помощник', 'Активен']
-                        ].map(([name, value]) => `
-                            <div style="display:flex; justify-content:space-between; padding:8px 12px; background:rgba(255,255,255,0.02); border-radius:6px; border:1px solid rgba(255,255,255,0.03);">
-                                <span>${name}</span>
-                                <span style="color:#81e6d9;">${value}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            createWindow('⚙️ Настройки', content, 400, 320);
-            notify('Настройки открыты');
-        }
-
-        function showStartMenu() {
-            const menu = document.createElement('div');
-            menu.style.cssText = `position:fixed; bottom:70px; left:16px; background:rgba(10,10,25,0.95); backdrop-filter:blur(30px); border:1px solid rgba(192,132,252,0.15); border-radius:16px; padding:16px; min-width:250px; z-index:9999; box-shadow:0 20px 60px rgba(0,0,0,0.6); animation:windowOpen 0.2s ease-out;`;
-            const apps = [
-                ['💻 Терминал', openTerminal],
-                ['🧠 Nova AI', openNovaAI],
-                ['📁 Файлы', openFileManager],
-                ['📝 Редактор', openTextEditor],
-                ['🧮 Калькулятор', openCalculator],
-                ['📅 Календарь', openCalendar],
-                ['🎵 Музыка', openMusicPlayer],
-                ['⚙️ Настройки', openSettings],
-                ['💾 Сохранить', saveState],
-                ['🗑️ Очистить', clearState]
-            ];
-            apps.forEach(([name, action]) => {
-                const btn = document.createElement('button');
-                btn.textContent = name;
-                btn.style.cssText = `display:block; width:100%; background:transparent; border:none; color:#e2e8f0; padding:8px 12px; text-align:left; font-size:14px; cursor:pointer; border-radius:6px; transition:0.2s; font-family:inherit;`;
-                btn.onmouseenter = () => btn.style.background = 'rgba(192,132,252,0.1)';
-                btn.onmouseleave = () => btn.style.background = 'transparent';
-                btn.onclick = () => { action(); menu.remove(); };
-                menu.appendChild(btn);
-            });
-            document.body.appendChild(menu);
-            setTimeout(() => { document.addEventListener('click', (e) => { if (!menu.contains(e.target)) { menu.remove(); } }, { once: true }); }, 10);
-        }
-
-        function saveState() {
-            try { localStorage.setItem('nova-filesystem', JSON.stringify(fileSystem)); localStorage.setItem('nova-terminal-path', terminalPath); notify('💾 Состояние сохранено!'); } catch (e) { notify('❌ Ошибка сохранения'); }
-        }
-
-        function clearState() {
-            if (confirm('Очистить все данные?')) {
-                localStorage.clear();
-                fileSystem = {
-                    '/': {
-                        type: 'folder',
-                        children: {
-                            'home': { type: 'folder', children: { 'nova': { type: 'folder', children: {
-                                'Documents': { type: 'folder', children: {} },
-                                'Downloads': { type: 'folder', children: {} },
-                                'Projects': { type: 'folder', children: {} },
-                                'Pictures': { type: 'folder', children: {} },
-                                'Music': { type: 'folder', children: {} },
-                                'Videos': { type: 'folder', children: {} },
-                                'readme.txt': { type: 'file', content: '🧊 Добро пожаловать в Nova OS Ultimate 3.0!' }
-                            } } } },
-                            'etc': { type: 'folder', children: { 'hostname': { type: 'file', content: 'nova-os' } } },
-                            'var': { type: 'folder', children: { 'log': { type: 'folder', children: {} } } },
-                            'tmp': { type: 'folder', children: {} },
-                            'usr': { type: 'folder', children: { 'bin': { type: 'folder', children: {} } } }
-                        }
-                    }
-                };
-                terminalPath = '/home/nova';
-                notify('🗑️ Данные очищены');
-            }
-        }
-
-        function updateWidgets() {
-            const now = new Date();
-            document.getElementById('widget-time').textContent = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('widget-date').textContent = now.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            document.getElementById('taskbar-time').textContent = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('taskbar-date').textContent = now.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-            const temps = [18, 20, 22, 24, 26];
-            const descs = ['Ясно ☀️', 'Облачно ☁️', 'Дождь 🌧️', 'Снег ❄️', 'Ветрено 💨'];
-            document.getElementById('widget-temp').textContent = temps[Math.floor(Math.random() * temps.length)] + '°C';
-            document.getElementById('widget-desc').textContent = descs[Math.floor(Math.random() * descs.length)];
-
-            const cpu = Math.floor(Math.random() * 60) + 20;
-            document.getElementById('widget-cpu-fill').style.width = cpu + '%';
-            document.querySelector('.widget-cpu div:last-child').textContent = cpu + '%';
-
-            const ram = Math.floor(Math.random() * 40) + 40;
-            document.getElementById('widget-ram-fill').style.width = ram + '%';
-            document.querySelector('.widget-ram div:last-child').textContent = (ram * 0.08).toFixed(1) + ' / 8.0 ГБ';
-        }
-
-        setInterval(updateWidgets, 5000);
-        updateWidgets();
-
-        const icons = [
-            ['💻', 'Терминал', openTerminal, 30, 30],
-            ['🧠', 'Nova AI', openNovaAI, 140, 30],
-            ['📁', 'Файлы', openFileManager, 250, 30],
-            ['📝', 'Редактор', openTextEditor, 360, 30],
-            ['🧮', 'Калькулятор', openCalculator, 470, 30],
-            ['📅', 'Календарь', openCalendar, 580, 30],
-            ['🎵', 'Музыка', openMusicPlayer, 690, 30],
-            ['⚙️', 'Настройки', openSettings, 800, 30],
+        // ============ BOOT ============
+        const bootMessages = [
+            'BIOS: Nova Virtual BIOS v3.0',
+            'CPU: Nova Virtual CPU @ 3.0GHz (4 cores)',
+            'RAM: 8192MB detected',
+            'AHCI: SATA controller initialized',
+            'Loading Linux 5.15.0-nova...',
+            'Decompressing kernel... done',
+            'Booting the kernel...',
+            'ACPI: Initializing ACPI subsystem',
+            'PCI: Probing PCI hardware',
+            'EXT4-fs (sda1): mounted filesystem',
+            'systemd[1]: Reached target Multi-User System',
+            'systemd[1]: Started Login Service',
+            '',
+            'Nova Linux 5.15.0-nova (nova-os) (tty1)',
+            ''
         ];
 
-        icons.forEach(([icon, label, action, x, y]) => {
-            const el = document.createElement('div');
-            el.className = 'desktop-icon';
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
-            el.innerHTML = `<div class="icon">${icon}</div><div class="label">${label}</div>`;
-            el.onclick = action;
-            el.ondblclick = action;
-            desktop.appendChild(el);
-        });
+        function bootSystem() {
+            const bootLog = document.getElementById('boot-log');
+            let index = 0;
+            
+            function showNext() {
+                if (index < bootMessages.length) {
+                    bootLog.innerHTML += bootMessages[index] + '\n';
+                    index++;
+                    setTimeout(showNext, Math.random() * 200 + 100);
+                } else {
+                    setTimeout(() => {
+                        document.getElementById('boot-screen').style.display = 'none';
+                        document.getElementById('login-screen').style.display = 'flex';
+                    }, 500);
+                }
+            }
+            showNext();
+        }
 
-        setTimeout(() => {
-            notify('🧊 Добро пожаловать в Nova OS Ultimate 3.0!');
-            notify('📦 Всё, что есть в настоящих ОС — теперь здесь');
-        }, 500);
+        // ============ LINUX SYSTEM ============
+        class LinuxSystem {
+            constructor() {
+                this.hostname = 'nova-linux';
+                this.kernel = '5.15.0-nova';
+                this.currentUser = null;
+                this.currentPath = '/home/nova';
+                this.processes = [];
+                this.nextPid = 1;
+                this.history = [];
+                this.historyIndex = -1;
+                this.envVars = {
+                    HOME: '/home/nova',
+                    PATH: '/usr/local/bin:/usr/bin:/bin',
+                    SHELL: '/bin/bash',
+                    USER: 'nova'
+                };
+                
+                this.users = {
+                    root: { password: 'root', uid: 0, home: '/root', shell: '/bin/bash' },
+                    nova: { password: '1234', uid: 1000, home: '/home/nova', shell: '/bin/bash' }
+                };
+                
+                this.fs = this.initFilesystem();
+                this.packages = [
+                    'bash', 'coreutils', 'systemd', 'linux-kernel',
+                    'network-manager', 'vim', 'nano', 'gcc',
+                    'python3', 'nodejs', 'openssh', 'grep',
+                    'find', 'sed', 'awk', 'tar', 'gzip', 'zip'
+                ];
+                this.dmesg = [];
+                this.initSystem();
+            }
+            
+            initFilesystem() {
+                return {
+                    '/': {
+                        type: 'dir',
+                        children: {
+                            'bin': { type: 'dir', children: {} },
+                            'boot': { type: 'dir', children: {} },
+                            'dev': { type: 'dir', children: {} },
+                            'etc': {
+                                type: 'dir',
+                                children: {
+                                    'hostname': { type: 'file', content: 'nova-linux\n' },
+                                    'passwd': { 
+                                        type: 'file', 
+                                        content: 'root:x:0:0:root:/root:/bin/bash\nnova:x:1000:1000:Nova:/home/nova:/bin/bash\n' 
+                                    },
+                                    'os-release': {
+                                        type: 'file',
+                                        content: 'NAME="Nova Linux"\nVERSION="5.15.0-nova"\nID=nova\n'
+                                    },
+                                    'fstab': {
+                                        type: 'file',
+                                        content: '/dev/sda1  /       ext4    defaults    0 1\n/dev/sda2  swap    swap    defaults    0 0\n'
+                                    }
+                                }
+                            },
+                            'home': {
+                                type: 'dir',
+                                children: {
+                                    'nova': {
+                                        type: 'dir',
+                                        children: {
+                                            'Documents': { type: 'dir', children: {
+                                                'notes.txt': { type: 'file', content: 'My notes\nLine 2\n' }
+                                            }},
+                                            'Downloads': { type: 'dir', children: {} },
+                                            '.bashrc': { 
+                                                type: 'file', 
+                                                content: '# ~/.bashrc\nalias ll="ls -la"\nalias la="ls -A"\n' 
+                                            },
+                                            'readme.txt': { 
+                                                type: 'file', 
+                                                content: 'Welcome to Nova Linux!\nThis is a full Linux system.\n' 
+                                            },
+                                            'test.txt': {
+                                                type: 'file',
+                                                content: 'apple\nbanana\ncherry\ndate\nelderberry\n'
+                                            }
+                                        }
+                                    },
+                                    'root': { type: 'dir', children: {} }
+                                }
+                            },
+                            'proc': { type: 'dir', children: {} },
+                            'tmp': { type: 'dir', children: {} },
+                            'usr': {
+                                type: 'dir',
+                                children: {
+                                    'bin': { type: 'dir', children: {} },
+                                    'lib': { type: 'dir', children: {} }
+                                }
+                            },
+                            'var': {
+                                type: 'dir',
+                                children: {
+                                    'log': { type: 'dir', children: {
+                                        'syslog': { type: 'file', content: 'System logs\n' }
+                                    }}
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+            
+            initSystem() {
+                this.processes.push({ pid: 1, name: 'systemd', user: 'root', status: 'running', cpu: 0.1, mem: 100 });
+                this.processes.push({ pid: 2, name: 'kthreadd', user: 'root', status: 'running', cpu: 0.0, mem: 0 });
+                this.processes.push({ pid: 3, name: 'bash', user: 'nova', status: 'running', cpu: 0.5, mem: 50 });
+                this.processes.push({ pid: 4, name: 'network-manager', user: 'root', status: 'running', cpu: 0.2, mem: 75 });
+                
+                this.dmesg.push('[    0.000000] Linux version 5.15.0-nova');
+                this.dmesg.push('[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz');
+                this.dmesg.push('[    0.100000] Memory: 8192000K/8388608K available');
+                this.dmesg.push('[    0.500000] EXT4-fs (sda1): mounted filesystem');
+                this.dmesg.push('[    1.000000] network-manager: started');
+            }
+            
+            login(username, password) {
+                const user = this.users[username];
+                if (user && user.password === password) {
+                    this.currentUser = username;
+                    this.currentPath = user.home;
+                    this.envVars.USER = username;
+                    this.envVars.HOME = user.home;
+                    return true;
+                }
+                return false;
+            }
+            
+            getNode(path) {
+                if (path === '/') return this.fs['/'];
+                const parts = path.split('/').filter(p => p);
+                let current = this.fs['/'];
+                for (let part of parts) {
+                    if (!current.children || !current.children[part]) return null;
+                    current = current.children[part];
+                }
+                return current;
+            }
+            
+            listDir(path) {
+                const node = this.getNode(path);
+                if (!node || node.type !== 'dir') return [];
+                return Object.keys(node.children);
+            }
+            
+            createFile(path, name, content = '') {
+                const node = this.getNode(path);
+                if (!node || node.type !== 'dir') return false;
+                if (node.children[name]) return false;
+                node.children[name] = { type: 'file', content: content };
+                return true;
+            }
+            
+            createDir(path, name) {
+                const node = this.getNode(path);
+                if (!node || node.type !== 'dir') return false;
+                if (node.children[name]) return false;
+                node.children[name] = { type: 'dir', children: {} };
+                return true;
+            }
+            
+            deleteNode(path, name) {
+                const node = this.getNode(path);
+                if (!node || node.type !== 'dir') return false;
+                if (!node.children[name]) return false;
+                delete node.children[name];
+                return true;
+            }
+            
+            readFile(path) {
+                const node = this.getNode(path);
+                if (!node || node.type !== 'file') return null;
+                return node.content;
+            }
+            
+            findFiles(startPath, pattern, results = []) {
+                const node = this.getNode(startPath);
+                if (!node || node.type !== 'dir') return results;
+                
+                for (const [name, child] of Object.entries(node.children)) {
+                    const fullPath = startPath + '/' + name;
+                    if (name.includes(pattern)) {
+                        results.push(fullPath);
+                    }
+                    if (child.type === 'dir') {
+                        this.findFiles(fullPath, pattern, results);
+                    }
+                }
+                return results;
+            }
+            
+            executeCommand(cmd) {
+                if (cmd.includes('|')) {
+                    const commands = cmd.split('|').map(c => c.trim());
+                    let output = '';
+                    for (let i = 0; i < commands.length; i++) {
+                        output = this.executeSingleCommand(commands[i], output);
+                    }
+                    return output;
+                }
+                
+                if (cmd.includes('>')) {
+                    const [cmdPart, filePart] = cmd.split('>').map(s => s.trim());
+                    const output = this.executeSingleCommand(cmdPart);
+                    const fileName = filePart.replace('>', '').trim();
+                    const node = this.getNode(this.currentPath);
+                    if (node && node.type === 'dir') {
+                        node.children[fileName] = { type: 'file', content: output };
+                        return '';
+                    }
+                }
+                
+                return this.executeSingleCommand(cmd, '');
+            }
+            
+            executeSingleCommand(cmd, input = '') {
+                const parts = cmd.trim().split(' ');
+                const command = parts[0];
+                const args = parts.slice(1);
+                
+                switch(command) {
+                    case 'ls': {
+                        const files = this.listDir(this.currentPath);
+                        if (args[0] === '-la' || args[0] === '-al') {
+                            let result = 'total ' + (files.length * 4) + '\n';
+                            files.forEach(f => {
+                                const node = this.getNode(this.currentPath + '/' + f);
+                                const type = node.type === 'dir' ? 'd' : '-';
+                                const perms = type + 'rwxr-xr-x';
+                                const owner = this.currentUser;
+                                const size = node.type === 'file' ? (node.content || '').length : 4096;
+                                const date = new Date().toLocaleDateString('ru-RU');
+                                result += `${perms} ${owner} ${owner} ${String(size).padStart(6)} ${date} ${f}\n`;
+                            });
+                            return result;
+                        }
+                        if (args[0] === '-a') {
+                            return ['.', '..', ...files].join('  ');
+                        }
+                        return files.join('  ') || '';
+                    }
+                    
+                    case 'pwd': return this.currentPath;
+                    
+                    case 'cd': {
+                        if (!args[0] || args[0] === '~') {
+                            this.currentPath = this.users[this.currentUser].home;
+                        } else if (args[0] === '..') {
+                            this.currentPath = this.currentPath.split('/').slice(0, -1).join('/') || '/';
+                        } else if (args[0] === '-') {
+                            this.currentPath = this.envVars.OLDPWD || this.users[this.currentUser].home;
+                        } else if (args[0] === '/') {
+                            this.currentPath = '/';
+                        } else {
+                            const newPath = args[0].startsWith('/') ? args[0] : this.currentPath + '/' + args[0];
+                            const node = this.getNode(newPath);
+                            if (node && node.type === 'dir') {
+                                this.envVars.OLDPWD = this.currentPath;
+                                this.currentPath = newPath;
+                            } else {
+                                return `bash: cd: ${args[0]}: No such file or directory`;
+                            }
+                        }
+                        return '';
+                    }
+                    
+                    case 'cat': {
+                        if (args[0]) {
+                            const content = this.readFile(this.currentPath + '/' + args[0]);
+                            if (content !== null) return content;
+                            return `cat: ${args[0]}: No such file or directory`;
+                        }
+                        return input;
+                    }
+                    
+                    case 'echo': return args.join(' ');
+                    
+                    case 'grep': {
+                        const pattern = args[0];
+                        const text = args.slice(1).join(' ') || input;
+                        if (!pattern) return 'Usage: grep <pattern> [file]';
+                        
+                        if (args[1] && !args[1].startsWith('-')) {
+                            const content = this.readFile(this.currentPath + '/' + args[1]);
+                            if (content) {
+                                return content.split('\n').filter(line => line.includes(pattern)).join('\n');
+                            }
+                        }
+                        
+                        if (input) {
+                            return input.split('\n').filter(line => line.includes(pattern)).join('\n');
+                        }
+                        
+                        return '';
+                    }
+                    
+                    case 'find': {
+                        const startPath = args[0] || this.currentPath;
+                        const pattern = args[1] || '*';
+                        const results = this.findFiles(startPath, pattern.replace('*', ''));
+                        return results.join('\n');
+                    }
+                    
+                    case 'wc': {
+                        const text = args[1] ? this.readFile(this.currentPath + '/' + args[1]) : input;
+                        if (args[0] === '-l') return String(text.split('\n').length);
+                        if (args[0] === '-w') return String(text.split(/\s+/).length);
+                        if (args[0] === '-c') return String(text.length);
+                        return `${text.split('\n').length} ${text.split(/\s+/).length} ${text.length}`;
+                    }
+                    
+                    case 'sort': {
+                        const text = args[0] ? this.readFile(this.currentPath + '/' + args[0]) : input;
+                        return text.split('\n').sort().join('\n');
+                    }
+                    
+                    case 'uniq': {
+                        const text = args[0] ? this.readFile(this.currentPath + '/' + args[0]) : input;
+                        const lines = text.split('\n');
+                        return lines.filter((line, i) => line !== lines[i-1]).join('\n');
+                    }
+                    
+                    case 'head': {
+                        const count = args[0] === '-n' ? parseInt(args[1]) : 10;
+                        const text = args[2] ? this.readFile(this.currentPath + '/' + args[2]) : input;
+                        return text.split('\n').slice(0, count).join('\n');
+                    }
+                    
+                    case 'tail': {
+                        const count = args[0] === '-n' ? parseInt(args[1]) : 10;
+                        const text = args[2] ? this.readFile(this.currentPath + '/' + args[2]) : input;
+                        return text.split('\n').slice(-count).join('\n');
+                    }
+                    
+                    case 'mkdir': {
+                        if (args[0]) {
+                            if (this.createDir(this.currentPath, args[0])) return '';
+                            return `mkdir: cannot create directory '${args[0]}': File exists`;
+                        }
+                        return 'Usage: mkdir <directory>';
+                    }
+                    
+                    case 'touch': {
+                        if (args[0]) {
+                            if (this.createFile(this.currentPath, args[0])) return '';
+                            return `touch: cannot touch '${args[0]}': File exists`;
+                        }
+                        return 'Usage: touch <file>';
+                    }
+                    
+                    case 'rm': {
+                        if (args[0] === '-rf' && args[1]) {
+                            if (this.deleteNode(this.currentPath, args[1])) return '';
+                            return `rm: cannot remove '${args[1]}': No such file or directory`;
+                        }
+                        if (args[0]) {
+                            if (this.deleteNode(this.currentPath, args[0])) return '';
+                            return `rm: cannot remove '${args[0]}': No such file or directory`;
+                        }
+                        return 'Usage: rm <file>';
+                    }
+                    
+                    case 'cp': {
+                        if (args[0] && args[1]) {
+                            const content = this.readFile(this.currentPath + '/' + args[0]);
+                            if (content !== null) {
+                                if (this.createFile(this.currentPath, args[1], content)) return '';
+                                return `cp: cannot create '${args[1]}': File exists`;
+                            }
+                            return `cp: cannot stat '${args[0]}': No such file`;
+                        }
+                        return 'Usage: cp <source> <destination>';
+                    }
+                    
+                    case 'mv': {
+                        if (args[0] && args[1]) {
+                            const content = this.readFile(this.currentPath + '/' + args[0]);
+                            if (content !== null) {
+                                this.deleteNode(this.currentPath, args[0]);
+                                this.createFile(this.currentPath, args[1], content);
+                                return '';
+                            }
+                            return `mv: cannot stat '${args[0]}': No such file`;
+                        }
+                        return 'Usage: mv <source> <destination>';
+                    }
+                    
+                    case 'ping': {
+                        if (args[0]) {
+                            return `PING ${args[0]} (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=12.5 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=64 time=11.8 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=64 time=12.1 ms
+
+--- ${args[0]} ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss`;
+                        }
+                        return 'Usage: ping <host>';
+                    }
+                    
+                    case 'ifconfig': {
+                        return `eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
+        ether 00:11:22:33:44:55
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0`;
+                    }
+                    
+                    case 'netstat': {
+                        return `Active Internet connections
+Proto Local Address           Foreign Address         State
+tcp   0.0.0.0:22              0.0.0.0:*               LISTEN
+tcp   192.168.1.100:45678     8.8.8.8:443             ESTABLISHED`;
+                    }
+                    
+                    case 'whoami': return this.currentUser;
+                    case 'hostname': return this.hostname;
+                    
+                    case 'uname': {
+                        if (args[0] === '-a') return `Linux ${this.hostname} ${this.kernel} #1 SMP x86_64 GNU/Linux`;
+                        if (args[0] === '-r') return this.kernel;
+                        return 'Linux';
+                    }
+                    
+                    case 'date': return new Date().toString();
+                    
+                    case 'uptime': {
+                        const uptime = Math.floor((Date.now() - bootTime) / 1000);
+                        const hours = Math.floor(uptime / 3600);
+                        const minutes = Math.floor((uptime % 3600) / 60);
+                        return `up ${hours}:${minutes.toString().padStart(2, '0')}, 1 user, load average: 0.00, 0.00, 0.00`;
+                    }
+                    
+                    case 'ps': {
+                        if (args[0] === 'aux') {
+                            let result = 'USER       PID  %CPU  %MEM  COMMAND\n';
+                            this.processes.forEach(p => {
+                                result += `${p.user.padEnd(8)} ${String(p.pid).padEnd(5)}  ${p.cpu.toFixed(1).padEnd(5)}  ${p.mem.toFixed(0).padEnd(6)} ${p.name}\n`;
+                            });
+                            return result;
+                        }
+                        let result = 'PID TTY          TIME CMD\n';
+                        this.processes.forEach(p => {
+                            result += `${String(p.pid).padEnd(4)} pts/0    00:00:00 ${p.name}\n`;
+                        });
+                        return result;
+                    }
+                    
+                    case 'kill': {
+                        if (args[0]) {
+                            const pid = parseInt(args[0]);
+                            const index = this.processes.findIndex(p => p.pid === pid);
+                            if (index !== -1) {
+                                this.processes.splice(index, 1);
+                                return `Process ${pid} terminated`;
+                            }
+                            return `kill: (${pid}) - No such process`;
+                        }
+                        return 'Usage: kill <pid>';
+                    }
+                    
+                    case 'df': {
+                        if (args[0] === '-h') {
+                            return 'Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1        20G  3.5G   16G  18% /';
+                        }
+                        return 'Filesystem     1K-blocks    Used Available Use% Mounted on\n/dev/sda1       20971520 3670016  17301504  18% /';
+                    }
+                    
+                    case 'free': {
+                        if (args[0] === '-h') {
+                            return '              total        used        free\nMem:          8.0Gi       2.4Gi       5.6Gi\nSwap:         2.0Gi          0B       2.0Gi';
+                        }
+                        return 'Mem:        8192000     2457600     5734400\nSwap:       2097152           0     2097152';
+                    }
+                    
+                    case 'lscpu': {
+                        return `Architecture:            x86_64
+CPU(s):                  4
+Model name:              Nova Virtual CPU @ 3.0GHz
+CPU MHz:                 3000.000`;
+                    }
+                    
+                    case 'lsblk': {
+                        return `NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0   20G  0 disk
+├─sda1   8:1    0   18G  0 part /
+└─sda2   8:2    0    2G  0 part [SWAP]`;
+                    }
+                    
+                    case 'dmesg': return this.dmesg.join('\n');
+                    
+                    case 'apt': {
+                        if (args[0] === 'list') return this.packages.join('\n');
+                        if (args[0] === 'install' && args[1]) {
+                            if (!this.packages.includes(args[1])) {
+                                this.packages.push(args[1]);
+                                return `Installing ${args[1]}... Done`;
+                            }
+                            return `${args[1]} is already installed`;
+                        }
+                        if (args[0] === 'remove' && args[1]) {
+                            const index = this.packages.indexOf(args[1]);
+                            if (index !== -1) {
+                                this.packages.splice(index, 1);
+                                return `Removing ${args[1]}... Done`;
+                            }
+                            return `Package ${args[1]} is not installed`;
+                        }
+                        return 'Usage: apt list | apt install <pkg> | apt remove <pkg>';
+                    }
+                    
+                    case 'id': {
+                        return `uid=${this.users[this.currentUser].uid}(${this.currentUser}) gid=1000(nova) groups=1000(nova)`;
+                    }
+                    
+                    case 'sudo': return 'nova is not in the sudoers file. This incident will be reported.';
+                    
+                    case 'su': {
+                        if (args[0] === 'root') return 'Password: (type root)';
+                        return `su: user ${args[0] || ''} does not exist`;
+                    }
+                    
+                    case 'clear': return 'CLEAR';
+                    case 'history': return this.history.map((c, i) => ` ${i+1}  ${c}`).join('\n');
+                    case 'env': return Object.entries(this.envVars).map(([k, v]) => `${k}=${v}`).join('\n');
+                    
+                    case 'reboot': return 'System going down for reboot NOW!';
+                    case 'shutdown': return 'System going down for poweroff NOW!';
+                    case 'poweroff': return 'Powering off...';
+                    
+                    case 'help':
+                        return `Available commands:
+  Navigation: ls, cd, pwd
+  Files: cat, echo, mkdir, touch, rm, cp, mv
+  Text: grep, find, wc, sort, uniq, head, tail
+  System: whoami, hostname, uname, date, uptime
+  Processes: ps, kill, top
+  Disk: df, free, lsblk, lscpu
+  Network: ping, ifconfig, netstat
+  Packages: apt
+  Other: id, sudo, su, clear, history, env
+  Pipes: | (e.g., ls | grep .txt)
+  Redirect: > (e.g., echo hello > file.txt)`;
+                        
+                    case '': return '';
+                    default: return `bash: ${command}: command not found`;
+                }
+            }
+        }
+
+        let linux = new LinuxSystem();
+        let bootTime = Date.now();
+
+        function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (linux.login(username, password)) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('terminal').style.display = 'block';
+                initTerminal();
+            } else {
+                alert('Login incorrect');
+            }
+        }
+
+        function initTerminal() {
+            const terminal = document.getElementById('terminal');
+            terminal.innerHTML = `
+                <div style="margin-bottom: 10px;">Nova Linux ${linux.kernel} (nova-os) (tty1)</div>
+                <div style="margin-bottom: 20px;">nova-linux login: ${linux.currentUser}</div>
+                <div style="margin-bottom: 20px;">Password: ••••</div>
+                <div style="margin-bottom: 20px;">Last login: ${new Date().toLocaleString('ru-RU')} on tty1</div>
+                <div style="margin-bottom: 10px;">Welcome to Nova Linux Ultimate!</div>
+                <div id="terminal-output"></div>
+                <div id="terminal-input-line">
+                    <span id="terminal-prompt">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$ </span>
+                    <input id="terminal-input" type="text" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                </div>
+            `;
+            
+            const input = document.getElementById('terminal-input');
+            input.focus();
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const cmd = input.value;
+                    input.value = '';
+                    executeCommand(cmd);
+                }
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (linux.historyIndex > 0) {
+                        linux.historyIndex--;
+                        input.value = linux.history[linux.historyIndex] || '';
+                    }
+                }
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (linux.historyIndex < linux.history.length - 1) {
+                        linux.historyIndex++;
+                        input.value = linux.history[linux.historyIndex] || '';
+                    } else {
+                        linux.historyIndex = linux.history.length;
+                        input.value = '';
+                    }
+                }
+            });
+            
+            terminal.addEventListener('click', () => input.focus());
+        }
+
+        function executeCommand(cmd) {
+            const output = document.getElementById('terminal-output');
+            const prompt = document.getElementById('terminal-prompt');
+            
+            output.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> ${cmd}</div>`;
+            
+            linux.history.push(cmd);
+            linux.historyIndex = linux.history.length;
+            
+            const result = linux.executeCommand(cmd);
+            
+            if (result === 'CLEAR') {
+                output.innerHTML = '';
+            } else if (result !== '') {
+                output.innerHTML += `<div style="white-space:pre-wrap;">${result}</div>`;
+            }
+            
+            prompt.textContent = `${linux.currentUser}@${linux.hostname}:${linux.currentPath}$ `;
+            
+            const terminal = document.getElementById('terminal');
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            document.getElementById('terminal-input').focus();
+        }
+
+        bootSystem();
     </script>
 </body>
 </html>
