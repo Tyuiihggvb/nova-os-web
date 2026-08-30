@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0a0a1a">
-    <title>🐧 Nova OS Web — All Languages</title>
+    <title>🐧 Nova OS 7.1.10 — Final Ultimate</title>
     
-    <!-- ВСЕ ЯЗЫКИ ПРОГРАММИРОВАНИЯ -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/typescript@latest/lib/typescript.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sql.js@latest/dist/sql-wasm.js"></script>
@@ -15,121 +13,60 @@
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a1a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; height: 100vh; overflow: hidden; }
 
-        #boot-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 99999; display: flex;
-            flex-direction: column; align-items: center; justify-content: center;
-            font-family: 'Courier New', monospace; color: #00ff00;
-        }
+        #boot-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Courier New', monospace; color: #00ff00; }
         #boot-log { width: 90%; max-width: 700px; font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
 
-        #login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
-            z-index: 99998; display: none; align-items: center;
-            justify-content: center; flex-direction: column;
-        }
-        .login-box {
-            background: rgba(255,255,255,0.05); backdrop-filter: blur(20px);
-            border: 1px solid rgba(192,132,252,0.2); border-radius: 20px;
-            padding: 30px; width: 90%; max-width: 350px; text-align: center;
-        }
-        .login-input {
-            width: 100%; background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(192,132,252,0.3); color: #e2e8f0;
-            padding: 12px; border-radius: 8px; margin: 10px 0;
-            font-size: 16px; outline: none;
-        }
-        .login-btn {
-            width: 100%; background: #c084fc; border: none;
-            color: #0a0a1a; padding: 12px; border-radius: 8px;
-            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px;
-        }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f0f23, #1a1a3e); z-index: 99998; display: none; align-items: center; justify-content: center; flex-direction: column; }
+        .login-box { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(192,132,252,0.2); border-radius: 20px; padding: 30px; width: 90%; max-width: 350px; text-align: center; }
+        .login-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(192,132,252,0.3); color: #e2e8f0; padding: 12px; border-radius: 8px; margin: 10px 0; font-size: 16px; outline: none; }
+        .login-btn { width: 100%; background: #c084fc; border: none; color: #0a0a1a; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
 
-        #panel {
-            position: fixed; top: 0; left: 0; right: 0; height: 30px;
-            background: rgba(10,10,25,0.95); border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: none; align-items: center; padding: 0 10px; gap: 10px; z-index: 1000;
-        }
-        .panel-item { padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        #panel { position: fixed; top: 0; left: 0; right: 0; height: 35px; background: rgba(10,10,25,0.95); border-bottom: 1px solid rgba(255,255,255,0.05); display: none; align-items: center; padding: 0 10px; gap: 10px; z-index: 1000; }
+        .panel-item { padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
         .panel-item:hover { background: rgba(192,132,252,0.2); }
+        .panel-center { margin: 0 auto; font-size: 13px; font-weight: 500; }
+        .panel-right { display: flex; gap: 10px; align-items: center; }
 
-        #desktop {
-            width: 100vw; height: calc(100vh - 70px);
-            position: relative; background: radial-gradient(ellipse at center, #0f0f23, #050510);
-            overflow: hidden; display: none; margin-top: 30px;
-        }
+        #desktop { width: 100vw; height: calc(100vh - 120px); position: relative; background: radial-gradient(ellipse at center, #0f0f23, #050510); overflow: hidden; display: none; margin-top: 35px; }
 
-        #taskbar {
-            height: 40px; background: rgba(10,10,25,0.95);
-            border-top: 1px solid rgba(255,255,255,0.05);
-            display: none; align-items: center; padding: 0 12px;
-            gap: 8px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
-        }
-        .start-btn {
-            background: rgba(192,132,252,0.15); border: none; color: #c084fc;
-            font-size: 14px; padding: 6px 12px; border-radius: 6px;
-            cursor: pointer; font-weight: bold;
-        }
-        .clock { margin-left: auto; font-size: 12px; color: #a0aec0; }
+        #dock { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(10,10,25,0.9); backdrop-filter: blur(30px); border: 1px solid rgba(192,132,252,0.2); border-radius: 20px; padding: 10px 15px; display: none; gap: 5px; z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.5); max-width: 95vw; overflow-x: auto; }
+        .dock-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(255,255,255,0.05); border: none; color: #e2e8f0; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+        .dock-icon:hover { transform: translateY(-5px) scale(1.1); background: rgba(192,132,252,0.2); }
 
-        .window {
-            position: absolute; min-width: 300px; min-height: 200px;
-            background: rgba(10,10,25,0.92); backdrop-filter: blur(30px);
-            border-radius: 14px; border: 1px solid rgba(192,132,252,0.15);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-            display: flex; flex-direction: column; overflow: hidden;
-            animation: winOpen 0.25s ease-out;
-        }
+        #taskbar { height: 35px; background: rgba(10,10,25,0.95); border-top: 1px solid rgba(255,255,255,0.05); display: none; align-items: center; padding: 0 12px; gap: 8px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 999; }
+        .start-btn { background: rgba(192,132,252,0.15); border: none; color: #c084fc; font-size: 13px; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .clock { margin-left: auto; font-size: 11px; color: #a0aec0; }
+
+        .window { position: absolute; min-width: 300px; min-height: 200px; background: rgba(10,10,25,0.92); backdrop-filter: blur(30px); border-radius: 14px; border: 1px solid rgba(192,132,252,0.15); box-shadow: 0 20px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; animation: winOpen 0.25s ease-out; }
         @keyframes winOpen { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .window-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 12px; background: rgba(20,20,40,0.6);
-            cursor: grab; border-bottom: 1px solid rgba(192,132,252,0.08);
-        }
+        .window-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(20,20,40,0.6); cursor: grab; border-bottom: 1px solid rgba(192,132,252,0.08); }
         .window-title { font-size: 13px; color: #e2e8f0; font-weight: 500; }
         .window-controls { display: flex; gap: 8px; }
         .window-controls button { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; font-size: 10px; }
         .close { background: #f7768e; } .minimize { background: #f6ad55; } .maximize { background: #81e6d9; }
         .window-body { flex: 1; padding: 12px; overflow: auto; color: #e2e8f0; font-size: 14px; background: rgba(5,5,15,0.3); }
 
-        .desktop-icon {
-            position: absolute; width: 70px; height: 70px;
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; background: rgba(255,255,255,0.03);
-            border-radius: 12px; cursor: pointer; transition: all 0.2s;
-            border: 1px solid transparent;
-        }
+        .desktop-icon { position: absolute; width: 70px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
         .desktop-icon:hover { background: rgba(192,132,252,0.1); border-color: rgba(192,132,252,0.2); transform: scale(1.05); }
         .desktop-icon .icon { font-size: 28px; }
         .desktop-icon .label { font-size: 10px; color: #e2e8f0; margin-top: 4px; }
 
         .terminal { background: #000; color: #00ff00; font-family: monospace; font-size: 13px; padding: 10px; border-radius: 8px; }
-        .context-menu {
-            position: fixed; background: rgba(10,10,25,0.95);
-            border: 1px solid rgba(192,132,252,0.3); border-radius: 8px;
-            padding: 8px; min-width: 200px; z-index: 9999;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .context-menu button {
-            display: block; width: 100%; background: transparent;
-            border: none; color: #e2e8f0; padding: 8px 12px;
-            text-align: left; cursor: pointer; border-radius: 4px;
-            font-size: 13px; font-family: inherit;
-        }
+        .context-menu { position: fixed; background: rgba(10,10,25,0.95); border: 1px solid rgba(192,132,252,0.3); border-radius: 8px; padding: 8px; min-width: 200px; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 70vh; overflow-y: auto; }
+        .context-menu button { display: block; width: 100%; background: transparent; border: none; color: #e2e8f0; padding: 8px 12px; text-align: left; cursor: pointer; border-radius: 4px; font-size: 13px; font-family: inherit; }
         .context-menu button:hover { background: rgba(192,132,252,0.2); }
 
         @media (max-width: 768px) {
             .window { width: 95vw !important; height: 70vh !important; left: 2.5vw !important; top: 5vh !important; min-width: unset; }
             .desktop-icon { width: 60px; height: 60px; }
-            .desktop-icon .icon { font-size: 24px; }
+            .dock-icon { width: 35px; height: 35px; font-size: 15px; }
         }
     </style>
 </head>
 <body>
     <div id="boot-screen">
         <div style="font-size:48px;margin-bottom:30px;">🐧</div>
-        <div style="font-size:24px;margin-bottom:20px;">Nova OS Web — All Languages</div>
+        <div style="font-size:24px;margin-bottom:20px;">Nova OS 7.1.10 Final</div>
         <div id="boot-log"></div>
     </div>
 
@@ -144,15 +81,72 @@
     </div>
 
     <div id="panel">
-        <div class="panel-item" onclick="showStartMenu()">🐧 Приложения</div>
-        <div class="panel-item" onclick="openCodeEditor()">🌐 Все языки</div>
-        <div class="panel-item" onclick="openSystemMonitor()">📊 Монитор</div>
-        <div class="panel-item" onclick="openSettings()">⚙️ Настройки</div>
-        <div class="panel-item" onclick="changeWallpaper()">🎨 Обои</div>
-        <div style="margin-left:auto;" class="panel-item" id="panel-clock"></div>
+        <div class="panel-item" onclick="showStartMenu()">Приложения</div>
+        <div class="panel-center" id="panel-clock"></div>
+        <div class="panel-right">
+            <span onclick="openQuickSettings()" style="cursor:pointer;">⚡</span>
+            <span onclick="openNotificationCenter()" style="cursor:pointer;">📱</span>
+            <span onclick="openThemeSettings()" style="cursor:pointer;">🎨</span>
+        </div>
     </div>
 
     <div id="desktop"></div>
+
+    <div id="dock">
+        <button class="dock-icon" onclick="openTerminal()">💻</button>
+        <button class="dock-icon" onclick="openFileManager()">📁</button>
+        <button class="dock-icon" onclick="openBrowser()">🌐</button>
+        <button class="dock-icon" onclick="openCodeEditor()">⌨️</button>
+        <button class="dock-icon" onclick="openTextEditor()">📝</button>
+        <button class="dock-icon" onclick="openCalculator()">🧮</button>
+        <button class="dock-icon" onclick="openScientificCalculator()">🔬</button>
+        <button class="dock-icon" onclick="openSystemMonitor()">📊</button>
+        <button class="dock-icon" onclick="openCalendar()">📅</button>
+        <button class="dock-icon" onclick="openMusicPlayer()">🎵</button>
+        <button class="dock-icon" onclick="openVideoPlayer()">🎬</button>
+        <button class="dock-icon" onclick="openImageViewer()">🖼️</button>
+        <button class="dock-icon" onclick="openImageEditor()">🎨</button>
+        <button class="dock-icon" onclick="openScreenshot()">📸</button>
+        <button class="dock-icon" onclick="openTetris()">🎮</button>
+        <button class="dock-icon" onclick="openMinesweeper()">💣</button>
+        <button class="dock-icon" onclick="open2048()">🎯</button>
+        <button class="dock-icon" onclick="openSnakeGame()">🐍</button>
+        <button class="dock-icon" onclick="openChess()">♟️</button>
+        <button class="dock-icon" onclick="openTicTacToe()">⭕</button>
+        <button class="dock-icon" onclick="openPong()">🏓</button>
+        <button class="dock-icon" onclick="openTimer()">⏱️</button>
+        <button class="dock-icon" onclick="openStopwatch()">⏲️</button>
+        <button class="dock-icon" onclick="openWeather()">🌤️</button>
+        <button class="dock-icon" onclick="openTranslator()">🌍</button>
+        <button class="dock-icon" onclick="openCurrencyConverter()">💱</button>
+        <button class="dock-icon" onclick="openBMICalculator()">⚖️</button>
+        <button class="dock-icon" onclick="openStickyNotes()">📌</button>
+        <button class="dock-icon" onclick="openReminder()">⏰</button>
+        <button class="dock-icon" onclick="openEmailClient()">✉️</button>
+        <button class="dock-icon" onclick="openDiskAnalyzer()">💾</button>
+        <button class="dock-icon" onclick="openArchiveManager()">📦</button>
+        <button class="dock-icon" onclick="openDatabaseManager()">🗄️</button>
+        <button class="dock-icon" onclick="openDefragmenter()">💿</button>
+        <button class="dock-icon" onclick="openSystemUpdate()">🔄</button>
+        <button class="dock-icon" onclick="openDeviceManager()">📡</button>
+        <button class="dock-icon" onclick="openAudioRecorder()">🎤</button>
+        <button class="dock-icon" onclick="openMessenger()">💬</button>
+        <button class="dock-icon" onclick="openTorrent()">📥</button>
+        <button class="dock-icon" onclick="openRSSReader()">📖</button>
+        <button class="dock-icon" onclick="openPeriodicTable()">⚗️</button>
+        <button class="dock-icon" onclick="openUnitConverter()">📐</button>
+        <button class="dock-icon" onclick="openGraphCalculator()">📈</button>
+        <button class="dock-icon" onclick="openPasswordManager()">🔐</button>
+        <button class="dock-icon" onclick="openVPN()">🔒</button>
+        <button class="dock-icon" onclick="openMagnifier()">🔍</button>
+        <button class="dock-icon" onclick="openSystemCleaner()">🧹</button>
+        <button class="dock-icon" onclick="openBackup()">💾</button>
+        <button class="dock-icon" onclick="openPasswordGenerator()">🔑</button>
+        <button class="dock-icon" onclick="openQRGenerator()">📱</button>
+        <button class="dock-icon" onclick="openMetronome()">🎵</button>
+        <button class="dock-icon" onclick="openSettings()">⚙️</button>
+        <button class="dock-icon" onclick="openTrash()">🗑️</button>
+    </div>
 
     <div id="taskbar">
         <button class="start-btn" onclick="showStartMenu()">🐧 Пуск</button>
@@ -161,22 +155,12 @@
     </div>
 
     <script>
-        // ============ BOOT ============
         const bootMessages = [
-            'BIOS: Nova Virtual BIOS v3.0',
-            'CPU: Nova Virtual CPU @ 3.0GHz (4 cores)',
-            'RAM: 8192MB detected',
-            'Loading Linux 5.15.0-nova...',
-            'Loading JavaScript Engine...',
-            'Loading TypeScript Compiler...',
-            'Loading Python (Pyodide)...',
-            'Loading SQLite (sql.js)...',
-            'Loading PHP (эмуляция)...',
-            'Loading Ruby (эмуляция)...',
-            'Loading Lua (эмуляция)...',
-            'EXT4-fs (sda1): mounted',
-            'Starting X server...',
-            'Welcome to Nova OS Web — All Languages!'
+            'BIOS: Nova Virtual BIOS v7.1', 'CPU: Nova Virtual CPU @ 7.1GHz',
+            'RAM: 16384MB detected', 'Loading Linux 7.1.10-nova...',
+            'Loading 50+ applications...', 'Loading games...',
+            'Loading utilities...', 'EXT4-fs mounted',
+            'Welcome to Nova OS 7.1.10 Final!'
         ];
 
         function bootSystem() {
@@ -185,7 +169,7 @@
             function next() {
                 if (i < bootMessages.length) {
                     bootLog.innerHTML += `<div style="color:#00ff00;">[OK] ${bootMessages[i]}</div>`;
-                    i++; setTimeout(next, 180);
+                    i++; setTimeout(next, 70);
                 } else setTimeout(() => {
                     document.getElementById('boot-screen').style.display = 'none';
                     document.getElementById('login-screen').style.display = 'flex';
@@ -194,311 +178,85 @@
             next();
         }
 
-        // ============ MULTI-LANGUAGE SYSTEM ============
         class MultiLanguageSystem {
-            constructor() {
-                this.languages = {
-                    js: { name: 'JavaScript', ready: true, native: true },
-                    ts: { name: 'TypeScript', ready: true, cdn: true },
-                    python: { name: 'Python', ready: false, cdn: true },
-                    sql: { name: 'SQL', ready: false, cdn: true },
-                    php: { name: 'PHP', ready: true, emulate: true },
-                    ruby: { name: 'Ruby', ready: true, emulate: true },
-                    lua: { name: 'Lua', ready: true, emulate: true }
-                };
-                this.pyodide = null;
-                this.sqlDb = null;
-            }
-            
-            async initAll() {
-                try {
-                    this.pyodide = await loadPyodide();
-                    this.languages.python.ready = true;
-                } catch (e) {}
-                
-                try {
-                    const initSqlJs = window.initSqlJs;
-                    if (initSqlJs) {
-                        this.sqlDb = await initSqlJs({ locateFile: f => `https://sql.js.org/dist/${f}` });
-                        this.languages.sql.ready = true;
-                    }
-                } catch (e) {}
-                
-                return this.getStatus();
-            }
-            
-            getStatus() {
-                return Object.entries(this.languages)
-                    .map(([key, lang]) => `${lang.name}: ${lang.ready ? '✅' : '❌'}`)
-                    .join('\n');
-            }
-            
+            constructor() { this.languages = { js: { name: 'JavaScript', ready: true }, ts: { name: 'TypeScript', ready: true }, python: { name: 'Python', ready: false }, sql: { name: 'SQL', ready: false }, php: { name: 'PHP', ready: true }, ruby: { name: 'Ruby', ready: true }, lua: { name: 'Lua', ready: true } }; this.pyodide = null; this.sqlDb = null; }
+            async initAll() { try { this.pyodide = await loadPyodide(); this.languages.python.ready = true; } catch (e) {} try { const initSqlJs = window.initSqlJs; if (initSqlJs) { this.sqlDb = await initSqlJs({ locateFile: f => `https://sql.js.org/dist/${f}` }); this.languages.sql.ready = true; } } catch (e) {} }
+            getStatus() { return Object.entries(this.languages).map(([k, l]) => `${l.name}: ${l.ready ? '✅' : '❌'}`).join('\n'); }
             async execute(lang, code) {
                 switch(lang) {
-                    case 'js':
-                        try { return String(eval(code)); }
-                        catch (e) { return 'JS Error: ' + e.message; }
-                        
-                    case 'ts':
-                        try {
-                            const js = ts.transpileModule(code, {
-                                compilerOptions: { module: ts.ModuleKind.ESNext }
-                            }).outputText;
-                            return String(eval(js));
-                        } catch (e) { return 'TS Error: ' + e.message; }
-                        
-                    case 'python':
-                        if (!this.pyodide) return 'Python не загружен';
-                        try { return String(await this.pyodide.runPythonAsync(code)); }
-                        catch (e) { return 'Python Error: ' + e.message; }
-                        
-                    case 'sql':
-                        if (!this.sqlDb) return 'SQLite не загружен';
-                        try {
-                            const db = new this.sqlDb.Database();
-                            const result = db.exec(code);
-                            return result.length > 0 ? JSON.stringify(result) : 'Выполнено';
-                        } catch (e) { return 'SQL Error: ' + e.message; }
-                        
-                    case 'php':
-                        return this.emulatePHP(code);
-                        
-                    case 'ruby':
-                        return this.emulateRuby(code);
-                        
-                    case 'lua':
-                        return this.emulateLua(code);
-                        
-                    default:
-                        return 'Язык не найден';
+                    case 'js': try { return String(eval(code)); } catch (e) { return 'JS Error'; }
+                    case 'ts': try { const js = ts.transpileModule(code, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText; return String(eval(js)); } catch (e) { return 'TS Error'; }
+                    case 'python': if (!this.pyodide) return 'Python не загружен'; try { return String(await this.pyodide.runPythonAsync(code)); } catch (e) { return 'Python Error'; }
+                    case 'sql': if (!this.sqlDb) return 'SQLite не загружен'; try { const db = new this.sqlDb.Database(); const r = db.exec(code); return r.length ? JSON.stringify(r) : 'Выполнено'; } catch (e) { return 'SQL Error'; }
+                    case 'php': return code.includes('echo') ? code.match(/echo\s+"([^"]+)"/)?.[1] || 'PHP' : 'PHP';
+                    case 'ruby': return code.includes('puts') ? code.match(/puts\s+"([^"]+)"/)?.[1] || 'Ruby' : 'Ruby';
+                    case 'lua': return code.includes('print') ? code.match(/print\("([^"]+)"\)/)?.[1] || 'Lua' : 'Lua';
+                    default: return 'Unknown';
                 }
-            }
-            
-            emulatePHP(code) {
-                if (code.includes('echo')) {
-                    const match = code.match(/echo\s+"([^"]+)"/);
-                    if (match) return match[1];
-                }
-                return 'PHP: ' + code;
-            }
-            
-            emulateRuby(code) {
-                if (code.includes('puts')) {
-                    const match = code.match(/puts\s+"([^"]+)"/);
-                    if (match) return match[1];
-                }
-                return 'Ruby: ' + code;
-            }
-            
-            emulateLua(code) {
-                if (code.includes('print')) {
-                    const match = code.match(/print\("([^"]+)"\)/);
-                    if (match) return match[1];
-                }
-                return 'Lua: ' + code;
             }
         }
 
-        // ============ LINUX SYSTEM ============
         class LinuxSystem {
             constructor() {
-                this.hostname = 'nova-os';
-                this.kernel = '5.15.0-nova';
-                this.currentUser = null;
-                this.currentPath = '/home/nova';
-                this.processes = [];
-                this.nextPid = 1;
-                this.history = [];
-                this.users = {
-                    root: { password: 'root', uid: 0, home: '/root' },
-                    nova: { password: '1234', uid: 1000, home: '/home/nova' }
-                };
+                this.hostname = 'nova-os'; this.kernel = '7.1.10-nova';
+                this.currentUser = null; this.currentPath = '/home/nova';
+                this.processes = []; this.history = [];
+                this.users = { root: { password: 'root', uid: 0, home: '/root' }, nova: { password: '1234', uid: 1000, home: '/home/nova' } };
                 this.fs = this.initFS();
-                this.packages = ['bash','coreutils','systemd','vim','nano','gcc','python3','nodejs','php','ruby','lua','sqlite','firefox'];
+                this.packages = ['bash','coreutils','systemd','vim','nano','gcc','python3','nodejs','php','ruby','lua','sqlite','firefox','docker','git','ssh','cron','tetris','minesweeper','2048','gimp','libreoffice','vlc','chess','pong'];
                 this.multiLang = new MultiLanguageSystem();
                 this.init();
             }
-            
-            initFS() {
-                return { '/': { type: 'dir', children: {
-                    'bin': { type: 'dir', children: {} },
-                    'etc': { type: 'dir', children: {
-                        'hostname': { type: 'file', content: 'nova-os\n' },
-                        'os-release': { type: 'file', content: 'Nova OS Web All Languages\n' }
-                    }},
-                    'home': { type: 'dir', children: {
-                        'nova': { type: 'dir', children: {
-                            'Documents': { type: 'dir', children: {} },
-                            'Downloads': { type: 'dir', children: {} },
-                            'readme.txt': { type: 'file', content: 'Welcome to Nova OS Web!\nAll languages included!\n' },
-                            'test.txt': { type: 'file', content: 'apple\nbanana\ncherry\ndate\n' }
-                        }},
-                        'root': { type: 'dir', children: {} }
-                    }},
-                    'tmp': { type: 'dir', children: {} },
-                    'var': { type: 'dir', children: {} }
-                }}};
-            }
-            
-            init() {
-                this.processes.push({ pid: 1, name: 'systemd', user: 'root', cpu: 0.1, mem: 100 });
-                this.processes.push({ pid: 2, name: 'kthreadd', user: 'root', cpu: 0, mem: 0 });
-                this.processes.push({ pid: 3, name: 'Xorg', user: 'root', cpu: 2, mem: 200 });
-                this.processes.push({ pid: 4, name: 'nova-desktop', user: 'nova', cpu: 1, mem: 150 });
-            }
-            
-            login(u, p) {
-                const user = this.users[u];
-                if (user && user.password === p) {
-                    this.currentUser = u;
-                    this.currentPath = user.home;
-                    return true;
-                }
-                return false;
-            }
-            
-            getNode(path) {
-                if (path === '/') return this.fs['/'];
-                const parts = path.split('/').filter(p => p);
-                let cur = this.fs['/'];
-                for (const part of parts) {
-                    if (!cur.children?.[part]) return null;
-                    cur = cur.children[part];
-                }
-                return cur;
-            }
-            
-            listDir(path) {
-                const node = this.getNode(path);
-                return node?.type === 'dir' ? Object.keys(node.children) : [];
-            }
-            
-            createFile(path, name, content = '') {
-                const node = this.getNode(path);
-                if (node?.type !== 'dir' || node.children[name]) return false;
-                node.children[name] = { type: 'file', content };
-                return true;
-            }
-            
-            createDir(path, name) {
-                const node = this.getNode(path);
-                if (node?.type !== 'dir' || node.children[name]) return false;
-                node.children[name] = { type: 'dir', children: {} };
-                return true;
-            }
-            
-            deleteNode(path, name) {
-                const node = this.getNode(path);
-                if (node?.type !== 'dir' || !node.children[name]) return false;
-                delete node.children[name];
-                return true;
-            }
-            
-            readFile(path) {
-                const node = this.getNode(path);
-                return node?.type === 'file' ? node.content : null;
-            }
-            
+            initFS() { return { '/': { type: 'dir', children: { 'bin': { type: 'dir', children: {} }, 'etc': { type: 'dir', children: { 'hostname': { type: 'file', content: 'nova-os\n' } } }, 'home': { type: 'dir', children: { 'nova': { type: 'dir', children: { 'Documents': { type: 'dir', children: {} }, 'Downloads': { type: 'dir', children: {} }, 'Pictures': { type: 'dir', children: {} }, 'Music': { type: 'dir', children: {} }, 'readme.txt': { type: 'file', content: 'Welcome!\n' } } }, 'root': { type: 'dir', children: {} } } }, 'tmp': { type: 'dir', children: {} }, 'usr': { type: 'dir', children: {} }, 'var': { type: 'dir', children: {} } } } }; }
+            init() { this.processes.push({ pid: 1, name: 'systemd', user: 'root', cpu: 0.1, mem: 100 }); this.processes.push({ pid: 2, name: 'Xorg', user: 'root', cpu: 2, mem: 200 }); this.processes.push({ pid: 3, name: 'gnome-shell', user: 'nova', cpu: 3, mem: 300 }); }
+            login(u, p) { const user = this.users[u]; if (user && user.password === p) { this.currentUser = u; this.currentPath = user.home; return true; } return false; }
+            getNode(path) { if (path === '/') return this.fs['/']; const parts = path.split('/').filter(p => p); let cur = this.fs['/']; for (const part of parts) { if (!cur.children?.[part]) return null; cur = cur.children[part]; } return cur; }
+            listDir(path) { const node = this.getNode(path); return node?.type === 'dir' ? Object.keys(node.children) : []; }
+            createFile(path, name, content = '') { const node = this.getNode(path); if (node?.type !== 'dir' || node.children[name]) return false; node.children[name] = { type: 'file', content }; return true; }
+            createDir(path, name) { const node = this.getNode(path); if (node?.type !== 'dir' || node.children[name]) return false; node.children[name] = { type: 'dir', children: {} }; return true; }
+            deleteNode(path, name) { const node = this.getNode(path); if (node?.type !== 'dir' || !node.children[name]) return false; delete node.children[name]; return true; }
+            readFile(path) { const node = this.getNode(path); return node?.type === 'file' ? node.content : null; }
             async execute(cmd) {
-                if (cmd.includes('|')) {
-                    const cmds = cmd.split('|').map(c => c.trim());
-                    let out = '';
-                    for (const c of cmds) out = await this.execSingle(c, out);
-                    return out;
-                }
-                if (cmd.includes('>')) {
-                    const [c, f] = cmd.split('>').map(s => s.trim());
-                    const out = await this.execSingle(c);
-                    this.createFile(this.currentPath, f, out);
-                    return '';
-                }
+                if (cmd.includes('|')) { const cmds = cmd.split('|').map(c => c.trim()); let out = ''; for (const c of cmds) out = await this.execSingle(c, out); return out; }
                 return await this.execSingle(cmd, '');
             }
-            
             async execSingle(cmd, input = '') {
                 const [command, ...args] = cmd.trim().split(' ');
-                
                 switch(command) {
-                    case 'ls': {
-                        const files = this.listDir(this.currentPath);
-                        if (args[0] === '-la') {
-                            let r = 'total ' + files.length * 4 + '\n';
-                            files.forEach(f => {
-                                const n = this.getNode(this.currentPath + '/' + f);
-                                r += `${n.type === 'dir' ? 'd' : '-'}rwxr-xr-x ${this.currentUser} ${this.currentUser} ${String(n.type === 'file' ? (n.content || '').length : 4096).padStart(6)} ${f}\n`;
-                            });
-                            return r;
-                        }
-                        return files.join('  ') || '';
-                    }
+                    case 'ls': { const f = this.listDir(this.currentPath); if (args[0] === '-la') { let r = 'total ' + f.length * 4 + '\n'; f.forEach(x => { const n = this.getNode(this.currentPath + '/' + x); r += `${n.type === 'dir' ? 'd' : '-'}rwxr-xr-x ${this.currentUser} ${this.currentUser} ${String(n.type === 'file' ? (n.content || '').length : 4096).padStart(6)} ${x}\n`; }); return r; } return f.join('  ') || ''; }
                     case 'pwd': return this.currentPath;
-                    case 'cd': {
-                        const target = !args[0] || args[0] === '~' ? this.users[this.currentUser].home :
-                            args[0] === '..' ? this.currentPath.split('/').slice(0, -1).join('/') || '/' :
-                            args[0] === '/' ? '/' :
-                            args[0].startsWith('/') ? args[0] : this.currentPath + '/' + args[0];
-                        const node = this.getNode(target);
-                        if (node?.type === 'dir') { this.currentPath = target; return ''; }
-                        return `bash: cd: ${args[0]}: No such file`;
-                    }
-                    case 'cat': return args[0] ? (this.readFile(this.currentPath + '/' + args[0]) ?? `cat: ${args[0]}: No such file`) : input;
+                    case 'cd': { const t = !args[0] || args[0] === '~' ? this.users[this.currentUser].home : args[0] === '..' ? this.currentPath.split('/').slice(0, -1).join('/') || '/' : args[0] === '/' ? '/' : args[0].startsWith('/') ? args[0] : this.currentPath + '/' + args[0]; const n = this.getNode(t); if (n?.type === 'dir') { this.currentPath = t; return ''; } return 'No such file'; }
+                    case 'cat': return args[0] ? (this.readFile(this.currentPath + '/' + args[0]) ?? 'No such file') : input;
                     case 'echo': return args.join(' ');
-                    case 'grep': {
-                        const pattern = args[0];
-                        const text = input || (args[1] ? this.readFile(this.currentPath + '/' + args[1]) : '');
-                        return text ? text.split('\n').filter(l => l.includes(pattern)).join('\n') : '';
-                    }
+                    case 'grep': { const p = args[0]; const t = input || (args[1] ? this.readFile(this.currentPath + '/' + args[1]) : ''); return t ? t.split('\n').filter(l => l.includes(p)).join('\n') : ''; }
                     case 'mkdir': return args[0] && this.createDir(this.currentPath, args[0]) ? '' : 'Error';
                     case 'touch': return args[0] && this.createFile(this.currentPath, args[0]) ? '' : 'Error';
                     case 'rm': return args[0] && this.deleteNode(this.currentPath, args[0]) ? '' : 'Error';
-                    case 'cp': {
-                        if (args[0] && args[1]) {
-                            const c = this.readFile(this.currentPath + '/' + args[0]);
-                            if (c !== null) { this.createFile(this.currentPath, args[1], c); return ''; }
-                        }
-                        return 'Error';
-                    }
-                    case 'mv': {
-                        if (args[0] && args[1]) {
-                            const c = this.readFile(this.currentPath + '/' + args[0]);
-                            if (c !== null) { this.deleteNode(this.currentPath, args[0]); this.createFile(this.currentPath, args[1], c); return ''; }
-                        }
-                        return 'Error';
-                    }
+                    case 'cp': { if (args[0] && args[1]) { const c = this.readFile(this.currentPath + '/' + args[0]); if (c !== null) { this.createFile(this.currentPath, args[1], c); return ''; } } return 'Error'; }
+                    case 'mv': { if (args[0] && args[1]) { const c = this.readFile(this.currentPath + '/' + args[0]); if (c !== null) { this.deleteNode(this.currentPath, args[0]); this.createFile(this.currentPath, args[1], c); return ''; } } return 'Error'; }
                     case 'whoami': return this.currentUser;
                     case 'hostname': return this.hostname;
                     case 'uname': return args[0] === '-a' ? `Linux ${this.hostname} ${this.kernel} x86_64` : 'Linux';
                     case 'date': return new Date().toString();
-                    case 'uptime': return 'up 1:23, 1 user, load average: 0.00';
-                    case 'ps': {
-                        let r = 'PID TTY TIME CMD\n';
-                        this.processes.forEach(p => r += `${String(p.pid).padEnd(4)} ? 00:00:00 ${p.name}\n`);
-                        return r;
-                    }
-                    case 'kill': {
-                        const idx = this.processes.findIndex(p => p.pid === parseInt(args[0]));
-                        if (idx !== -1) { this.processes.splice(idx, 1); return `Process ${args[0]} terminated`; }
-                        return 'No such process';
-                    }
+                    case 'ps': { let r = 'PID TTY TIME CMD\n'; this.processes.forEach(p => r += `${String(p.pid).padEnd(4)} ? 00:00:00 ${p.name}\n`); return r; }
                     case 'df': return '/dev/sda1 20G 3.5G 16G 18% /';
-                    case 'free': return 'Mem: 8192000 2457600 5734400';
-                    case 'lscpu': return 'CPU(s): 4\nModel: Nova Virtual CPU @ 3.0GHz';
-                    case 'ping': return args[0] ? `PING ${args[0]}... time=12.5 ms` : 'Usage: ping <host>';
-                    case 'ifconfig': return 'eth0: 192.168.1.100\nlo: 127.0.0.1';
-                    case 'apt': {
-                        if (args[0] === 'list') return this.packages.join('\n');
-                        if (args[0] === 'install' && args[1]) {
-                            if (!this.packages.includes(args[1])) { this.packages.push(args[1]); return `Installing ${args[1]}... Done`; }
-                            return 'Already installed';
-                        }
-                        return 'Usage: apt list | apt install <pkg>';
-                    }
-                    case 'id': return `uid=${this.users[this.currentUser].uid}(${this.currentUser})`;
+                    case 'free': return 'Mem: 16384000 4915200 11468800';
+                    case 'apt': { if (args[0] === 'list') return this.packages.join('\n'); return 'Usage: apt list'; }
                     case 'sudo': return 'nova is not in the sudoers file.';
                     case 'clear': return 'CLEAR';
                     case 'history': return this.history.map((c, i) => ` ${i+1} ${c}`).join('\n');
-                    
-                    // ============ ВСЕ ЯЗЫКИ ============
+                    case 'ssh': return args[0] ? 'Connecting...' : 'Usage: ssh user@host';
+                    case 'wget': return args[0] ? 'Downloading... Done' : 'Usage: wget <url>';
+                    case 'docker': return 'CONTAINER ID IMAGE STATUS';
+                    case 'git': return 'On branch main';
+                    case 'crontab': return '*/5 * * * * /usr/bin/backup.sh';
+                    case 'tar': return 'Creating archive...';
+                    case 'systemctl': return 'active (running)';
+                    case 'useradd': return args[0] ? 'User created' : 'Usage: useradd <user>';
+                    case 'chmod': return args[0] ? 'Permissions changed' : 'Usage: chmod <mode> <file>';
+                    case 'mount': return '/dev/sda1 on / type ext4 (rw)';
+                    case 'find': return 'No files';
+                    case 'which': return args[0] ? `/usr/bin/${args[0]}` : 'Usage: which <cmd>';
                     case 'js': return await this.multiLang.execute('js', args.join(' '));
                     case 'ts': return await this.multiLang.execute('ts', args.join(' '));
                     case 'python': return await this.multiLang.execute('python', args.join(' '));
@@ -507,8 +265,7 @@
                     case 'ruby': return await this.multiLang.execute('ruby', args.join(' '));
                     case 'lua': return await this.multiLang.execute('lua', args.join(' '));
                     case 'languages': return this.multiLang.getStatus();
-                    
-                    case 'help': return 'Linux: ls, cd, pwd, cat, echo, grep, mkdir, touch, rm, cp, mv, whoami, hostname, uname, date, uptime, ps, kill, df, free, lscpu, ping, ifconfig, apt, id, sudo, clear, history\nЯзыки: js, ts, python, sql, php, ruby, lua, languages';
+                    case 'help': return '80+ commands';
                     case '': return '';
                     default: return `bash: ${command}: command not found`;
                 }
@@ -519,14 +276,7 @@
         let windowIdCounter = 0;
         let windows = [];
         let zIndexCounter = 100;
-        let wallpapers = [
-            'radial-gradient(ellipse at center, #0f0f23, #050510)',
-            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-        ];
-        let currentWallpaper = 0;
+        let notifications = [];
 
         async function login() {
             const u = document.getElementById('login-username').value;
@@ -536,33 +286,27 @@
                 document.getElementById('desktop').style.display = 'block';
                 document.getElementById('taskbar').style.display = 'flex';
                 document.getElementById('panel').style.display = 'flex';
+                document.getElementById('dock').style.display = 'flex';
                 initDesktop();
-                
-                notify('🌐 Загрузка языков...');
                 await linux.multiLang.initAll();
-                notify('✅ Все языки готовы!');
-                notify('🐧 Добро пожаловать!');
+                notify('🐧 Nova OS 7.1.10 Final! 50+ приложений!');
             } else alert('Login incorrect');
         }
 
         function notify(message) {
+            notifications.push(message);
             const n = document.createElement('div');
-            n.style.cssText = 'position:fixed;top:40px;right:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(192,132,252,0.3);border-radius:8px;padding:12px 20px;z-index:99999;font-size:14px;';
+            n.style.cssText = 'position:fixed;top:45px;right:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(192,132,252,0.3);border-radius:8px;padding:12px 20px;z-index:99999;font-size:14px;';
             n.textContent = message;
             document.body.appendChild(n);
             setTimeout(() => n.remove(), 3000);
-        }
-
-        function changeWallpaper() {
-            currentWallpaper = (currentWallpaper + 1) % wallpapers.length;
-            document.getElementById('desktop').style.background = wallpapers[currentWallpaper];
         }
 
         function createWindow(title, content, width = 500, height = 400) {
             const id = ++windowIdCounter;
             const win = document.createElement('div');
             win.className = 'window';
-            win.style.cssText = `width:${width}px;height:${height}px;left:${50+Math.random()*200}px;top:${30+Math.random()*100}px;z-index:${++zIndexCounter};`;
+            win.style.cssText = `width:${width}px;height:${height}px;left:${50+Math.random()*200}px;top:${40+Math.random()*100}px;z-index:${++zIndexCounter};`;
             win.dataset.windowId = id;
             win.innerHTML = `<div class="window-header"><span class="window-title">${title}</span><div class="window-controls"><button class="minimize" onclick="minWin(${id})">−</button><button class="maximize" onclick="maxWin(${id})">+</button><button class="close" onclick="closeWin(${id})">×</button></div></div><div class="window-body">${content}</div>`;
             document.body.appendChild(win);
@@ -587,137 +331,98 @@
 
         function closeWin(id) { const i = windows.findIndex(w => w.id === id); if (i !== -1) { windows[i].element.remove(); windows[i].taskBtn.remove(); windows.splice(i, 1); } }
         function minWin(id) { const w = windows.find(w => w.id === id); if (w) w.element.style.display = w.element.style.display === 'none' ? 'flex' : 'none'; }
-        function maxWin(id) { const w = windows.find(w => w.id === id); if (w) { if (w.element.style.width === '100vw') { w.element.style.width = '500px'; w.element.style.height = '400px'; } else { w.element.style.width = '100vw'; w.element.style.height = 'calc(100vh - 70px)'; w.element.style.left = '0'; w.element.style.top = '30px'; } } }
+        function maxWin(id) { const w = windows.find(w => w.id === id); if (w) { if (w.element.style.width === '100vw') { w.element.style.width = '500px'; w.element.style.height = '400px'; } else { w.element.style.width = '100vw'; w.element.style.height = 'calc(100vh - 70px)'; w.element.style.left = '0'; w.element.style.top = '35px'; } } }
 
-        function openTerminal() {
-            const content = `<div style="height:100%;display:flex;flex-direction:column;"><div id="term-out" class="terminal" style="flex:1;overflow:auto;white-space:pre-wrap;"><div>Nova OS Terminal — All Languages</div><div>JS + TS + Python + SQL + PHP + Ruby + Lua</div><div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> </div></div><div style="display:flex;gap:8px;margin-top:8px;"><input id="term-in" type="text" style="flex:1;background:#000;border:1px solid #00ff00;color:#00ff00;padding:8px;border-radius:6px;font-family:monospace;outline:none;" placeholder="Команда..."><button onclick="sendTerm()" style="background:#00ff00;border:none;color:#000;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:bold;">⏎</button></div></div>`;
-            createWindow('💻 Терминал', content, 600, 450);
-            window.sendTerm = async function() {
-                const input = document.getElementById('term-in');
-                const output = document.getElementById('term-out');
-                const cmd = input.value.trim();
-                if (!cmd) return;
-                linux.history.push(cmd);
-                input.value = '';
-                output.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> ${cmd}</div>`;
-                const result = await linux.execute(cmd);
-                if (result === 'CLEAR') output.innerHTML = '';
-                else if (result) output.innerHTML += `<div style="white-space:pre-wrap;">${result}</div>`;
-                output.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> </div>`;
-                output.scrollTop = output.scrollHeight;
-            };
-            document.getElementById('term-in').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendTerm(); });
-        }
-
-        function openCodeEditor() {
-            const content = `<div style="height:100%;display:flex;flex-direction:column;"><div style="display:flex;gap:8px;margin-bottom:8px;"><select id="code-lang" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:6px 10px;border-radius:6px;outline:none;"><option value="js">JavaScript</option><option value="ts">TypeScript</option><option value="python">Python</option><option value="sql">SQL</option><option value="php">PHP</option><option value="ruby">Ruby</option><option value="lua">Lua</option></select><button onclick="runCode()" style="background:#c084fc;border:none;color:#0a0a1a;padding:6px 14px;border-radius:6px;cursor:pointer;">▶</button></div><textarea id="code-text" style="flex:1;background:#000;color:#00ff00;border:1px solid #00ff00;padding:8px;border-radius:6px;font-family:monospace;font-size:13px;resize:none;outline:none;" placeholder="Код...">console.log("Hello World!");</textarea><div id="code-out" style="margin-top:8px;background:#000;color:#e2e8f0;padding:8px;border-radius:6px;min-height:50px;"></div></div>`;
-            createWindow('🌐 Все языки', content, 600, 500);
-            window.runCode = async function() {
-                const lang = document.getElementById('code-lang').value;
-                const code = document.getElementById('code-text').value;
-                const out = document.getElementById('code-out');
-                out.textContent = 'Выполнение...';
-                out.textContent = await linux.multiLang.execute(lang, code);
-            };
-        }
-
-        function openFileManager() {
-            const files = linux.listDir('/home/nova');
-            const content = `<div style="height:100%;overflow:auto;"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px;">${files.map(f => { const n = linux.getNode('/home/nova/' + f); return `<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:32px;">${n.type === 'dir' ? '📁' : '📄'}</div><div style="font-size:11px;color:#a0aec0;margin-top:4px;">${f}</div></div>`; }).join('')}</div></div>`;
-            createWindow('📁 Файлы', content, 500, 400);
-        }
-
-        function openTextEditor() {
-            const content = `<div style="height:100%;display:flex;flex-direction:column;"><div style="display:flex;gap:8px;margin-bottom:8px;"><input id="ed-name" type="text" value="note.txt" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:6px 10px;border-radius:6px;outline:none;"><button onclick="saveEd()" style="background:#c084fc;border:none;color:#0a0a1a;padding:6px 14px;border-radius:6px;cursor:pointer;">💾</button></div><textarea id="ed-text" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:8px;border-radius:6px;font-family:monospace;font-size:13px;resize:none;outline:none;" placeholder="Введите текст..."></textarea></div>`;
-            createWindow('📝 Редактор', content, 600, 450);
-            window.saveEd = function() { const n = document.getElementById('ed-name').value; const c = document.getElementById('ed-text').value; if (n && c && linux.createFile('/home/nova', n, c)) notify('💾 Сохранено!'); };
-        }
-
-        function openCalculator() {
-            let expr = '';
-            const content = `<div style="height:100%;display:flex;flex-direction:column;gap:12px;"><div style="width:100%;background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;text-align:right;font-size:28px;min-height:50px;color:#e2e8f0;" id="calc-d">0</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','=','⌫'].map(b => `<button onclick="calcP('${b}')" style="background:${['C','±','%','÷','×','−','+','='].includes(b)?'rgba(192,132,252,0.3)':'rgba(255,255,255,0.05)'};border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:12px;color:#e2e8f0;font-size:18px;cursor:pointer;">${b}</button>`).join('')}</div></div>`;
-            createWindow('🧮 Калькулятор', content, 350, 450);
-            window.calcP = function(b) { const d = document.getElementById('calc-d'); if (b === 'C') { expr = ''; d.textContent = '0'; return; } if (b === '=') { try { const r = Function('"use strict";return(' + expr.replace(/×/g,'*').replace(/÷/g,'/') + ')')(); d.textContent = r; expr = String(r); } catch { d.textContent = 'Ошибка'; expr = ''; } return; } if (b === '⌫') { expr = expr.slice(0, -1); d.textContent = expr || '0'; return; } const ops = ['+','−','×','÷']; if (ops.includes(b)) { expr += b === '×' ? '*' : b === '÷' ? '/' : b === '−' ? '-' : '+'; } else expr += b; d.textContent = expr || '0'; };
-        }
-
-        function openSystemMonitor() {
-            const content = `<div style="height:100%;overflow:auto;"><canvas id="cpu-c" width="400" height="100" style="width:100%;"></canvas><canvas id="mem-c" width="400" height="100" style="width:100%;margin-top:10px;"></canvas><div id="sys-s" style="margin-top:15px;"></div></div>`;
-            createWindow('📊 Монитор', content, 450, 350);
-            setTimeout(() => {
-                const cc = document.getElementById('cpu-c').getContext('2d');
-                const mc = document.getElementById('mem-c').getContext('2d');
-                let cd = [], md = [];
-                function upd() {
-                    cd.push(Math.random() * 100); md.push(Math.random() * 100);
-                    if (cd.length > 50) cd.shift(); if (md.length > 50) md.shift();
-                    cc.clearRect(0, 0, 400, 100); cc.beginPath();
-                    cd.forEach((v, i) => { const x = i * 8, y = 100 - v; i === 0 ? cc.moveTo(x, y) : cc.lineTo(x, y); });
-                    cc.strokeStyle = '#c084fc'; cc.lineWidth = 2; cc.stroke();
-                    mc.clearRect(0, 0, 400, 100); mc.beginPath();
-                    md.forEach((v, i) => { const x = i * 8, y = 100 - v; i === 0 ? mc.moveTo(x, y) : mc.lineTo(x, y); });
-                    mc.strokeStyle = '#81e6d9'; mc.lineWidth = 2; mc.stroke();
-                    document.getElementById('sys-s').innerHTML = `<div>CPU: ${cd[cd.length-1].toFixed(1)}%</div><div>RAM: ${md[md.length-1].toFixed(1)}%</div><div>Python: ${linux.multiLang.languages.python.ready ? '✅' : '❌'}</div><div>SQLite: ${linux.multiLang.languages.sql.ready ? '✅' : '❌'}</div>`;
-                }
-                setInterval(upd, 1000); upd();
-            }, 50);
-        }
-
-        function openSettings() {
-            const content = `<div style="height:100%;overflow:auto;">${[['🐧 Система','Nova OS Web'],['🌐 Языки','7 языков'],['🔧 Ядро','5.15.0-nova'],['👤 Пользователь',linux.currentUser]].map(([n,v]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:4px;"><span>${n}</span><span style="color:#81e6d9;">${v}</span></div>`).join('')}</div>`;
-            createWindow('⚙️ Настройки', content, 400, 300);
-        }
-
-        function openSnakeGame() {
-            const content = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><canvas id="snake-c" width="300" height="300" style="border:1px solid #c084fc;border-radius:8px;"></canvas><div style="margin-top:10px;">Счёт: <span id="snake-s">0</span></div></div>`;
-            createWindow('🐍 Змейка', content, 350, 420);
-            setTimeout(() => {
-                const canvas = document.getElementById('snake-c');
-                const ctx = canvas.getContext('2d');
-                let snake = [{x: 5, y: 5}], food = {x: 10, y: 10}, dir = {x: 1, y: 0}, score = 0;
-                function loop() {
-                    const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
-                    if (head.x < 0 || head.x >= 15 || head.y < 0 || head.y >= 15) { alert('Игра окончена! Счёт: ' + score); return; }
-                    snake.unshift(head);
-                    if (head.x === food.x && head.y === food.y) { score++; document.getElementById('snake-s').textContent = score; food = {x: Math.floor(Math.random() * 15), y: Math.floor(Math.random() * 15)}; } else snake.pop();
-                    ctx.clearRect(0, 0, 300, 300);
-                    ctx.fillStyle = '#c084fc'; snake.forEach(s => ctx.fillRect(s.x * 20, s.y * 20, 18, 18));
-                    ctx.fillStyle = '#f7768e'; ctx.fillRect(food.x * 20, food.y * 20, 18, 18);
-                }
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'ArrowUp' && dir.y === 0) dir = {x: 0, y: -1};
-                    if (e.key === 'ArrowDown' && dir.y === 0) dir = {x: 0, y: 1};
-                    if (e.key === 'ArrowLeft' && dir.x === 0) dir = {x: -1, y: 0};
-                    if (e.key === 'ArrowRight' && dir.x === 0) dir = {x: 1, y: 0};
-                });
-                setInterval(loop, 150);
-            }, 50);
-        }
+        // ============ ВСЕ 50+ ПРИЛОЖЕНИЙ ============
+        function openTerminal() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div id="term-out" class="terminal" style="flex:1;overflow:auto;white-space:pre-wrap;"><div>Terminal</div><div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> </div></div><div style="display:flex;gap:8px;margin-top:8px;"><input id="term-in" type="text" style="flex:1;background:#000;border:1px solid #00ff00;color:#00ff00;padding:8px;border-radius:6px;font-family:monospace;outline:none;"><button onclick="sendTerm()" style="background:#00ff00;border:none;color:#000;padding:8px 14px;border-radius:6px;cursor:pointer;">⏎</button></div></div>`; createWindow('💻 Терминал', c, 600, 450); window.sendTerm = async function() { const i = document.getElementById('term-in'); const o = document.getElementById('term-out'); const cmd = i.value.trim(); if (!cmd) return; linux.history.push(cmd); i.value = ''; o.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> ${cmd}</div>`; const r = await linux.execute(cmd); if (r === 'CLEAR') o.innerHTML = ''; else if (r) o.innerHTML += `<div style="white-space:pre-wrap;">${r}</div>`; o.innerHTML += `<div><span style="color:#00ff00;">${linux.currentUser}@${linux.hostname}:${linux.currentPath}$</span> </div>`; o.scrollTop = o.scrollHeight; }; document.getElementById('term-in').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendTerm(); }); }
+        function openFileManager() { const f = linux.listDir('/home/nova'); const c = `<div style="height:100%;overflow:auto;"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px;">${f.map(x => { const n = linux.getNode('/home/nova/' + x); return `<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;text-align:center;"><div style="font-size:32px;">${n.type === 'dir' ? '📁' : '📄'}</div><div style="font-size:11px;color:#a0aec0;">${x}</div></div>`; }).join('')}</div></div>`; createWindow('📁 Файлы', c, 500, 400); }
+        function openBrowser() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div style="display:flex;gap:8px;margin-bottom:8px;"><input id="b-url" type="text" value="https://example.com" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:6px;border-radius:6px;"><button onclick="document.getElementById('b-frame').src=document.getElementById('b-url').value" style="background:#c084fc;border:none;color:#0a0a1a;padding:6px 14px;border-radius:6px;cursor:pointer;">Go</button></div><iframe id="b-frame" src="https://example.com" style="flex:1;border:none;border-radius:8px;"></iframe></div>`; createWindow('🌐 Браузер', c, 700, 500); }
+        function openCodeEditor() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><select id="c-lang" style="background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:6px;border-radius:6px;margin-bottom:8px;"><option value="js">JavaScript</option><option value="ts">TypeScript</option><option value="python">Python</option><option value="sql">SQL</option><option value="php">PHP</option><option value="ruby">Ruby</option><option value="lua">Lua</option></select><textarea id="c-text" style="flex:1;background:#000;color:#00ff00;border:1px solid #00ff00;padding:8px;border-radius:6px;font-family:monospace;">console.log("Hello!")</textarea><button onclick="runCode()" style="background:#c084fc;border:none;color:#0a0a1a;padding:8px;border-radius:6px;cursor:pointer;margin-top:8px;">▶</button><div id="c-out" style="margin-top:8px;background:#000;color:#e2e8f0;padding:8px;border-radius:6px;"></div></div>`; createWindow('⌨️ Код', c, 600, 500); window.runCode = async function() { document.getElementById('c-out').textContent = await linux.multiLang.execute(document.getElementById('c-lang').value, document.getElementById('c-text').value); }; }
+        function openTextEditor() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div style="display:flex;gap:8px;margin-bottom:8px;"><input id="e-name" type="text" value="note.txt" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:6px;border-radius:6px;"><button onclick="saveEd()" style="background:#c084fc;border:none;color:#0a0a1a;padding:6px 14px;border-radius:6px;cursor:pointer;">💾</button></div><textarea id="e-text" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:8px;border-radius:6px;font-family:monospace;"></textarea></div>`; createWindow('📝 Редактор', c, 600, 450); window.saveEd = function() { linux.createFile('/home/nova', document.getElementById('e-name').value, document.getElementById('e-text').value); notify('💾 Сохранено!'); }; }
+        function openCalculator() { let ex = ''; const c = `<div style="height:100%;display:flex;flex-direction:column;gap:12px;"><div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;text-align:right;font-size:28px;color:#e2e8f0;" id="calc-d">0</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','=','⌫'].map(b => `<button onclick="calcP('${b}')" style="background:${['C','±','%','÷','×','−','+','='].includes(b)?'rgba(192,132,252,0.3)':'rgba(255,255,255,0.05)'};border:none;border-radius:8px;padding:12px;color:#e2e8f0;cursor:pointer;">${b}</button>`).join('')}</div></div>`; createWindow('🧮 Калькулятор', c, 350, 450); window.calcP = function(b) { const d = document.getElementById('calc-d'); if (b === 'C') { ex = ''; d.textContent = '0'; return; } if (b === '=') { try { ex = String(Function('"use strict";return(' + ex.replace(/×/g,'*').replace(/÷/g,'/') + ')')()); d.textContent = ex; } catch { d.textContent = 'Ошибка'; ex = ''; } return; } if (b === '⌫') { ex = ex.slice(0,-1); d.textContent = ex || '0'; return; } const ops = ['+','−','×','÷']; if (ops.includes(b)) ex += b === '×' ? '*' : b === '÷' ? '/' : b === '−' ? '-' : '+'; else ex += b; d.textContent = ex || '0'; }; }
+        function openScientificCalculator() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;text-align:right;font-size:24px;color:#e2e8f0;">0</div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px;">${['sin','cos','tan','log','ln','x²','√','π','e','(',')','7','8','9','÷','4','5','6','×','1','2','3','−','0','.','=','+','C','⌫'].map(b => `<button style="background:rgba(192,132,252,0.2);border:none;border-radius:6px;padding:10px;color:#e2e8f0;cursor:pointer;font-size:12px;">${b}</button>`).join('')}</div></div>`; createWindow('🔬 Научный', c, 400, 450); }
+        function openSystemMonitor() { const c = `<div style="height:100%;overflow:auto;"><canvas id="cpu-c" width="400" height="100" style="width:100%;"></canvas><div id="sys-s"></div></div>`; createWindow('📊 Монитор', c, 450, 300); setTimeout(() => { const cc = document.getElementById('cpu-c').getContext('2d'); let cd = []; function upd() { cd.push(Math.random()*100); if (cd.length>50) cd.shift(); cc.clearRect(0,0,400,100); cc.beginPath(); cd.forEach((v,i)=>{const x=i*8,y=100-v;i===0?cc.moveTo(x,y):cc.lineTo(x,y);}); cc.strokeStyle='#c084fc'; cc.lineWidth=2; cc.stroke(); document.getElementById('sys-s').innerHTML=`<div>CPU: ${cd[cd.length-1].toFixed(1)}%</div><div>Ядро: ${linux.kernel}</div>`; } setInterval(upd,1000); upd(); },50); }
+        function openCalendar() { const n = new Date(); const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:48px;">${n.getDate()}</div><div style="color:#a0aec0;">${n.toLocaleDateString('ru-RU',{weekday:'long'})}</div></div>`; createWindow('📅 Календарь', c, 350, 350); }
+        function openMusicPlayer() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;"><div style="font-size:48px;">🎵</div><div>Nova Theme</div><button onclick="this.textContent=this.textContent==='▶'?'⏸':'▶'" style="background:#c084fc;border:none;color:#0a0a1a;padding:10px 20px;border-radius:8px;cursor:pointer;">▶</button></div>`; createWindow('🎵 Музыка', c, 350, 300); }
+        function openVideoPlayer() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:60px;">🎬</div><div style="margin-top:10px;">Видео плеер</div></div>`; createWindow('🎬 Видео', c, 400, 300); }
+        function openImageViewer() { const c = `<div style="height:100%;display:flex;align-items:center;justify-content:center;"><div style="font-size:100px;">🖼️</div></div>`; createWindow('🖼️ Изображения', c, 400, 350); }
+        function openImageEditor() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div style="display:flex;gap:6px;margin-bottom:8px;">${['red','blue','green','yellow'].map(col => `<button onclick="ieC('${col}')" style="width:30px;height:30px;background:${col};border:none;border-radius:4px;cursor:pointer;"></button>`).join('')}<button onclick="ieClear()" style="background:rgba(192,132,252,0.2);border:none;color:#e2e8f0;padding:4px 10px;border-radius:4px;cursor:pointer;">Очистить</button></div><canvas id="ie-c" width="400" height="300" style="border:1px solid #c084fc;border-radius:8px;flex:1;cursor:crosshair;"></canvas></div>`; createWindow('🎨 Редактор', c, 500, 450); setTimeout(() => { const cv = document.getElementById('ie-c'); const cx = cv.getContext('2d'); let col = 'red', dr = false; window.ieC = function(x) { col = x; }; window.ieClear = function() { cx.clearRect(0,0,cv.width,cv.height); }; cv.addEventListener('mousedown',()=>dr=true); cv.addEventListener('mouseup',()=>dr=false); cv.addEventListener('mousemove',(e)=>{if(dr){const r=cv.getBoundingClientRect();cx.fillStyle=col;cx.fillRect(e.clientX-r.left,e.clientY-r.top,5,5);}}); },50); }
+        function openScreenshot() { const c = `<div style="height:100%;display:flex;align-items:center;justify-content:center;"><button onclick="notify('📸 Скриншот сохранён!')" style="background:#c084fc;border:none;color:#0a0a1a;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:16px;">📸 Скриншот</button></div>`; createWindow('📸 Скриншот', c, 350, 250); }
+        
+        // Игры
+        function openSnakeGame() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><canvas id="sn-c" width="300" height="300" style="border:1px solid #c084fc;border-radius:8px;"></canvas><div>Счёт: <span id="sn-s">0</span></div></div>`; createWindow('🐍 Змейка', c, 350, 420); setTimeout(() => { const cv = document.getElementById('sn-c'); const cx = cv.getContext('2d'); let sn = [{x:5,y:5}], fd = {x:10,y:10}, dr = {x:1,y:0}, sc = 0; function lp() { const h = {x:sn[0].x+dr.x,y:sn[0].y+dr.y}; if(h.x<0||h.x>=15||h.y<0||h.y>=15){alert('Счёт: '+sc);return;} sn.unshift(h); if(h.x===fd.x&&h.y===fd.y){sc++;document.getElementById('sn-s').textContent=sc;fd={x:Math.floor(Math.random()*15),y:Math.floor(Math.random()*15)};}else sn.pop(); cx.clearRect(0,0,300,300); cx.fillStyle='#c084fc'; sn.forEach(s=>cx.fillRect(s.x*20,s.y*20,18,18)); cx.fillStyle='#f7768e'; cx.fillRect(fd.x*20,fd.y*20,18,18); } document.addEventListener('keydown',(e)=>{if(e.key==='ArrowUp'&&dr.y===0)dr={x:0,y:-1};if(e.key==='ArrowDown'&&dr.y===0)dr={x:0,y:1};if(e.key==='ArrowLeft'&&dr.x===0)dr={x:-1,y:0};if(e.key==='ArrowRight'&&dr.x===0)dr={x:1,y:0};}); setInterval(lp,150); },50); }
+        function openTetris() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><canvas id="tt-c" width="200" height="400" style="border:1px solid #c084fc;"></canvas></div>`; createWindow('🎮 Тетрис', c, 300, 520); }
+        function openMinesweeper() { const c = `<div style="height:100%;display:flex;align-items:center;justify-content:center;"><div style="font-size:48px;">💣</div></div>`; createWindow('💣 Сапёр', c, 300, 400); }
+        function open2048() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:24px;">Счёт: <span id="2048-s">0</span></div><div id="2048-g" style="display:grid;grid-template-columns:repeat(4,60px);gap:5px;"></div></div>`; createWindow('🎯 2048', c, 300, 400); setTimeout(() => { let b = Array(4).fill().map(()=>Array(4).fill(0)), sc = 0; function ar(){const e=[];b.forEach((r,i)=>r.forEach((c,j)=>{if(!c)e.push([i,j]);}));if(e.length){const[i,j]=e[Math.floor(Math.random()*e.length)];b[i][j]=Math.random()<0.9?2:4;}} function rd(){document.getElementById('2048-g').innerHTML='';document.getElementById('2048-s').textContent=sc;b.forEach(r=>r.forEach(c=>{const d=document.createElement('div');d.style.cssText=`width:60px;height:60px;background:${c?'rgba(192,132,252,0.3)':'rgba(255,255,255,0.05)'};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;`;d.textContent=c||'';document.getElementById('2048-g').appendChild(d);}));} function mv(dr){let m=false;for(let i=0;i<4;i++){const l=[];for(let j=0;j<4;j++){const c=dr==='left'?b[i][j]:dr==='right'?b[i][3-j]:dr==='up'?b[j][i]:b[3-j][i];if(c)l.push(c);}while(l.length<4)l.push(0);for(let j=0;j<3;j++)if(l[j]&&l[j]===l[j+1]){l[j]*=2;sc+=l[j];l.splice(j+1,1);l.push(0);m=true;}for(let j=0;j<4;j++){if(dr==='left')b[i][j]=l[j];else if(dr==='right')b[i][3-j]=l[j];else if(dr==='up')b[j][i]=l[j];else b[3-j][i]=l[j];}}if(m){ar();rd();}} document.addEventListener('keydown',(e)=>{if(e.key==='ArrowLeft')mv('left');if(e.key==='ArrowRight')mv('right');if(e.key==='ArrowUp')mv('up');if(e.key==='ArrowDown')mv('down');}); ar();ar();rd(); },50); }
+        function openChess() { const pieces = ['♜','♞','♝','♛','♚','♝','♞','♜','♟','♟','♟','♟','♟','♟','♟','♟','','','','','','','','','','','','','','','','','♙','♙','♙','♙','♙','♙','♙','♙','♖','♘','♗','♕','♔','♗','♘','♖']; const c = `<div style="height:100%;display:flex;align-items:center;justify-content:center;"><div style="display:grid;grid-template-columns:repeat(8,40px);border:2px solid #c084fc;">${pieces.map((p,i)=>{const r=Math.floor(i/8),col=i%8;const dark=(r+col)%2===0;const white=i>=48;return `<div style="width:40px;height:40px;background:${dark?'#1a1a3e':'#e2e8f0'};display:flex;align-items:center;justify-content:center;font-size:25px;color:${white?'#81e6d9':'#f7768e'};">${p}</div>`;}).join('')}</div></div>`; createWindow('♟️ Шахматы', c, 350, 400); }
+        function openTicTacToe() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div id="ttt-g" style="display:grid;grid-template-columns:repeat(3,70px);gap:5px;"></div><div style="margin-top:10px;">Ход: X</div></div>`; createWindow('⭕ Крестики-нолики', c, 300, 350); setTimeout(() => { let b = Array(9).fill(''), t = 'X'; function rd(){document.getElementById('ttt-g').innerHTML='';b.forEach((c,i)=>{const btn=document.createElement('button');btn.style.cssText='width:70px;height:70px;background:rgba(255,255,255,0.05);border:1px solid rgba(192,132,252,0.2);border-radius:8px;font-size:35px;cursor:pointer;color:#e2e8f0;';btn.textContent=c;btn.onclick=()=>{if(!c){b[i]=t;t=t==='X'?'O':'X';rd();}};document.getElementById('ttt-g').appendChild(btn);});} rd(); },50); }
+        function openPong() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><canvas id="pg-c" width="400" height="300" style="border:1px solid #c084fc;"></canvas><div>Счёт: <span id="pg-s">0 : 0</span></div></div>`; createWindow('🏓 Пинг-понг', c, 450, 400); setTimeout(() => { const cv = document.getElementById('pg-c'); const cx = cv.getContext('2d'); let bx=200,by=150,bdx=3,bdy=3,lp=120,rp=120,ls=0,rs=0; function lp2(){bx+=bdx;by+=bdy;if(by<0||by>290)bdy=-bdy;if(bx<20&&by>lp&&by<lp+60){bdx=-bdx;ls++;}if(bx>370&&by>rp&&by<rp+60){bdx=-bdx;rs++;}if(bx<0||bx>400){bx=200;by=150;bdx=-bdx;}cx.clearRect(0,0,400,300);cx.fillStyle='#e2e8f0';cx.fillRect(10,lp,10,60);cx.fillRect(380,rp,10,60);cx.fillStyle='#c084fc';cx.beginPath();cx.arc(bx,by,8,0,Math.PI*2);cx.fill();document.getElementById('pg-s').textContent=ls+' : '+rs;} document.addEventListener('keydown',(e)=>{if(e.key==='w')lp=Math.max(0,lp-20);if(e.key==='s')lp=Math.min(240,lp+20);if(e.key==='ArrowUp')rp=Math.max(0,rp-20);if(e.key==='ArrowDown')rp=Math.min(240,rp+20);}); setInterval(lp2,16); },50); }
+        
+        // Утилиты
+        function openTimer() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:60px;" id="tm-d">00:00</div><button onclick="tmS()" style="background:#c084fc;border:none;color:#0a0a1a;padding:10px 20px;border-radius:6px;cursor:pointer;margin-top:20px;" id="tm-b">▶ Старт</button></div>`; createWindow('⏱️ Таймер', c, 350, 300); let tr = false, ts = 0, ti; window.tmS = function() { tr = !tr; document.getElementById('tm-b').textContent = tr ? '⏸ Пауза' : '▶ Старт'; if (tr) ti = setInterval(() => { ts++; const m = Math.floor(ts/60), s = ts%60; document.getElementById('tm-d').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }, 1000); else clearInterval(ti); }; }
+        function openStopwatch() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:50px;">00:00.00</div><button onclick="notify('⏱️ Секундомер')" style="background:#c084fc;border:none;color:#0a0a1a;padding:10px 20px;border-radius:6px;cursor:pointer;margin-top:20px;">▶</button></div>`; createWindow('⏲️ Секундомер', c, 350, 300); }
+        function openWeather() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:60px;">☀️</div><div style="font-size:24px;margin-top:10px;">+22°C</div><div style="color:#a0aec0;">Солнечно</div></div>`; createWindow('🌤️ Погода', c, 400, 350); }
+        function openTranslator() { const c = `<div style="height:100%;padding:20px;"><textarea style="width:100%;height:100px;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"></textarea><button onclick="notify('🌍 Перевод')" style="width:100%;margin-top:10px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Перевести</button></div>`; createWindow('🌍 Переводчик', c, 400, 400); }
+        function openCurrencyConverter() { const c = `<div style="height:100%;padding:20px;"><input type="number" value="100" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><button onclick="notify('💱 Конвертация')" style="width:100%;margin-top:10px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Конвертировать</button></div>`; createWindow('💱 Конвертер', c, 350, 300); }
+        function openBMICalculator() { const c = `<div style="height:100%;padding:20px;"><input type="number" value="175" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;margin-bottom:10px;"><input type="number" value="70" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><button onclick="notify('⚖️ ИМТ')" style="width:100%;margin-top:10px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Рассчитать</button></div>`; createWindow('⚖️ ИМТ', c, 350, 300); }
+        function openStickyNotes() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><textarea style="flex:1;background:#fef3c7;border:1px solid #f59e0b;color:#78350f;padding:15px;border-radius:8px;font-size:14px;"></textarea></div>`; createWindow('📌 Заметки', c, 350, 350); }
+        function openReminder() { const c = `<div style="height:100%;padding:20px;"><input type="text" placeholder="Напоминание..." style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><button onclick="notify('⏰ Добавлено')" style="width:100%;margin-top:10px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Добавить</button></div>`; createWindow('⏰ Напоминания', c, 400, 300); }
+        function openEmailClient() { const c = `<div style="height:100%;padding:10px;"><div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;">📧 Welcome</div><div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;">📧 Update</div></div>`; createWindow('✉️ Почта', c, 400, 350); }
+        function openDiskAnalyzer() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:18px;">💾 Диск</div><div style="width:100%;height:10px;background:rgba(255,255,255,0.1);border-radius:5px;margin-top:10px;"><div style="width:18%;height:100%;background:#c084fc;border-radius:5px;"></div></div><div style="font-size:12px;color:#a0aec0;">3.5GB из 20GB</div></div>`; createWindow('💾 Диски', c, 400, 300); }
+        function openArchiveManager() { const c = `<div style="height:100%;padding:10px;"><div>📦 backup.tar.gz</div><div>📦 photos.zip</div></div>`; createWindow('📦 Архиватор', c, 400, 300); }
+        function openDatabaseManager() { const c = `<div style="height:100%;padding:20px;"><div style="color:#a0aec0;">🗄️ SQLite</div><div>📊 users</div><div>📊 files</div></div>`; createWindow('🗄️ БД', c, 400, 350); }
+        function openDefragmenter() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;">💿 Дефрагментация</div><div style="width:100%;height:10px;background:rgba(255,255,255,0.1);border-radius:5px;margin-top:10px;"><div style="width:12%;height:100%;background:#c084fc;border-radius:5px;"></div></div><button onclick="notify('💿 Готово')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Начать</button></div>`; createWindow('💿 Дефрагментация', c, 400, 300); }
+        function openSystemUpdate() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;">🔄 Обновление</div><div style="margin-top:10px;">Версия: 7.1.10</div><div>Доступно: 7.1.11</div><button onclick="notify('🔄 Обновлено')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Обновить</button></div>`; createWindow('🔄 Обновление', c, 400, 300); }
+        function openDeviceManager() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;font-weight:bold;margin-bottom:10px;">📡 Устройства</div>${[['💻 CPU','Nova 7.1GHz'],['🧠 RAM','16GB'],['💾 Диск','20GB SSD'],['🎮 GPU','Nova GPU'],['🔊 Звук','Nova Audio'],['📶 Сеть','Ethernet']].map(([i,n]) => `<div style="display:flex;justify-content:space-between;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><span>${i} ${n}</span><span style="color:#81e6d9;">✅</span></div>`).join('')}</div>`; createWindow('📡 Устройства', c, 400, 400); }
+        function openAudioRecorder() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:60px;">🎤</div><button onclick="notify('🎤 Запись')" style="margin-top:20px;background:#f7768e;border:none;color:#fff;padding:15px 20px;border-radius:50%;cursor:pointer;font-size:20px;">⏺</button></div>`; createWindow('🎤 Запись', c, 350, 300); }
+        function openMessenger() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><div style="flex:1;padding:10px;"><div style="padding:8px;background:rgba(192,132,252,0.2);border-radius:8px;margin-bottom:4px;max-width:70%;">Привет!</div></div><div style="display:flex;gap:8px;"><input type="text" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:8px;border-radius:6px;"><button onclick="notify('💬 Отправлено')" style="background:#c084fc;border:none;color:#0a0a1a;padding:8px 14px;border-radius:6px;cursor:pointer;">➤</button></div></div>`; createWindow('💬 Мессенджер', c, 400, 400); }
+        function openTorrent() { const c = `<div style="height:100%;padding:20px;"><div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;"><div>📥 Nova-OS.iso</div><div style="font-size:12px;color:#a0aec0;">45% — 5MB/s</div></div></div>`; createWindow('📥 Торрент', c, 400, 350); }
+        function openRSSReader() { const c = `<div style="height:100%;padding:20px;">${[['📰 Nova News','Обновление 7.1.11'],['🐧 Linux Weekly','Новые дистрибутивы'],['💻 Tech','WebAssembly']].map(([s,t]) => `<div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><div style="font-size:12px;color:#c084fc;">${s}</div><div>${t}</div></div>`).join('')}</div>`; createWindow('📖 RSS', c, 400, 350); }
+        function openPeriodicTable() { const el = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar']; const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;font-weight:bold;margin-bottom:10px;">⚗️ Таблица</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;">${el.map((e,i) => `<div style="padding:8px;background:rgba(192,132,252,0.1);border-radius:4px;text-align:center;"><div style="font-size:12px;font-weight:bold;">${e}</div><div style="font-size:8px;color:#a0aec0;">${i+1}</div></div>`).join('')}</div></div>`; createWindow('⚗️ Таблица', c, 400, 400); }
+        function openUnitConverter() { const c = `<div style="height:100%;padding:20px;"><input type="number" value="1" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><div style="margin-top:15px;padding:15px;background:rgba(0,0,0,0.3);border-radius:6px;text-align:center;font-size:18px;color:#c084fc;">Результат</div></div>`; createWindow('📐 Конвертер', c, 400, 350); }
+        function openGraphCalculator() { const c = `<div style="height:100%;display:flex;flex-direction:column;"><canvas id="gr-c" width="400" height="300" style="border:1px solid #c084fc;flex:1;"></canvas></div>`; createWindow('📈 График', c, 450, 400); setTimeout(() => { const cv = document.getElementById('gr-c'); const cx = cv.getContext('2d'); cx.beginPath(); for (let x=0;x<400;x++){const y=150-Math.sin(x/30)*100;x===0?cx.moveTo(x,y):cx.lineTo(x,y);} cx.strokeStyle='#c084fc';cx.lineWidth=2;cx.stroke(); },50); }
+        function openPasswordManager() { const c = `<div style="height:100%;padding:20px;">${[['🌐 Google','••••••••'],['🌐 GitHub','••••••••']].map(([s,p]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><span>${s}</span><span>${p}</span></div>`).join('')}</div>`; createWindow('🔐 Пароли', c, 400, 350); }
+        function openVPN() { const c = `<div style="height:100%;padding:20px;">${[['🇺🇸 США'],['🇩🇪 Германия'],['🇯🇵 Япония']].map(s => `<div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;">${s}</div>`).join('')}<button onclick="notify('🔒 Подключено')" style="width:100%;margin-top:15px;background:#81e6d9;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Подключиться</button></div>`; createWindow('🔒 VPN', c, 350, 350); }
+        function openMagnifier() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:80px;">🔍</div><input type="range" min="1" max="5" value="2" style="width:80%;margin-top:20px;"></div>`; createWindow('🔍 Лупа', c, 350, 300); }
+        function openSystemCleaner() { const c = `<div style="height:100%;padding:20px;">${[['🗑️ Временные файлы','500MB'],['🗑️ Кэш','1.2GB'],['🗑️ Логи','200MB']].map(([n,s]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:4px;"><span>${n}</span><span>${s}</span></div>`).join('')}<button onclick="notify('🧹 Очищено')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Очистить</button></div>`; createWindow('🧹 Очистка', c, 400, 350); }
+        function openBackup() { const c = `<div style="height:100%;padding:20px;"><div style="font-size:16px;font-weight:bold;">💾 Резервное</div><div style="margin-top:10px;">📁 Документы — 1.2GB</div><div>📁 Изображения — 500MB</div><button onclick="notify('💾 Копия создана')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Создать</button></div>`; createWindow('💾 Резервное', c, 400, 350); }
+        function openPasswordGenerator() { const c = `<div style="height:100%;padding:20px;"><input type="number" value="12" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><button onclick="notify('🔑 Сгенерировано')" style="width:100%;margin-top:15px;background:#c084fc;border:none;color:#0a0a1a;padding:10px;border-radius:6px;cursor:pointer;">Сгенерировать</button></div>`; createWindow('🔑 Пароли', c, 350, 300); }
+        function openQRGenerator() { const c = `<div style="height:100%;padding:20px;"><input type="text" placeholder="Текст..." style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(192,132,252,0.15);color:#e2e8f0;padding:10px;border-radius:6px;"><div style="margin-top:15px;display:flex;justify-content:center;font-size:80px;">📱</div></div>`; createWindow('📱 QR-код', c, 350, 350); }
+        function openMetronome() { const c = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:40px;">🎵</div><input type="range" min="40" max="200" value="120" style="width:80%;margin-top:20px;"><div>120 BPM</div></div>`; createWindow('🎵 Метроном', c, 350, 300); }
+        function openSettings() { const c = `<div style="height:100%;overflow:auto;">${[['🐧 Система','Nova OS 7.1.10 Final'],['🔧 Ядро','7.1.10-nova'],['🌐 Языки','7'],['📱 Приложения','50+']].map(([n,v]) => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:4px;"><span>${n}</span><span style="color:#81e6d9;">${v}</span></div>`).join('')}</div>`; createWindow('⚙️ Настройки', c, 400, 350); }
+        function openTrash() { const c = `<div style="height:100%;display:flex;align-items:center;justify-content:center;"><div style="font-size:60px;">🗑️</div></div>`; createWindow('🗑️ Корзина', c, 400, 300); }
+        function openQuickSettings() { const c = `<div style="height:100%;padding:15px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">${['📶 WiFi','🔵 BT','✈️ Авиа','🌙 Ночь'].map(b => `<button style="padding:15px;background:rgba(192,132,252,0.2);border:none;border-radius:8px;cursor:pointer;">${b}</button>`).join('')}</div>`; createWindow('⚡ Быстрые', c, 300, 250); }
+        function openThemeSettings() { const c = `<div style="height:100%;padding:20px;">${[['Тёмная','#0a0a1a'],['Светлая','#f0f0f0'],['Матрица','#000'],['Океан','#0a192f']].map(([n,bg]) => `<button onclick="document.getElementById('desktop').style.background='${bg}'" style="display:block;width:100%;background:${bg};border:1px solid #c084fc;color:${bg==='#f0f0f0'?'#333':'#e2e8f0'};padding:12px;border-radius:8px;cursor:pointer;margin-bottom:8px;">${n}</button>`).join('')}</div>`; createWindow('🎨 Темы', c, 350, 300); }
+        function openNotificationCenter() { const c = `<div style="height:100%;overflow:auto;">${notifications.length ? notifications.map(n => `<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;margin-bottom:6px;">${n}</div>`).join('') : '<div style="color:#a0aec0;text-align:center;padding:40px;">Нет уведомлений</div>'}</div>`; createWindow('📱 Уведомления', c, 350, 400); }
 
         function showStartMenu() {
             const menu = document.createElement('div');
             menu.className = 'context-menu';
-            menu.style.bottom = '50px'; menu.style.left = '10px'; menu.style.position = 'fixed';
+            menu.style.top = '40px'; menu.style.left = '10px'; menu.style.position = 'fixed';
             const apps = [
-                ['💻 Терминал', openTerminal], ['🌐 Все языки', openCodeEditor],
-                ['📁 Файлы', openFileManager], ['📝 Редактор', openTextEditor],
-                ['🧮 Калькулятор', openCalculator], ['📊 Монитор', openSystemMonitor],
-                ['⚙️ Настройки', openSettings], ['🐍 Змейка', openSnakeGame]
+                ['💻 Терминал', openTerminal], ['📁 Файлы', openFileManager], ['🌐 Браузер', openBrowser],
+                ['⌨️ Код', openCodeEditor], ['📝 Редактор', openTextEditor], ['🧮 Калькулятор', openCalculator],
+                ['🔬 Научный', openScientificCalculator], ['📊 Монитор', openSystemMonitor], ['📅 Календарь', openCalendar],
+                ['🎵 Музыка', openMusicPlayer], ['🎬 Видео', openVideoPlayer], ['🖼️ Изображения', openImageViewer],
+                ['🎨 Редактор', openImageEditor], ['📸 Скриншот', openScreenshot], ['🎮 Тетрис', openTetris],
+                ['💣 Сапёр', openMinesweeper], ['🎯 2048', open2048], ['🐍 Змейка', openSnakeGame],
+                ['♟️ Шахматы', openChess], ['⭕ Крестики', openTicTacToe], ['🏓 Понг', openPong],
+                ['⏱️ Таймер', openTimer], ['⏲️ Секундомер', openStopwatch], ['🌤️ Погода', openWeather],
+                ['🌍 Переводчик', openTranslator], ['💱 Конвертер', openCurrencyConverter], ['⚖️ ИМТ', openBMICalculator],
+                ['📌 Заметки', openStickyNotes], ['⏰ Напоминания', openReminder], ['✉️ Почта', openEmailClient],
+                ['💾 Диски', openDiskAnalyzer], ['📦 Архиватор', openArchiveManager], ['🗄️ БД', openDatabaseManager],
+                ['💿 Дефрагментация', openDefragmenter], ['🔄 Обновление', openSystemUpdate], ['📡 Устройства', openDeviceManager],
+                ['🎤 Запись', openAudioRecorder], ['💬 Мессенджер', openMessenger], ['📥 Торрент', openTorrent],
+                ['📖 RSS', openRSSReader], ['⚗️ Таблица', openPeriodicTable], ['📐 Конвертер', openUnitConverter],
+                ['📈 График', openGraphCalculator], ['🔐 Пароли', openPasswordManager], ['🔒 VPN', openVPN],
+                ['🔍 Лупа', openMagnifier], ['🧹 Очистка', openSystemCleaner], ['💾 Резервное', openBackup],
+                ['🔑 Генератор', openPasswordGenerator], ['📱 QR', openQRGenerator], ['🎵 Метроном', openMetronome],
+                ['⚙️ Настройки', openSettings], ['🗑️ Корзина', openTrash]
             ];
             apps.forEach(([name, action]) => { const btn = document.createElement('button'); btn.textContent = name; btn.onclick = () => { action(); menu.remove(); }; menu.appendChild(btn); });
             document.body.appendChild(menu);
             setTimeout(() => document.addEventListener('click', (e) => { if (!menu.contains(e.target)) menu.remove(); }, { once: true }), 10);
         }
-
-        document.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            const menu = document.createElement('div');
-            menu.className = 'context-menu';
-            menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
-            const items = [['🔄 Обновить', () => location.reload()], ['💻 Терминал', openTerminal], ['🌐 Все языки', openCodeEditor], ['🎨 Обои', changeWallpaper]];
-            items.forEach(([label, action]) => { const btn = document.createElement('button'); btn.textContent = label; btn.onclick = () => { action(); menu.remove(); }; menu.appendChild(btn); });
-            document.body.appendChild(menu);
-            document.addEventListener('click', () => menu.remove(), { once: true });
-        });
 
         function initDesktop() {
             function updateClock() {
@@ -726,27 +431,31 @@
                 document.getElementById('panel-clock').textContent = time;
             }
             setInterval(updateClock, 1000); updateClock();
-            
             const icons = [
-                ['💻', 'Терминал', openTerminal, 20, 20],
-                ['🌐', 'Языки', openCodeEditor, 110, 20],
-                ['📁', 'Файлы', openFileManager, 200, 20],
-                ['📝', 'Редактор', openTextEditor, 290, 20],
-                ['🧮', 'Калькулятор', openCalculator, 380, 20],
-                ['📊', 'Монитор', openSystemMonitor, 470, 20],
-                ['⚙️', 'Настройки', openSettings, 560, 20],
-                ['🐍', 'Змейка', openSnakeGame, 650, 20]
+                ['📁', 'Документы', openFileManager, 20, 20],
+                ['🗑️', 'Корзина', openTrash, 110, 20],
+                ['💻', 'Терминал', openTerminal, 200, 20]
             ];
-            
             icons.forEach(([icon, label, action, x, y]) => {
                 const el = document.createElement('div');
                 el.className = 'desktop-icon';
                 el.style.left = x + 'px'; el.style.top = y + 'px';
                 el.innerHTML = `<div class="icon">${icon}</div><div class="label">${label}</div>`;
-                el.onclick = action; el.ondblclick = action;
+                el.onclick = action;
                 document.getElementById('desktop').appendChild(el);
             });
         }
+
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
+            const items = [['🔄 Обновить', () => location.reload()], ['⚙️ Настройки', openSettings]];
+            items.forEach(([label, action]) => { const btn = document.createElement('button'); btn.textContent = label; btn.onclick = () => { action(); menu.remove(); }; menu.appendChild(btn); });
+            document.body.appendChild(menu);
+            document.addEventListener('click', () => menu.remove(), { once: true });
+        });
 
         bootSystem();
     </script>
