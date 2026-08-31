@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌐 Nova OS v2.0 ULTIMATE</title>
+    <title>🌐 Nova OS v3.0 ULTIMATE</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            background: #0a0a1a; color: #e2e8f0; 
-            font-family: 'Segoe UI', sans-serif; 
+        body {
+            background: #0a0a1a; color: #e2e8f0;
+            font-family: 'Segoe UI', sans-serif;
             height: 100vh; overflow: hidden;
             display: flex; flex-direction: column;
+            transition: background 0.3s;
         }
 
         #boot-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999; display: flex;
             flex-direction: column; align-items: center; justify-content: center;
-            font-family: monospace; color: #00ff00;
+            font-family: 'Courier New', monospace; color: #00ff00;
         }
-        #boot-text { margin-top: 20px; font-size: 14px; white-space: pre-wrap; }
+        #boot-text { margin-top: 20px; font-size: 13px; white-space: pre-wrap; }
 
         #login-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -44,7 +45,7 @@
         #desktop {
             flex: 1; position: relative; overflow: hidden;
             background: radial-gradient(ellipse at center, #1a1a3e, #0a0a1a);
-            display: none;
+            display: none; transition: background 0.5s, opacity 0.2s;
         }
 
         #taskbar {
@@ -52,16 +53,15 @@
             display: none; align-items: center; padding: 0 15px;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
-
         .start-btn {
             background: rgba(100,100,255,0.2); border: 1px solid rgba(100,100,255,0.4);
             color: #a0a0ff; padding: 8px 18px; border-radius: 8px;
             cursor: pointer; font-weight: bold; font-size: 14px;
         }
-        .start-btn:hover { background: rgba(100,100,255,0.4); }
-
-        #taskbar-apps { display: flex; gap: 5px; margin-left: 15px; }
-        #clock { margin-left: auto; color: #a0aec0; font-size: 13px; }
+        #taskbar-apps { display: flex; gap: 5px; margin-left: 15px; overflow-x: auto; }
+        #system-tray { display: flex; gap: 15px; margin-left: auto; align-items: center; }
+        #clock { color: #a0aec0; font-size: 13px; }
+        .tray-icon { cursor: pointer; font-size: 16px; }
 
         .window {
             position: absolute; min-width: 350px; min-height: 250px;
@@ -72,7 +72,6 @@
             animation: winOpen 0.3s ease-out;
         }
         @keyframes winOpen { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-
         .window-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 15px; background: rgba(20,20,40,0.9);
@@ -80,13 +79,8 @@
         }
         .window-title { font-size: 13px; font-weight: 500; }
         .window-controls { display: flex; gap: 8px; }
-        .window-controls button {
-            width: 14px; height: 14px; border-radius: 50%;
-            border: none; cursor: pointer; font-size: 10px;
-        }
-        .close { background: #ff5555; }
-        .minimize { background: #ffb86c; }
-        .maximize { background: #50fa7b; }
+        .window-controls button { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; font-size: 10px; }
+        .close { background: #ff5555; } .minimize { background: #ffb86c; } .maximize { background: #50fa7b; }
         .window-body { flex: 1; padding: 15px; overflow: auto; }
 
         .desktop-icon {
@@ -97,18 +91,14 @@
         }
         .desktop-icon:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
         .desktop-icon .icon { font-size: 35px; }
-        .desktop-icon .label { font-size: 11px; margin-top: 5px; }
+        .desktop-icon .label { font-size: 10px; margin-top: 5px; text-align: center; }
 
         #terminal {
             background: #000; color: #00ff00; font-family: 'Courier New', monospace;
             padding: 12px; border-radius: 10px; height: 100%;
             overflow-y: auto; white-space: pre-wrap; font-size: 13px;
         }
-        #terminal-input {
-            background: transparent; border: none; color: #00ff00;
-            font-family: 'Courier New', monospace; font-size: 13px;
-            outline: none; width: 100%;
-        }
+        #terminal-input { background: transparent; border: none; color: #00ff00; font-family: 'Courier New', monospace; font-size: 13px; outline: none; width: 100%; }
 
         .context-menu {
             position: fixed; background: rgba(15,15,35,0.98);
@@ -121,12 +111,20 @@
             text-align: left; cursor: pointer; border-radius: 6px; font-size: 13px;
         }
         .context-menu button:hover { background: rgba(100,100,255,0.3); }
+
+        .notification-toast {
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(15,15,35,0.98); border: 1px solid rgba(100,100,255,0.4);
+            border-radius: 10px; padding: 15px 20px; z-index: 9999;
+            animation: slideIn 0.3s ease-out; min-width: 250px;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
     <div id="boot-screen">
         <div style="font-size: 50px;">🌐</div>
-        <div style="font-size: 26px; color: #a0a0ff; margin-top: 10px;">Nova OS v2.0 ULTIMATE</div>
+        <div style="font-size: 26px; color: #a0a0ff; margin-top: 10px;">Nova OS v3.0 ULTIMATE</div>
         <div id="boot-text"></div>
     </div>
 
@@ -137,6 +135,7 @@
             <input type="text" id="login-user" class="login-input" placeholder="Логин" value="nova">
             <input type="password" id="login-pass" class="login-input" placeholder="Пароль" value="1234">
             <button class="login-btn" onclick="login()">Войти</button>
+            <div style="margin-top: 10px; font-size: 11px; color: #a0aec0;">nova / 1234</div>
         </div>
     </div>
 
@@ -145,7 +144,13 @@
     <div id="taskbar">
         <button class="start-btn" onclick="toggleStartMenu()">🌐 Пуск</button>
         <div id="taskbar-apps"></div>
-        <div id="clock"></div>
+        <div id="system-tray">
+            <span class="tray-icon" onclick="openQuickSettings()">🔊</span>
+            <span class="tray-icon" onclick="openQuickSettings()">📶</span>
+            <span class="tray-icon" onclick="openQuickSettings()">🔋</span>
+            <span class="tray-icon" onclick="openNotificationCenter()">🔔</span>
+            <div id="clock"></div>
+        </div>
     </div>
 
     <div class="context-menu" id="context-menu"></div>
@@ -153,22 +158,18 @@
     <script>
         // ============ ЗАГРУЗКА ============
         const bootMessages = [
-            'Nova OS BIOS v2.0',
-            'CPU: Web Core @ 5.0GHz',
-            'RAM: 16GB detected',
-            'Loading kernel v2.0...',
-            'Loading 100+ commands...',
-            'Loading themes...',
-            'Loading games...',
-            'Welcome to Nova OS v2.0 ULTIMATE!'
+            'Nova OS BIOS v3.0', 'CPU: Web Core @ 10.0GHz', 'RAM: 32GB detected',
+            'Loading kernel v3.0...', 'Loading 200+ commands...', 'Loading 10+ themes...',
+            'Loading virtual desktops...', 'Loading search...', 'Loading trash...',
+            'Loading device manager...', 'Loading system monitor...',
+            'Welcome to Nova OS v3.0 ULTIMATE!'
         ];
-
         let bootIndex = 0;
         function bootSequence() {
             if (bootIndex < bootMessages.length) {
                 document.getElementById('boot-text').textContent += '[OK] ' + bootMessages[bootIndex] + '\n';
                 bootIndex++;
-                setTimeout(bootSequence, 300);
+                setTimeout(bootSequence, 150);
             } else {
                 setTimeout(() => {
                     document.getElementById('boot-screen').style.display = 'none';
@@ -178,48 +179,65 @@
         }
         bootSequence();
 
-        // ============ СИСТЕМА ============
+        // ============ СИСТЕМНЫЕ ПЕРЕМЕННЫЕ ============
         let currentUser = 'nova';
-        let isRoot = true;
         let currentPath = '/home/nova';
         let zIndex = 100;
-        let terminalLines = [];
-        let currentInput = '';
-        let stats = { commands: 0, filesCreated: 0, hacks: 0 };
+        let notifications = [];
+        let wifiEnabled = true;
+        let bluetoothEnabled = true;
+        let volume = 50;
+        let brightness = 80;
+        let calcExpression = '';
+        let stats = { commands: 0, files: 0, hacks: 0, games: 0, themes: 0 };
         let achievements = [];
+        let trashBin = [];
+        let currentWorkspace = 1;
+        const totalWorkspaces = 4;
+        const startTime = Date.now();
 
         const Themes = {
-            Dark: { bg: '#0a0a1a', text: '#e2e8f0', accent: '#6464ff' },
-            Matrix: { bg: '#000000', text: '#00ff00', accent: '#00ff00' },
-            Ocean: { bg: '#0a192f', text: '#ffffff', accent: '#00c8ff' },
-            Sunset: { bg: '#321010', text: '#ffc896', accent: '#ff6432' },
-            Purple: { bg: '#140028', text: '#ffffff', accent: '#c864ff' },
+            Dark: { bg: '#0a0a1a', accent: '#6464ff' },
+            Matrix: { bg: '#000000', accent: '#00ff00' },
+            Ocean: { bg: '#0a192f', accent: '#00c8ff' },
+            Sunset: { bg: '#321010', accent: '#ff6432' },
+            Purple: { bg: '#140028', accent: '#c864ff' },
+            Forest: { bg: '#0a1a0a', accent: '#50fa7b' },
+            Blood: { bg: '#1a0a0a', accent: '#ff5555' },
+            Gold: { bg: '#1a1400', accent: '#ffb86c' },
+            Ice: { bg: '#0a1a2e', accent: '#8be9fd' },
+            Rose: { bg: '#1a0a14', accent: '#ff79c6' },
         };
-
         let currentTheme = 'Dark';
 
         const FileSystem = {
-            '/home/nova': {
-                type: 'dir',
-                children: {
-                    'Documents': { type: 'dir', children: {} },
-                    'Downloads': { type: 'dir', children: {} },
-                    'readme.txt': { type: 'file', content: 'Welcome to Nova OS v2.0!' },
-                    'secret.txt': { type: 'file', content: '42 is the answer' },
-                }
-            },
-            '/etc': {
-                type: 'dir',
-                children: {
-                    'hostname': { type: 'file', content: 'nova-os' },
-                }
-            }
+            '/home/nova': { type: 'dir', children: {
+                'Documents': { type: 'dir', children: {} },
+                'Downloads': { type: 'dir', children: {} },
+                'Pictures': { type: 'dir', children: {} },
+                'Music': { type: 'dir', children: {} },
+                'Videos': { type: 'dir', children: {} },
+                'readme.txt': { type: 'file', content: 'Welcome to Nova OS v3.0 ULTIMATE!' },
+                'secret.txt': { type: 'file', content: '42 is the answer' },
+            }},
+            '/etc': { type: 'dir', children: { 'hostname': { type: 'file', content: 'nova-os' } } },
+            '/tmp': { type: 'dir', children: {} },
+            '/var': { type: 'dir', children: {} },
         };
 
         const Aliases = {
             'll': 'ls', 'cl': 'clear', 'q': 'exit', 'nf': 'neofetch',
             'st': 'stats', 'ach': 'achievements', 'th': 'theme',
+            'hk': 'hack', 'gl': 'googol', 'qt': 'quantum', 'sn': 'snake',
         };
+
+        const Processes = [
+            { pid: 1, name: 'System', cpu: 2, ram: 150 },
+            { pid: 2, name: 'Terminal', cpu: 5, ram: 80 },
+            { pid: 3, name: 'Desktop', cpu: 10, ram: 250 },
+            { pid: 4, name: 'Browser', cpu: 25, ram: 500 },
+            { pid: 5, name: 'Files', cpu: 3, ram: 100 },
+        ];
 
         // ============ ЛОГИН ============
         function login() {
@@ -230,8 +248,10 @@
                 document.getElementById('desktop').style.display = 'block';
                 document.getElementById('taskbar').style.display = 'flex';
                 initDesktop();
+                showNotification('🌐 Добро пожаловать в Nova OS v3.0 ULTIMATE!');
+                unlockAchievement('Первый запуск');
             } else {
-                alert('Неверный логин или пароль!');
+                showNotification('❌ Неверный логин или пароль');
             }
         }
 
@@ -240,43 +260,50 @@
             createDesktopIcons();
             updateClock();
             setInterval(updateClock, 1000);
-            unlockAchievement('Первый запуск');
+            applyBrightness(brightness);
         }
 
         function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').textContent = 
-                now.toLocaleTimeString('ru-RU') + ' ' + now.toLocaleDateString('ru-RU');
+            document.getElementById('clock').textContent = new Date().toLocaleTimeString('ru-RU');
         }
 
         function createDesktopIcons() {
             const icons = [
                 { icon: '💻', label: 'Терминал', action: openTerminal },
-                { icon: '📁', label: 'Файлы', action: openFiles },
-                { icon: '📝', label: 'Заметки', action: openNotes },
+                { icon: '📁', label: 'Файлы', action: openFileManager },
+                { icon: '📝', label: 'Редактор', action: openTextEditor },
                 { icon: '🧮', label: 'Калькулятор', action: openCalculator },
                 { icon: '🎮', label: 'Змейка', action: openSnake },
-                { icon: '📊', label: 'Монитор', action: openMonitor },
+                { icon: '📊', label: 'Задачи', action: openTaskManager },
+                { icon: '📈', label: 'Монитор', action: openSystemMonitor },
+                { icon: '📡', label: 'Устройства', action: openDeviceManager },
                 { icon: '🎨', label: 'Темы', action: openThemes },
+                { icon: '🌐', label: 'Браузер', action: openBrowser },
+                { icon: '📅', label: 'Календарь', action: openCalendar },
+                { icon: '⚙️', label: 'Настройки', action: openSettings },
+                { icon: '🎵', label: 'Музыка', action: openMusicPlayer },
+                { icon: '🗑️', label: 'Корзина', action: openTrash },
+                { icon: '🔒', label: 'Блокировка', action: lockScreen },
             ];
             icons.forEach((item, i) => {
                 const el = document.createElement('div');
                 el.className = 'desktop-icon';
-                el.style.left = (20 + i * 90) + 'px';
-                el.style.top = '20px';
+                el.style.left = (20 + (i % 5) * 85) + 'px';
+                el.style.top = (20 + Math.floor(i / 5) * 85) + 'px';
                 el.innerHTML = `<div class="icon">${item.icon}</div><div class="label">${item.label}</div>`;
                 el.onclick = item.action;
-                el.ondblclick = item.action;
                 document.getElementById('desktop').appendChild(el);
             });
         }
 
         // ============ ОКНА ============
-        function createWindow(title, content) {
+        function createWindow(title, content, width = 400, height = 300) {
             const win = document.createElement('div');
             win.className = 'window';
-            win.style.left = (50 + Math.random() * 200) + 'px';
-            win.style.top = (30 + Math.random() * 100) + 'px';
+            win.style.width = width + 'px';
+            win.style.height = height + 'px';
+            win.style.left = (50 + Math.random() * 150) + 'px';
+            win.style.top = (30 + Math.random() * 80) + 'px';
             win.style.zIndex = ++zIndex;
             win.innerHTML = `
                 <div class="window-header">
@@ -290,24 +317,17 @@
                 <div class="window-body">${content}</div>
             `;
             document.getElementById('desktop').appendChild(win);
-            
             const taskBtn = document.createElement('button');
             taskBtn.textContent = title;
-            taskBtn.style.cssText = 'background:rgba(100,100,255,0.2);border:1px solid rgba(100,100,255,0.3);color:#e2e8f0;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;';
+            taskBtn.style.cssText = 'background:rgba(100,100,255,0.2);border:1px solid rgba(100,100,255,0.3);color:#e2e8f0;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;white-space:nowrap;';
             document.getElementById('taskbar-apps').appendChild(taskBtn);
-            
             win.querySelector('.close').onclick = () => { win.remove(); taskBtn.remove(); };
             win.querySelector('.minimize').onclick = () => { win.style.display = 'none'; };
             win.querySelector('.maximize').onclick = function() {
-                if (win.style.width === '100%') {
-                    win.style.width = '400px'; win.style.height = '300px';
-                } else {
-                    win.style.width = '100%'; win.style.height = '100%';
-                    win.style.left = '0'; win.style.top = '0';
-                }
+                if (win.style.width === '100%') { win.style.width = width + 'px'; win.style.height = height + 'px'; }
+                else { win.style.width = '100%'; win.style.height = '100%'; win.style.left = '0'; win.style.top = '0'; }
             };
             taskBtn.onclick = () => { win.style.display = win.style.display === 'none' ? 'block' : 'none'; };
-            
             makeDraggable(win);
             return win;
         }
@@ -327,190 +347,365 @@
 
         // ============ ТЕРМИНАЛ ============
         function openTerminal() {
-            const win = createWindow('💻 Терминал', `
-                <div id="terminal">
-                    <div>Nova OS Terminal v2.0 — 100+ команд</div>
-                    <div>Type 'help' for commands</div>
-                    <div><span style="color:#a0a0ff;">${currentUser}@nova-os:${currentPath}$</span> <input id="terminal-input" type="text" placeholder=""></div>
-                </div>
-            `);
+            const win = createWindow('💻 Терминал', `<div id="terminal"><div>Nova OS Terminal v3.0 — 200+ команд</div><div>Type 'help' for commands</div><div><span style="color:#a0a0ff;">${currentUser}@nova-os:~$</span> <input id="terminal-input" type="text"></div></div>`, 500, 350);
             const input = win.querySelector('#terminal-input');
             input.focus();
             input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    executeCommand(input.value, win);
-                    input.value = '';
-                }
+                if (e.key === 'Tab') { e.preventDefault(); input.value = autoCompleteTerminal(input.value); }
+                if (e.key === 'Enter') { executeCommand(input.value, win); input.value = ''; }
             });
+        }
+
+        function autoCompleteTerminal(input) {
+            const commands = ['help','ls','cd','pwd','cat','mkdir','touch','rm','echo','clear','neofetch','stats','achievements','theme','hack','googol','quantum','matrix','snake','whoami','date','uptime','df','free','ps','top','uname','settings','tasks','calendar','lock','workspace','screenshot','search','trash','devices','monitor','editor','music','images','video'];
+            const matches = commands.filter(c => c.startsWith(input));
+            if (matches.length === 1) return matches[0] + ' ';
+            if (matches.length > 1 && matches.length <= 10) showNotification('💡 ' + matches.join(', '));
+            return input;
         }
 
         function executeCommand(cmd, win) {
             stats.commands++;
             const terminal = win.querySelector('#terminal');
             const parts = cmd.trim().split(' ');
-            const command = parts[0].toLowerCase();
+            let command = parts[0].toLowerCase();
+            if (Aliases[command]) command = Aliases[command];
             const args = parts.slice(1);
-            
             let output = '';
-            
+
             switch(command) {
-                case 'help': output = 'ls, cd, pwd, cat, mkdir, touch, rm, echo, clear, neofetch, stats, achievements, theme, hack, googol, quantum, matrix, snake, whoami, date, uptime, df, free'; break;
-                case 'ls': {
-                    const node = FileSystem[currentPath];
-                    output = Object.keys(node.children || {}).join('  ');
-                    break;
-                }
+                case 'help': output = 'ls, cd, pwd, cat, mkdir, touch, rm, echo, clear, neofetch, stats, achievements, theme, hack, googol, quantum, matrix, snake, whoami, date, uptime, df, free, ps, top, uname, settings, tasks, calendar, lock, workspace, screenshot, search, trash, devices, monitor, editor, music, images, video'; break;
+                case 'ls': output = Object.keys(FileSystem[currentPath].children || {}).join('  ') || '(empty)'; break;
                 case 'pwd': output = currentPath; break;
-                case 'cd': {
-                    if (!args[0] || args[0] === '~') currentPath = '/home/nova';
-                    else output = '❌ Directory not found';
-                    break;
-                }
-                case 'cat': {
-                    const node = FileSystem[currentPath];
-                    if (node.children[args[0]]) output = node.children[args[0]].content || '';
-                    else output = '❌ File not found';
-                    break;
-                }
-                case 'mkdir': {
-                    FileSystem[currentPath].children[args[0]] = { type: 'dir', children: {} };
-                    stats.filesCreated++;
-                    output = '✅ Created: ' + args[0];
-                    break;
-                }
-                case 'touch': {
-                    FileSystem[currentPath].children[args[0]] = { type: 'file', content: '' };
-                    stats.filesCreated++;
-                    output = '✅ Created: ' + args[0];
-                    break;
-                }
-                case 'rm': {
-                    delete FileSystem[currentPath].children[args[0]];
-                    output = '✅ Deleted';
-                    break;
-                }
+                case 'cd': currentPath = args[0] === '~' || !args[0] ? '/home/nova' : currentPath; break;
+                case 'cat': output = FileSystem[currentPath].children[args[0]]?.content || 'File not found'; break;
+                case 'mkdir': FileSystem[currentPath].children[args[0]] = {type:'dir',children:{}}; stats.files++; output = 'Created'; break;
+                case 'touch': FileSystem[currentPath].children[args[0]] = {type:'file',content:''}; stats.files++; output = 'Created'; break;
+                case 'rm': trashBin.push(args[0]); delete FileSystem[currentPath].children[args[0]]; output = 'Moved to trash'; break;
                 case 'echo': output = args.join(' '); break;
                 case 'clear': terminal.innerHTML = ''; return;
-                case 'neofetch': output = '🌐 OS: Nova OS v2.0\n   Kernel: 2.0\n   CPU: Web Core @ 5.0GHz\n   RAM: 16GB'; break;
+                case 'neofetch': output = '🌐 Nova OS v3.0 ULTIMATE\nKernel: 3.0\nCPU: Web Core @ 10GHz\nRAM: 32GB\nGPU: WebGL'; break;
                 case 'whoami': output = currentUser; break;
                 case 'date': output = new Date().toString(); break;
-                case 'uptime': output = 'Uptime: ' + Math.floor((Date.now() - startTime) / 1000) + 's'; break;
-                case 'df': output = '💾 /dev/web 16GB 4GB 12GB 25% /'; break;
-                case 'free': output = '🧠 Total: 16GB | Used: 4GB | Free: 12GB'; break;
-                case 'stats': output = `📊 Commands: ${stats.commands}\n   Files: ${stats.filesCreated}\n   Hacks: ${stats.hacks}`; break;
-                case 'achievements': output = achievements.length ? achievements.join('\n') : 'No achievements'; break;
-                case 'theme': {
-                    if (Themes[args[0]]) {
-                        currentTheme = args[0];
-                        applyTheme(args[0]);
-                        output = '🎨 Theme: ' + args[0];
-                    } else output = '❌ Themes: Dark, Matrix, Ocean, Sunset, Purple';
-                    break;
-                }
-                case 'hack': {
-                    stats.hacks++;
-                    unlockAchievement('Хакер');
-                    output = '🚀 HACKING...\n[+] Bypassing...\n✅ HACKED!';
-                    break;
-                }
-                case 'googol': output = '⚛️ ' + '1' + '0'.repeat(100); break;
-                case 'quantum': output = '⚛️ Superposition: 0 and 1 simultaneously'; break;
-                case 'matrix': output = 'Wake up, Neo...\nThe Matrix has you...'; break;
-                case 'snake': output = '🐍 Snake game loaded! (coming soon)'; break;
-                default: output = '❌ Command not found: ' + command;
+                case 'uptime': output = 'Uptime: ' + Math.floor((Date.now()-startTime)/1000) + 's'; break;
+                case 'df': output = '/dev/web 32GB 8GB 24GB 25%'; break;
+                case 'free': output = 'Total: 32GB | Used: 8GB | Free: 24GB'; break;
+                case 'ps': output = Processes.map(p => `PID ${p.pid} | ${p.name}`).join('\n'); break;
+                case 'top': output = 'CPU: ' + Math.floor(Math.random()*100) + '% | RAM: ' + Math.floor(Math.random()*100) + '%'; break;
+                case 'uname': output = 'Nova OS v3.0 (Web)'; break;
+                case 'stats': output = `Commands: ${stats.commands}\nFiles: ${stats.files}\nHacks: ${stats.hacks}\nGames: ${stats.games}\nThemes: ${stats.themes}`; break;
+                case 'achievements': output = achievements.join('\n') || 'No achievements'; break;
+                case 'theme': if (Themes[args[0]]) { currentTheme = args[0]; applyTheme(args[0]); stats.themes++; output = 'Theme: ' + args[0]; } else output = 'Themes: ' + Object.keys(Themes).join(', '); break;
+                case 'hack': stats.hacks++; unlockAchievement('Хакер'); output = '🚀 HACKING...\n[+] Bypassing...\n✅ HACKED!'; break;
+                case 'googol': output = '⚛️ 1' + '0'.repeat(100); break;
+                case 'quantum': output = '⚛️ Superposition'; break;
+                case 'matrix': output = 'Wake up, Neo...'; break;
+                case 'snake': stats.games++; output = '🐍 Snake loaded!'; break;
+                case 'settings': openSettings(); output = 'Opening...'; break;
+                case 'tasks': openTaskManager(); output = 'Opening...'; break;
+                case 'calendar': openCalendar(); output = 'Opening...'; break;
+                case 'lock': lockScreen(); output = 'Locking...'; break;
+                case 'workspace': switchWorkspace(1); output = 'Switching workspace'; break;
+                case 'screenshot': takeScreenshot(); output = 'Screenshot taken'; break;
+                case 'search': openSearch(); output = 'Opening search...'; break;
+                case 'trash': openTrash(); output = 'Opening trash...'; break;
+                case 'devices': openDeviceManager(); output = 'Opening...'; break;
+                case 'monitor': openSystemMonitor(); output = 'Opening...'; break;
+                case 'editor': openTextEditor(); output = 'Opening...'; break;
+                case 'music': openMusicPlayer(); output = 'Opening...'; break;
+                case 'images': openImageViewer(); output = 'Opening...'; break;
+                case 'video': openVideoPlayer(); output = 'Opening...'; break;
+                default: output = 'Command not found: ' + command;
             }
-            
-            if (output) {
-                terminal.innerHTML += `<div style="color:#a0a0ff;">${currentUser}@nova-os:${currentPath}$ ${cmd}</div>`;
-                terminal.innerHTML += `<div style="white-space:pre-wrap;">${output}</div>`;
-                terminal.innerHTML += `<div><span style="color:#a0a0ff;">${currentUser}@nova-os:${currentPath}$</span> <input id="terminal-input" type="text"></div>`;
-                terminal.scrollTop = terminal.scrollHeight;
-                const newInput = terminal.querySelector('#terminal-input:last-child');
-                newInput.focus();
-                newInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') { executeCommand(newInput.value, win); newInput.value = ''; }
-                });
-            }
+
+            terminal.innerHTML += `<div style="color:#a0a0ff;">${currentUser}@nova-os:~$ ${cmd}</div>`;
+            if (output) terminal.innerHTML += `<div style="white-space:pre-wrap;">${output}</div>`;
+            terminal.innerHTML += `<div><span style="color:#a0a0ff;">${currentUser}@nova-os:~$</span> <input id="terminal-input" type="text"></div>`;
+            terminal.scrollTop = terminal.scrollHeight;
+            const newInput = terminal.querySelector('#terminal-input:last-child');
+            newInput.focus();
+            newInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab') { e.preventDefault(); newInput.value = autoCompleteTerminal(newInput.value); }
+                if (e.key === 'Enter') { executeCommand(newInput.value, win); newInput.value = ''; }
+            });
         }
 
-        // ============ ДОСТИЖЕНИЯ ============
-        function unlockAchievement(name) {
-            if (!achievements.includes(name)) {
-                achievements.push('🏆 ' + name);
-                showNotification('🏆 Достижение: ' + name);
-            }
-        }
-
+        // ============ УВЕДОМЛЕНИЯ ============
         function showNotification(msg) {
             const n = document.createElement('div');
-            n.style.cssText = 'position:fixed;top:20px;right:20px;background:rgba(15,15,35,0.95);border:1px solid rgba(100,100,255,0.4);border-radius:10px;padding:15px 20px;z-index:9999;';
+            n.className = 'notification-toast';
             n.textContent = msg;
             document.body.appendChild(n);
+            notifications.push({msg, time: new Date()});
             setTimeout(() => n.remove(), 3000);
         }
 
-        // ============ ТЕМЫ ============
-        function applyTheme(name) {
-            const theme = Themes[name];
-            document.body.style.background = theme.bg;
-            document.body.style.color = theme.text;
-            document.getElementById('desktop').style.background = `radial-gradient(ellipse at center, ${theme.bg}, #0a0a1a)`;
-            showNotification('🎨 Тема: ' + name);
+        function openNotificationCenter() {
+            createWindow('🔔 Уведомления', `
+                <div style="max-height:300px;overflow-y:auto;">
+                    ${notifications.length ? notifications.map(n => `
+                        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;margin-bottom:5px;">
+                            ${n.msg}
+                            <div style="font-size:10px;color:#a0aec0;">${n.time.toLocaleTimeString()}</div>
+                        </div>
+                    `).join('') : '<div style="color:#a0aec0;text-align:center;padding:20px;">Нет уведомлений</div>'}
+                </div>
+            `, 350, 300);
         }
 
-        // ============ ПРИЛОЖЕНИЯ ============
-        function openFiles() {
-            createWindow('📁 Файлы', `<div id="files-list"></div>`);
+        // ============ БЫСТРЫЕ НАСТРОЙКИ ============
+        function openQuickSettings() {
+            createWindow('⚡ Быстрые настройки', `
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+                    <button onclick="toggleWifi()" style="padding:15px;background:${wifiEnabled ? 'rgba(100,255,100,0.2)' : 'rgba(255,100,100,0.2)'};border:none;border-radius:8px;cursor:pointer;color:#e2e8f0;">📶 WiFi: ${wifiEnabled ? 'Вкл' : 'Выкл'}</button>
+                    <button onclick="toggleBluetooth()" style="padding:15px;background:${bluetoothEnabled ? 'rgba(100,255,100,0.2)' : 'rgba(255,100,100,0.2)'};border:none;border-radius:8px;cursor:pointer;color:#e2e8f0;">🔵 BT: ${bluetoothEnabled ? 'Вкл' : 'Выкл'}</button>
+                    <div style="grid-column:span 2;">
+                        <div>🔊 Громкость: <span id="vol-val">${volume}%</span></div>
+                        <input type="range" min="0" max="100" value="${volume}" oninput="setVolume(this.value)" style="width:100%;">
+                    </div>
+                    <div style="grid-column:span 2;">
+                        <div>🔆 Яркость: <span id="bright-val">${brightness}%</span></div>
+                        <input type="range" min="20" max="100" value="${brightness}" oninput="setBrightness(this.value)" style="width:100%;">
+                    </div>
+                </div>
+            `, 350, 300);
         }
 
-        function openNotes() {
-            createWindow('📝 Заметки', `<textarea style="width:100%;height:200px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;padding:10px;border-radius:8px;" placeholder="Заметка..."></textarea>`);
+        function toggleWifi() { wifiEnabled = !wifiEnabled; showNotification('📶 WiFi ' + (wifiEnabled ? 'включён' : 'выключен')); }
+        function toggleBluetooth() { bluetoothEnabled = !bluetoothEnabled; showNotification('🔵 Bluetooth ' + (bluetoothEnabled ? 'включён' : 'выключен')); }
+        function setVolume(val) { volume = val; const el = document.getElementById('vol-val'); if (el) el.textContent = val + '%'; }
+        function setBrightness(val) { brightness = val; const el = document.getElementById('bright-val'); if (el) el.textContent = val + '%'; applyBrightness(val); }
+        function applyBrightness(val) { document.getElementById('desktop').style.filter = `brightness(${val/100})`; }
+
+        // ============ ДИСПЕТЧЕР ЗАДАЧ ============
+        function openTaskManager() {
+            createWindow('📊 Диспетчер задач', `
+                <div style="display:grid;grid-template-columns:60px 1fr 70px 70px;gap:5px;font-size:12px;font-weight:bold;padding:5px;background:rgba(255,255,255,0.05);border-radius:5px;">
+                    <div>PID</div><div>Имя</div><div>CPU</div><div>RAM</div>
+                </div>
+                ${Processes.map(p => `
+                    <div style="display:grid;grid-template-columns:60px 1fr 70px 70px;gap:5px;font-size:12px;padding:8px 5px;border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div>${p.pid}</div><div>${p.name}</div><div>${p.cpu}%</div><div>${p.ram}MB</div>
+                    </div>
+                `).join('')}
+            `, 450, 300);
         }
 
+        // ============ СИСТЕМНЫЙ МОНИТОРИНГ ============
+        function openSystemMonitor() {
+            createWindow('📈 Системный мониторинг', `<canvas id="cpu-graph" width="400" height="100" style="width:100%;"></canvas><canvas id="mem-graph" width="400" height="100" style="width:100%;margin-top:10px;"></canvas><div id="monitor-stats" style="margin-top:10px;"></div>`, 450, 350);
+            setTimeout(() => {
+                const cpuCanvas = document.getElementById('cpu-graph');
+                const memCanvas = document.getElementById('mem-graph');
+                const cpuCtx = cpuCanvas.getContext('2d');
+                const memCtx = memCanvas.getContext('2d');
+                let cpuData = [], memData = [];
+                function updateGraphs() {
+                    cpuData.push(Math.random() * 100); memData.push(Math.random() * 100);
+                    if (cpuData.length > 50) cpuData.shift();
+                    if (memData.length > 50) memData.shift();
+                    cpuCtx.clearRect(0, 0, cpuCanvas.width, cpuCanvas.height);
+                    cpuCtx.beginPath();
+                    cpuData.forEach((v, i) => { const x = i * 8, y = 100 - v; i === 0 ? cpuCtx.moveTo(x, y) : cpuCtx.lineTo(x, y); });
+                    cpuCtx.strokeStyle = '#6464ff'; cpuCtx.lineWidth = 2; cpuCtx.stroke();
+                    memCtx.clearRect(0, 0, memCanvas.width, memCanvas.height);
+                    memCtx.beginPath();
+                    memData.forEach((v, i) => { const x = i * 8, y = 100 - v; i === 0 ? memCtx.moveTo(x, y) : memCtx.lineTo(x, y); });
+                    memCtx.strokeStyle = '#50fa7b'; memCtx.lineWidth = 2; memCtx.stroke();
+                    document.getElementById('monitor-stats').innerHTML = `CPU: ${cpuData[cpuData.length-1].toFixed(1)}% | RAM: ${memData[memData.length-1].toFixed(1)}%`;
+                }
+                setInterval(updateGraphs, 1000);
+                updateGraphs();
+            }, 100);
+        }
+
+        // ============ ДИСПЕТЧЕР УСТРОЙСТВ ============
+        function openDeviceManager() {
+            createWindow('📡 Диспетчер устройств', `
+                ${[['💻','Процессор','Web Core @ 10GHz'],['🧠','Память','32GB'],['💾','Диск','256GB SSD'],['🎮','GPU','WebGL'],['🔊','Звук','Web Audio'],['📶','Сеть','WiFi'],['⌨️','Клавиатура','Стандартная'],['🖱️','Мышь','Оптическая'],['🖥️','Монитор','1920x1080']].map(([d,n,s]) => `
+                    <div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:5px;">
+                        <span>${d} ${n}</span><span style="color:#50fa7b;">${s}</span>
+                    </div>
+                `).join('')}
+            `, 450, 400);
+        }
+
+        // ============ НАСТРОЙКИ ============
+        function openSettings() {
+            createWindow('⚙️ Настройки', `
+                ${[['🌐 Система','Nova OS v3.0 ULTIMATE'],['🔧 Версия','3.0.0'],['💻 Архитектура','Web x64'],['🧠 Память','32GB'],['💾 Диск','256GB SSD'],['👤 Пользователь',currentUser],['🎨 Тема',currentTheme],['🔊 Звук',volume+'%'],['📶 WiFi',wifiEnabled?'Вкл':'Выкл'],['🔵 Bluetooth',bluetoothEnabled?'Вкл':'Выкл'],['🔆 Яркость',brightness+'%'],['🛡️ Безопасность','Высокая']].map(([k,v]) => `
+                    <div style="display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:5px;">
+                        <span>${k}</span><span style="color:#a0a0ff;">${v}</span>
+                    </div>
+                `).join('')}
+            `, 400, 450);
+        }
+
+        // ============ ФАЙЛОВЫЙ МЕНЕДЖЕР ============
+        function openFileManager() {
+            const files = Object.keys(FileSystem[currentPath].children || {});
+            createWindow('📁 Файлы', `
+                <div style="display:flex;gap:5px;margin-bottom:10px;">
+                    <button onclick="fileAction('mkdir')" style="background:rgba(100,100,255,0.2);border:none;color:#e2e8f0;padding:5px 10px;border-radius:5px;cursor:pointer;">📁 Папка</button>
+                    <button onclick="fileAction('touch')" style="background:rgba(100,100,255,0.2);border:none;color:#e2e8f0;padding:5px 10px;border-radius:5px;cursor:pointer;">📄 Файл</button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;">
+                    ${files.map(f => `
+                        <div style="text-align:center;background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;cursor:pointer;">
+                            <div style="font-size:25px;">${FileSystem[currentPath].children[f].type === 'dir' ? '📁' : '📄'}</div>
+                            <div style="font-size:10px;margin-top:5px;">${f}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `, 450, 300);
+        }
+
+        function fileAction(action) {
+            const name = prompt('Имя:');
+            if (name) {
+                if (action === 'mkdir') FileSystem[currentPath].children[name] = {type:'dir',children:{}};
+                else FileSystem[currentPath].children[name] = {type:'file',content:''};
+                stats.files++;
+                showNotification('✅ Создано: ' + name);
+            }
+        }
+
+        // ============ ТЕКСТОВЫЙ РЕДАКТОР ============
+        function openTextEditor() {
+            createWindow('📝 Текстовый редактор', `
+                <div style="display:flex;gap:5px;margin-bottom:10px;">
+                    <input type="text" id="filename" value="file.txt" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(100,100,255,0.3);color:white;padding:5px 10px;border-radius:5px;">
+                    <button onclick="saveFile()" style="background:rgba(100,100,255,0.2);border:none;color:#e2e8f0;padding:5px 10px;border-radius:5px;cursor:pointer;">💾</button>
+                </div>
+                <textarea id="editor-content" style="width:100%;height:250px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;padding:10px;border-radius:8px;font-family:monospace;" placeholder="Текст..."></textarea>
+            `, 500, 400);
+        }
+
+        function saveFile() {
+            const name = document.getElementById('filename').value;
+            const content = document.getElementById('editor-content').value;
+            FileSystem[currentPath].children[name] = {type: 'file', content: content};
+            showNotification('💾 Сохранено: ' + name);
+        }
+
+        // ============ КАЛЬКУЛЯТОР ============
         function openCalculator() {
             createWindow('🧮 Калькулятор', `
+                <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;text-align:right;font-size:28px;margin-bottom:10px;" id="calc-display">0</div>
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-                    ${['7','8','9','÷','4','5','6','×','1','2','3','−','0','.','=','+'].map(b => 
-                        `<button style="padding:15px;background:rgba(100,100,255,0.2);border:none;color:#e2e8f0;border-radius:8px;cursor:pointer;font-size:18px;" onclick="this.textContent">${b}</button>`
-                    ).join('')}
+                    ${['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','=','⌫'].map(b => `<button onclick="calcPress('${b}')" style="padding:15px;background:rgba(100,100,255,0.2);border:none;color:#e2e8f0;border-radius:8px;cursor:pointer;font-size:18px;">${b}</button>`).join('')}
                 </div>
-            `);
+            `, 300, 350);
         }
 
-        function openSnake() {
-            createWindow('🎮 Змейка', `<canvas id="snake-canvas" width="300" height="300" style="border:1px solid #6464ff;border-radius:8px;"></canvas>`);
+        function calcPress(btn) {
+            const display = document.getElementById('calc-display');
+            if (!display) return;
+            if (btn === 'C') { calcExpression = ''; display.textContent = '0'; return; }
+            if (btn === '⌫') { calcExpression = calcExpression.slice(0,-1); display.textContent = calcExpression || '0'; return; }
+            if (btn === '=') { try { calcExpression = String(eval(calcExpression.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-'))); display.textContent = calcExpression; } catch { display.textContent = 'Ошибка'; calcExpression = ''; } return; }
+            calcExpression += btn; display.textContent = calcExpression;
         }
 
-        function openMonitor() {
-            createWindow('📊 Монитор', `<canvas id="monitor-canvas" width="300" height="150"></canvas>`);
+        // ============ КАЛЕНДАРЬ ============
+        function openCalendar() {
+            const now = new Date();
+            const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+            createWindow('📅 Календарь', `<div style="text-align:center;"><div style="font-size:20px;color:#a0a0ff;">${months[now.getMonth()]} ${now.getFullYear()}</div><div style="font-size:48px;margin:20px;">${now.getDate()}</div><div style="color:#a0aec0;">${now.toLocaleDateString('ru-RU',{weekday:'long'})}</div></div>`, 300, 250);
         }
 
-        function openThemes() {
-            createWindow('🎨 Темы', `
-                ${Object.keys(Themes).map(t => 
-                    `<button onclick="applyTheme('${t}')" style="display:block;width:100%;background:${Themes[t].bg};border:1px solid ${Themes[t].accent};color:${Themes[t].text};padding:12px;border-radius:8px;cursor:pointer;margin-bottom:8px;">${t}</button>`
-                ).join('')}
-            `);
+        // ============ БЛОКИРОВКА ============
+        function lockScreen() {
+            const lock = document.createElement('div');
+            lock.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9997;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+            lock.innerHTML = `
+                <div style="font-size:50px;">🔒</div>
+                <div style="font-size:20px;margin:20px;">Заблокировано</div>
+                <input type="password" placeholder="Пароль" id="lock-pass" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:10px;border-radius:8px;outline:none;text-align:center;">
+                <button onclick="if(document.getElementById('lock-pass').value==='1234')this.closest('div').remove();else alert('Неверный пароль!')" style="margin-top:10px;background:#6464ff;border:none;color:white;padding:10px 20px;border-radius:8px;cursor:pointer;">Разблокировать</button>
+            `;
+            document.body.appendChild(lock);
         }
 
-        // ============ МЕНЮ ============
+        // ============ ТЕМЫ ============
+        function applyTheme(name) { const theme = Themes[name]; document.getElementById('desktop').style.background = `radial-gradient(ellipse at center, ${theme.bg}, #0a0a1a)`; showNotification('🎨 Тема: ' + name); }
+        function openThemes() { createWindow('🎨 Темы', Object.keys(Themes).map(t => `<button onclick="currentTheme='${t}';applyTheme('${t}');stats.themes++;" style="display:block;width:100%;background:${Themes[t].bg};border:1px solid ${Themes[t].accent};color:white;padding:12px;border-radius:8px;cursor:pointer;margin-bottom:8px;">${t}</button>`).join(''), 300, 400); }
+
+        // ============ РАБОЧИЕ СТОЛЫ ============
+        function switchWorkspace(dir) { currentWorkspace = Math.max(1, Math.min(totalWorkspaces, currentWorkspace + dir)); const desktop = document.getElementById('desktop'); desktop.style.opacity = '0'; setTimeout(() => { desktop.style.opacity = '1'; showNotification('🖥️ Рабочий стол ' + currentWorkspace + ' из ' + totalWorkspaces); }, 200); }
+
+        // ============ СКРИНШОТ ============
+        function takeScreenshot() { showNotification('📸 Скриншот сохранён!'); }
+
+        // ============ ПОИСК ============
+        function openSearch() {
+            const search = document.createElement('div');
+            search.style.cssText = 'position:fixed;top:20%;left:50%;transform:translateX(-50%);background:rgba(15,15,35,0.98);border:1px solid rgba(100,100,255,0.4);border-radius:15px;padding:20px;z-index:9999;width:400px;';
+            search.innerHTML = `<input type="text" placeholder="🔍 Поиск..." style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(100,100,255,0.3);color:white;padding:12px;border-radius:8px;font-size:16px;outline:none;" id="search-input"><div id="search-results" style="margin-top:10px;max-height:300px;overflow-y:auto;"></div>`;
+            document.body.appendChild(search);
+            document.getElementById('search-input').focus();
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const apps = ['Терминал','Файлы','Редактор','Калькулятор','Змейка','Диспетчер задач','Мониторинг','Устройства','Темы','Браузер','Календарь','Настройки','Музыка','Корзина'];
+                const results = apps.filter(a => a.toLowerCase().includes(query));
+                document.getElementById('search-results').innerHTML = results.map(r => `<div style="padding:10px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:5px;cursor:pointer;">${r}</div>`).join('') || '<div style="color:#a0aec0;">Ничего не найдено</div>';
+            });
+            document.addEventListener('click', (e) => { if (!search.contains(e.target)) search.remove(); }, {once: true});
+        }
+
+        // ============ КОРЗИНА ============
+        function openTrash() { createWindow('🗑️ Корзина', `<div style="max-height:300px;overflow-y:auto;">${trashBin.length ? trashBin.map(f => `<div style="padding:10px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:5px;">🗑️ ${f}</div>`).join('') : '<div style="color:#a0aec0;text-align:center;padding:20px;">Корзина пуста</div>'}</div>`, 350, 350); }
+
+        // ============ МУЗЫКА ============
+        function openMusicPlayer() { createWindow('🎵 Музыка', `<div style="text-align:center;"><div style="font-size:60px;">🎵</div><div style="font-size:18px;margin:10px;">Nova Theme</div><div style="display:flex;gap:10px;justify-content:center;margin-top:20px;"><button style="background:rgba(100,100,255,0.2);border:none;color:white;padding:10px 20px;border-radius:8px;cursor:pointer;">⏮</button><button onclick="this.textContent=this.textContent==='▶'?'⏸':'▶'" style="background:#6464ff;border:none;color:white;padding:15px 25px;border-radius:50%;cursor:pointer;font-size:20px;">▶</button><button style="background:rgba(100,100,255,0.2);border:none;color:white;padding:10px 20px;border-radius:8px;cursor:pointer;">⏭</button></div></div>`, 350, 350); }
+
+        // ============ ИЗОБРАЖЕНИЯ ============
+        function openImageViewer() { createWindow('🖼️ Изображения', `<div style="text-align:center;"><div style="font-size:100px;">🖼️</div><div style="color:#a0aec0;margin-top:10px;">Нет изображений</div></div>`, 350, 300); }
+
+        // ============ ВИДЕО ============
+        function openVideoPlayer() { createWindow('🎬 Видео', `<div style="text-align:center;"><div style="font-size:80px;">🎬</div><div style="color:#a0aec0;margin-top:10px;">Видео плеер</div></div>`, 400, 300); }
+
+        // ============ ПРОЧИЕ ============
+        function openNotes() { createWindow('📝 Заметки', '<textarea style="width:100%;height:200px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;padding:10px;border-radius:8px;" placeholder="Заметка..."></textarea>', 350, 300); }
+        function openSnake() { createWindow('🎮 Змейка', '<canvas width="300" height="300" style="border:1px solid #6464ff;border-radius:8px;"></canvas>', 350, 400); }
+        function openBrowser() { createWindow('🌐 Браузер', '<iframe src="https://example.com" style="width:100%;height:300px;border:none;border-radius:8px;"></iframe>', 500, 400); }
+        function openAbout() { createWindow('ℹ️ О системе', `<div style="text-align:center;"><div style="font-size:60px;">🌐</div><div style="font-size:24px;color:#a0a0ff;margin:10px;">Nova OS v3.0 ULTIMATE</div><div style="color:#a0aec0;">Версия: 3.0.0</div><div style="color:#a0aec0;">Полноценная веб-ОС</div></div>`, 350, 300); }
+        function checkForUpdates() { showNotification('🔄 Проверка обновлений...'); setTimeout(() => showNotification('✅ Система обновлена'), 2000); }
+
+        // ============ ДОСТИЖЕНИЯ ============
+        function unlockAchievement(name) { if (!achievements.includes('🏆 ' + name)) { achievements.push('🏆 ' + name); showNotification('🏆 Достижение: ' + name); } }
+
+        // ============ МЕНЮ ПУСК ============
         function toggleStartMenu() {
             const menu = document.getElementById('context-menu');
             menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
             menu.style.left = '10px'; menu.style.bottom = '55px';
             menu.innerHTML = `
                 <button onclick="openTerminal();closeMenu()">💻 Терминал</button>
-                <button onclick="openFiles();closeMenu()">📁 Файлы</button>
-                <button onclick="openNotes();closeMenu()">📝 Заметки</button>
+                <button onclick="openFileManager();closeMenu()">📁 Файлы</button>
+                <button onclick="openTextEditor();closeMenu()">📝 Редактор</button>
                 <button onclick="openCalculator();closeMenu()">🧮 Калькулятор</button>
                 <button onclick="openSnake();closeMenu()">🎮 Змейка</button>
-                <button onclick="openMonitor();closeMenu()">📊 Монитор</button>
+                <button onclick="openTaskManager();closeMenu()">📊 Диспетчер задач</button>
+                <button onclick="openSystemMonitor();closeMenu()">📈 Мониторинг</button>
+                <button onclick="openDeviceManager();closeMenu()">📡 Устройства</button>
                 <button onclick="openThemes();closeMenu()">🎨 Темы</button>
+                <button onclick="openBrowser();closeMenu()">🌐 Браузер</button>
+                <button onclick="openCalendar();closeMenu()">📅 Календарь</button>
+                <button onclick="openSettings();closeMenu()">⚙️ Настройки</button>
+                <button onclick="openQuickSettings();closeMenu()">⚡ Быстрые настройки</button>
+                <button onclick="openNotificationCenter();closeMenu()">🔔 Уведомления</button>
+                <button onclick="openMusicPlayer();closeMenu()">🎵 Музыка</button>
+                <button onclick="openTrash();closeMenu()">🗑️ Корзина</button>
+                <button onclick="openAbout();closeMenu()">ℹ️ О системе</button>
+                <button onclick="checkForUpdates();closeMenu()">🔄 Обновления</button>
+                <button onclick="lockScreen();closeMenu()">🔒 Блокировка</button>
             `;
         }
 
         function closeMenu() { document.getElementById('context-menu').style.display = 'none'; }
 
+        // ============ КОНТЕКСТНОЕ МЕНЮ ============
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             const menu = document.getElementById('context-menu');
@@ -520,7 +715,11 @@
             menu.innerHTML = `
                 <button onclick="location.reload()">🔄 Обновить</button>
                 <button onclick="openTerminal()">💻 Терминал</button>
+                <button onclick="openFileManager()">📁 Файлы</button>
                 <button onclick="openThemes()">🎨 Темы</button>
+                <button onclick="openQuickSettings()">⚡ Быстрые настройки</button>
+                <button onclick="openSearch()">🔍 Поиск</button>
+                <button onclick="lockScreen()">🔒 Блокировка</button>
             `;
         });
 
@@ -529,7 +728,27 @@
             if (!menu.contains(e.target)) menu.style.display = 'none';
         });
 
-        const startTime = Date.now();
+        // ============ ГОРЯЧИЕ КЛАВИШИ ============
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key === 'Tab') { e.preventDefault(); const wins = document.querySelectorAll('.window'); if (wins.length > 0) wins[wins.length - 1].style.zIndex = ++zIndex; }
+            if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveState(); showNotification('💾 Сохранено'); }
+            if (e.ctrlKey && e.altKey && e.key === 'Delete') { openTaskManager(); }
+            if (e.ctrlKey && e.key === ' ') { e.preventDefault(); openSearch(); }
+            if (e.ctrlKey && e.key === 'l') { e.preventDefault(); lockScreen(); }
+            if (e.key === 'F11') { e.preventDefault(); if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+        });
+
+        // ============ СОХРАНЕНИЕ ============
+        function saveState() {
+            try {
+                localStorage.setItem('nova-theme', currentTheme);
+                localStorage.setItem('nova-stats', JSON.stringify(stats));
+                localStorage.setItem('nova-achievements', JSON.stringify(achievements));
+                localStorage.setItem('nova-volume', volume);
+                localStorage.setItem('nova-brightness', brightness);
+            } catch(e) {}
+        }
+        setInterval(saveState, 30000);
     </script>
 </body>
 </html>
